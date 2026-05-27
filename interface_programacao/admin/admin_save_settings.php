@@ -26,7 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkboxes = [
         'allow_registrations',
         'maintenance_mode',
+        'sms_enabled',
+        'google_auth_enabled',
         'automation_enabled',
+        'automation_sms_alerts',
         'automation_kyc_reminders',
         'automation_mentor_reminders',
         'automation_project_reminders',
@@ -59,7 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'site_name', 'admin_email', 'allow_registrations', 
                 'maintenance_mode', 'ai_model', 'gemini_api_key', 
                 'platform_fee_percent', 'currency_code', 'platform_iban',
+                'session_idle_timeout_minutes',
+                'sms_enabled', 'sms_provider', 'sms_sender', 'sms_api_key', 'sms_custom_endpoint',
+                'google_auth_enabled', 'google_client_id', 'google_client_secret', 'google_redirect_uri',
                 'automation_enabled',
+                'automation_sms_alerts',
                 'automation_kyc_reminders', 'automation_kyc_hours',
                 'automation_mentor_reminders', 'automation_mentor_hours',
                 'automation_project_reminders', 'automation_project_hours',
@@ -74,8 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
 
             if (in_array($key, $allowed_keys)) {
-                if (substr($key, -6) === '_hours' || substr($key, -5) === '_days' || $key === 'automation_archive_notifications_days') {
+                if (substr($key, -6) === '_hours' || substr($key, -5) === '_days' || $key === 'automation_archive_notifications_days' || $key === 'session_idle_timeout_minutes') {
                     $value = (string)max(1, (int)$value);
+                }
+                if ($key === 'session_idle_timeout_minutes') {
+                    $value = (string)max(5, min(1440, (int)$value));
+                }
+                if ($key === 'sms_provider' && !in_array($value, ['simulation', 'brevo', 'custom_http'], true)) {
+                    $value = 'simulation';
                 }
                 $stmt->execute([$key, $value]);
             }

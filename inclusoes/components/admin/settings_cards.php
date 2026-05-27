@@ -61,6 +61,11 @@
                 <span class="slider-premium danger"></span>
             </label>
         </div>
+
+        <div class="input-group-premium" style="margin-top: 1.25rem;">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 1px;">Expirar sessao inativa apos minutos</label>
+            <input type="number" min="5" max="1440" name="session_idle_timeout_minutes" value="<?= htmlspecialchars($settings['session_idle_timeout_minutes'] ?? '30') ?>" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none; transition: 0.3s; font-size: 0.9rem;">
+        </div>
     </article>
 
     <!-- AI Brain -->
@@ -118,6 +123,94 @@
         </div>
     </article>
 
+    <!-- Messaging Infrastructure -->
+    <article class="admin-card-premium" style="border: 1px solid rgba(59, 130, 246, 0.18); background: linear-gradient(135deg, rgba(59, 130, 246, 0.045), rgba(15, 23, 42, 0.25));">
+        <header style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
+            <div style="width: 42px; height: 42px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #60a5fa;">
+                <i class="fas fa-sms"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 1rem; color: #fff;">Mensagens SMS</h3>
+                <p style="margin: 0; font-size: 0.7rem; color: rgba(96, 165, 250, 0.45);">Provedor, remetente e modo de envio.</p>
+            </div>
+        </header>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 16px; margin-bottom: 1rem; border: 1px solid var(--surface-3);">
+            <div>
+                <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">Envio SMS ativo</div>
+                <div style="font-size: 0.7rem; color: var(--surface-40);">Desliga todos os envios reais.</div>
+            </div>
+            <label class="toggle-switch-premium">
+                <input type="checkbox" name="sms_enabled" value="1" <?= ($settings['sms_enabled'] ?? '0') == '1' ? 'checked' : '' ?>>
+                <span class="slider-premium"></span>
+            </label>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="input-group-premium">
+                <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Provedor</label>
+                <select name="sms_provider" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none;">
+                    <option value="simulation" <?= ($settings['sms_provider'] ?? 'simulation') == 'simulation' ? 'selected' : '' ?>>Simulacao</option>
+                    <option value="brevo" <?= ($settings['sms_provider'] ?? '') == 'brevo' ? 'selected' : '' ?>>Brevo SMS</option>
+                    <option value="custom_http" <?= ($settings['sms_provider'] ?? '') == 'custom_http' ? 'selected' : '' ?>>API HTTP personalizada</option>
+                </select>
+            </div>
+            <div class="input-group-premium">
+                <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Remetente</label>
+                <input type="text" maxlength="16" name="sms_sender" value="<?= htmlspecialchars($settings['sms_sender'] ?? 'KALIYE') ?>" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none;">
+            </div>
+        </div>
+
+        <div class="input-group-premium" style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Chave API SMS</label>
+            <input type="password" name="sms_api_key" value="<?= htmlspecialchars($settings['sms_api_key'] ?? '') ?>" placeholder="Guardar chave Brevo ou futura API" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none;">
+        </div>
+
+        <div class="input-group-premium">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Endpoint API personalizada</label>
+            <input type="url" name="sms_custom_endpoint" value="<?= htmlspecialchars($settings['sms_custom_endpoint'] ?? '') ?>" placeholder="https://api.exemplo.com/sms" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none; font-size: 0.85rem;">
+        </div>
+    </article>
+
+    <!-- Google OAuth -->
+    <article class="admin-card-premium" style="border: 1px solid rgba(234, 179, 8, 0.18); background: linear-gradient(135deg, rgba(234, 179, 8, 0.04), rgba(15, 23, 42, 0.25));">
+        <header style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
+            <div style="width: 42px; height: 42px; background: rgba(234, 179, 8, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fbbf24;">
+                <i class="fab fa-google"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 1rem; color: #fff;">Cadastro com Google</h3>
+                <p style="margin: 0; font-size: 0.7rem; color: rgba(251, 191, 36, 0.45);">OAuth, entrada rapida e perfil pendente.</p>
+            </div>
+        </header>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 16px; margin-bottom: 1rem; border: 1px solid var(--surface-3);">
+            <div>
+                <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">Google ativo</div>
+                <div style="font-size: 0.7rem; color: var(--surface-40);">Mostra os botoes de entrada/cadastro.</div>
+            </div>
+            <label class="toggle-switch-premium">
+                <input type="checkbox" name="google_auth_enabled" value="1" <?= ($settings['google_auth_enabled'] ?? '0') == '1' ? 'checked' : '' ?>>
+                <span class="slider-premium"></span>
+            </label>
+        </div>
+
+        <div class="input-group-premium" style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Google Client ID</label>
+            <input type="text" name="google_client_id" value="<?= htmlspecialchars($settings['google_client_id'] ?? '') ?>" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none;">
+        </div>
+
+        <div class="input-group-premium" style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Google Client Secret</label>
+            <input type="password" name="google_client_secret" value="<?= htmlspecialchars($settings['google_client_secret'] ?? '') ?>" placeholder="••••••••••••" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none;">
+        </div>
+
+        <div class="input-group-premium">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem;">Redirect URI autorizado no Google</label>
+            <input type="url" name="google_redirect_uri" value="<?= htmlspecialchars($settings['google_redirect_uri'] ?? '') ?>" placeholder="https://teu-dominio.com/autenticacao/google_callback.php" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none; font-size: 0.85rem;">
+        </div>
+    </article>
+
     <!-- Automation Center -->
     <article class="admin-card-premium" style="grid-column: 1 / -1; border: 1px solid rgba(20, 184, 166, 0.18); background: linear-gradient(135deg, rgba(20, 184, 166, 0.05), rgba(15, 23, 42, 0.35));">
         <header style="display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 2rem;">
@@ -154,6 +247,19 @@
                 </div>
                 <div style="margin-top: 1rem; color: rgba(255,255,255,0.35); font-size: 0.7rem; line-height: 1.5;">
                     Última execução: <?= htmlspecialchars($settings['automation_last_run_at'] ?? 'ainda não executada') ?>
+                </div>
+            </div>
+
+            <div style="padding: 1rem; background: rgba(59, 130, 246, 0.025); border: 1px solid rgba(59,130,246,0.1); border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                    <div>
+                        <div style="font-weight: 800; color: #fff; font-size: 0.9rem;">Alertas SMS para admins</div>
+                        <div style="color: rgba(255,255,255,0.4); font-size: 0.72rem; margin-top: 0.2rem;">Usa o provedor SMS configurado para filas urgentes.</div>
+                    </div>
+                    <label class="toggle-switch-premium">
+                        <input type="checkbox" name="automation_sms_alerts" value="1" <?= ($settings['automation_sms_alerts'] ?? '0') == '1' ? 'checked' : '' ?>>
+                        <span class="slider-premium"></span>
+                    </label>
                 </div>
             </div>
 

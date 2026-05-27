@@ -122,6 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['email_verified'] = filter_var($row['is_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
                 $_SESSION['is_email_verified'] = $_SESSION['email_verified'];
                 $_SESSION['is_verified'] = ($row['verification_status'] === 'verified');
+                $_SESSION['last_activity_at'] = time();
 
                 // Recolha de telemetria e informações do dispositivo para segurança.
                 require_once __DIR__ . '/../../inclusoes/DeviceDetector.php';

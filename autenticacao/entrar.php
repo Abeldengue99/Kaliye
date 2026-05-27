@@ -472,6 +472,13 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
         <?php endif; ?>
 
         <!-- Formulário principal de autenticação que envia para a API -->
+        <?php if (isset($_GET['msg']) && $_GET['msg'] == 'session_expired'): ?>
+            <div class="alerta alerta-aviso">
+                <i class="fas fa-clock"></i>
+                A tua sessÃ£o expirou por inatividade. Entra novamente para continuar.
+            </div>
+        <?php endif; ?>
+
         <form class="formulario-auth" id="formularioLogin" action="../interface_programacao/auth/login_action.php" method="POST">
 
             <!-- Campo de email com ícone de envelope integrado -->

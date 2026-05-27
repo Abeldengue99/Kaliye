@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../configuracoes/base_dados.php';
+require_once __DIR__ . '/SimpleSMS.php';
 
 class AdminAutomation {
     private PDO $db;
@@ -208,6 +209,7 @@ class AdminAutomation {
 
             if (!$dryRun) {
                 $this->notifyAdmins($title, $content . ' - ' . ($row['full_name'] ?? ('#' . $entityId)), 'automation', 'administracao/' . $link);
+                $this->notifyAdminsBySms($type, $title, $row['full_name'] ?? ('#' . $entityId));
             }
 
             $actions[] = ['type' => $type, 'label' => $title . ': ' . ($row['full_name'] ?? ($entityLabel . ' #' . $entityId))];
@@ -226,6 +228,34 @@ class AdminAutomation {
         $stmt = $this->db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?, $unreadValue, NOW())");
         foreach ($admins as $adminId) {
             $stmt->execute([(int)$adminId, $this->actorId, $title, $content, $type, $link]);
+        }
+    }
+
+    private function notifyAdminsBySms(string $type, string $title, string $entityName): void {
+        if (!$this->enabled('automation_sms_alerts', false) || !$this->enabled('sms_enabled', false) || !$this->tableExists('users')) {
+            return;
+        }
+
+        $urgentTypes = ['support_unread', 'investment_pending', 'kyc_pending', 'mentor_pending'];
+        if (!in_array($type, $urgentTypes, true)) {
+            return;
+        }
+
+        $phoneColumn = $this->firstExistingColumn('users', ['phone', 'phone_number', 'telefone', 'telemovel', 'whatsapp']);
+        if ($phoneColumn === null) {
+            return;
+        }
+
+        $stmt = $this->db->query("SELECT $phoneColumn AS phone FROM users WHERE user_type IN ('admin', 'superadmin') AND $phoneColumn IS NOT NULL AND $phoneColumn <> '' LIMIT 10");
+        $phones = $stmt ? $stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+        if (!$phones) {
+            return;
+        }
+
+        $sms = new SimpleSMS($this->db);
+        $message = 'KALIYE Admin: ' . $title . ' - ' . $entityName;
+        foreach ($phones as $phone) {
+            $sms->send($phone, $message);
         }
     }
 
@@ -305,6 +335,16 @@ class AdminAutomation {
         $stmt = $this->db->prepare("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ? AND column_name = ?)");
         $stmt->execute([$table, $column]);
         return (bool)$stmt->fetchColumn();
+    }
+
+    private function firstExistingColumn(string $table, array $columns): ?string {
+        foreach ($columns as $column) {
+            if ($this->columnExists($table, $column)) {
+                return $column;
+            }
+        }
+
+        return null;
     }
 
     private function columnDataType(string $table, string $column): ?string {

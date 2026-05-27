@@ -1,10 +1,85 @@
 <?php
 // includes/auth_check.php
 require_once __DIR__ . '/security_headers.php';
+require_once __DIR__ . '/SystemSettings.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
+
+function requestExpectsJson(): bool {
+    $accept = strtolower($_SERVER['HTTP_ACCEPT'] ?? '');
+    $requestedWith = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '');
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+
+    return strpos($accept, 'application/json') !== false
+        || $requestedWith === 'xmlhttprequest'
+        || strpos($script, '/interface_programacao/') !== false;
+}
+
+function configuredSessionIdleTimeoutSeconds(): int {
+    static $timeout = null;
+    if ($timeout !== null) {
+        return $timeout;
+    }
+
+    $minutes = 30;
+    try {
+        $db = (new Database())->getConnection();
+        if ($db) {
+            $minutes = (int)(getSystemSetting($db, 'session_idle_timeout_minutes', '30') ?? '30');
+        }
+    } catch (Throwable $e) {
+        error_log('Session timeout setting lookup failed: ' . $e->getMessage());
+    }
+
+    $timeout = max(5, min(1440, $minutes)) * 60;
+    return $timeout;
+}
+
+function endSessionForInactivity(): void {
+    $_SESSION = [];
+
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
+
+    session_destroy();
+
+    if (requestExpectsJson()) {
+        http_response_code(401);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'session_expired' => true,
+            'message' => 'A sua sessao expirou por inatividade. Inicie sessao novamente.'
+        ]);
+        exit();
+    }
+
+    $prefix = isset($GLOBALS['base_url']) ? $GLOBALS['base_url'] : '';
+    header('Location: ' . $prefix . 'autenticacao/entrar.php?msg=session_expired');
+    exit();
+}
+
+function enforceIdleSessionTimeout(): void {
+    if (!isset($_SESSION['user_id'])) {
+        return;
+    }
+
+    $now = time();
+    $lastActivity = (int)($_SESSION['last_activity_at'] ?? $now);
+    $timeout = configuredSessionIdleTimeoutSeconds();
+
+    if (($now - $lastActivity) > $timeout) {
+        endSessionForInactivity();
+    }
+
+    $_SESSION['last_activity_at'] = $now;
+}
+
+enforceIdleSessionTimeout();
 
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
