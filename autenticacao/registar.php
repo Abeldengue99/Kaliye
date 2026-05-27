@@ -20,6 +20,15 @@ $site_name_stmt = $db->query("SELECT setting_value FROM settings WHERE setting_k
 // Armazena o nome buscado ou usa 'KALIYE' se não encontrar nada
 $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
 
+$google_auth_enabled = false;
+try {
+    $google_auth_enabled_raw = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'google_auth_enabled'")->fetchColumn();
+    $google_client_id = trim((string)$db->query("SELECT setting_value FROM settings WHERE setting_key = 'google_client_id'")->fetchColumn());
+    $google_auth_enabled = in_array(strtolower((string)$google_auth_enabled_raw), ['1', 'true', 't', 'yes', 'y', 'on'], true) && $google_client_id !== '';
+} catch (Throwable $e) {
+    $google_auth_enabled = false;
+}
+
 if (!systemSettingEnabled($db, 'allow_registrations', true)) {
     http_response_code(403);
     $safe_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
@@ -383,6 +392,29 @@ if (isset($_SESSION['user_id'])) {
         }
         .link-entrar a:hover { opacity: 0.8; }
 
+        .botao-google {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            font-size: 0.94rem;
+            font-weight: 800;
+            transition: all 0.25s;
+            margin-bottom: 1.25rem;
+        }
+        .botao-google:hover {
+            border-color: rgba(247,148,29,0.45);
+            background: rgba(247,148,29,0.08);
+            transform: translateY(-1px);
+        }
+
         /* ===== RESPONSIVE PARA ECRÃS PEQUENOS ===== */
         @media (max-width: 960px) {
             .painel-esquerdo { display: none; }
@@ -458,6 +490,13 @@ if (isset($_SESSION['user_id'])) {
         <p class="subtitulo-formulario">Junta-te a +500 membros que já fazem parte da comunidade KALIYE.</p>
 
         <!-- Alerta de erro que aparece se o registo falhar por algum motivo -->
+        <?php if ($google_auth_enabled): ?>
+            <a class="botao-google" href="google_iniciar.php?mode=register">
+                <i class="fab fa-google"></i>
+                Criar conta com Google
+            </a>
+        <?php endif; ?>
+
         <?php if (isset($_GET['error'])): ?>
             <div class="alerta-erro">
                 <i class="fas fa-exclamation-circle"></i>

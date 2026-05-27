@@ -81,6 +81,54 @@ function enforceIdleSessionTimeout(): void {
 
 enforceIdleSessionTimeout();
 
+function currentRequestPath(): string {
+    return str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+}
+
+function currentRequestIsProfileCompletionAllowed(): bool {
+    $path = currentRequestPath();
+    $allowed = [
+        '/paginas/conta/completar_perfil.php',
+        '/interface_programacao/auth/complete_google_profile.php',
+        '/autenticacao/sair.php',
+    ];
+
+    foreach ($allowed as $suffix) {
+        if (substr($path, -strlen($suffix)) === $suffix) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function enforceGoogleProfileCompletion(): void {
+    if (empty($_SESSION['user_id']) || empty($_SESSION['google_profile_incomplete'])) {
+        return;
+    }
+
+    if (currentRequestIsProfileCompletionAllowed()) {
+        return;
+    }
+
+    if (requestExpectsJson()) {
+        http_response_code(403);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'profile_incomplete' => true,
+            'message' => 'Complete o perfil antes de continuar.'
+        ]);
+        exit();
+    }
+
+    $prefix = isset($GLOBALS['base_url']) ? $GLOBALS['base_url'] : '';
+    header('Location: ' . $prefix . 'paginas/conta/completar_perfil.php');
+    exit();
+}
+
+enforceGoogleProfileCompletion();
+
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }

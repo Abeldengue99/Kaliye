@@ -19,6 +19,15 @@ $site_name_stmt = $db->query("SELECT setting_value FROM settings WHERE setting_k
 // Usa o nome guardado ou o valor por defeito caso não exista
 $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
 
+$google_auth_enabled = false;
+try {
+    $google_auth_enabled_raw = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'google_auth_enabled'")->fetchColumn();
+    $google_client_id = trim((string)$db->query("SELECT setting_value FROM settings WHERE setting_key = 'google_client_id'")->fetchColumn());
+    $google_auth_enabled = in_array(strtolower((string)$google_auth_enabled_raw), ['1', 'true', 't', 'yes', 'y', 'on'], true) && $google_client_id !== '';
+} catch (Throwable $e) {
+    $google_auth_enabled = false;
+}
+
 // Se o utilizador já tem sessão iniciada, redireccioná-lo para o feed
 if (isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -295,6 +304,28 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
         }
         .alternancia-auth a:hover { opacity: 0.8; }
 
+        .botao-google {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            font-size: 0.92rem;
+            font-weight: 700;
+            transition: all 0.25s;
+        }
+        .botao-google:hover {
+            border-color: rgba(247,148,29,0.45);
+            background: rgba(247,148,29,0.08);
+            transform: translateY(-1px);
+        }
+
         /* ===== PAINEL DIREITO — INFORMATIVO ===== */
         .painel-direito {
             width: 460px; flex-shrink: 0;
@@ -527,6 +558,14 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
 
         <!-- Divisor visual entre o formulário e a opção de registo -->
         <div class="divisor">ou</div>
+
+        <?php if ($google_auth_enabled): ?>
+            <a class="botao-google" href="google_iniciar.php?mode=login">
+                <i class="fab fa-google"></i>
+                Entrar com Google
+            </a>
+            <div style="height: 1rem;"></div>
+        <?php endif; ?>
 
         <!-- Link para criar uma nova conta de utilizador -->
         <div class="alternancia-auth">
