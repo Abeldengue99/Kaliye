@@ -1,0 +1,898 @@
+﻿/* ═══════════════════════════════════════════════════════════════════
+   index_feed.css — Layout Premium do Feed Principal (Pós-Login)
+   KALIYE | Versão 2026-Elite
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────
+   1. CANVAS PRINCIPAL DO DASHBOARD
+   Define o container máximo e o padding global
+   da página após o login.
+────────────────────────────────────────────── */
+.platform-index-canvas {
+    max-width: 1440px;     /* Largura máxima do conteúdo da página */
+    margin: 0 auto;        /* Centra horizontalmente */
+    padding: 1rem 2rem 6rem; /* Espaçamento: cima | lados | baixo */
+}
+
+/* ──────────────────────────────────────────────
+   2. SECÇÃO DO TICKER DE ANÚNCIOS NO DASHBOARD
+   Envolve o ticker da landing reutilizado aqui,
+   adicionando espaçamento e visual premium.
+────────────────────────────────────────────── */
+.feed-ads-section {
+    margin: 2.5rem 0;      /* Espaço respirado acima e abaixo */
+    position: relative;    /* Necessário para o pseudo-elemento de brilho */
+}
+
+/* Linha decorativa acima e abaixo da secção de anúncios */
+.feed-ads-section::before,
+.feed-ads-section::after {
+    content: '';
+    display: block;
+    height: 1px;
+    /* Gradiente horizontal que vai de transparente para laranja e volta */
+    background: linear-gradient(90deg, transparent, rgba(247,148,29,0.25), transparent);
+    margin: 1.5rem 0;      /* Espaçamento da linha decorativa */
+}
+
+/* Label flutuante "PUBLICIDADE" sobre o ticker */
+.feed-ads-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6rem;           /* Tamanho pequeno para ser discreto */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2); /* Cor subtil para não distrair */
+    margin-bottom: 0.75rem;       /* Espaço até ao ticker */
+    padding-left: 4px;
+}
+
+#dynamic-feed-zone {
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+#dynamic-feed-zone.is-soft-loading {
+    opacity: 0.58;
+    pointer-events: none;
+    transform: translateY(4px);
+}
+
+.feed-filter-loading {
+    position: sticky;
+    top: 92px;
+    z-index: 20;
+    width: fit-content;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid rgba(247,148,29,0.28);
+    border-radius: 999px;
+    background: rgba(13,22,40,0.92);
+    color: rgba(255,255,255,0.82);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.26);
+    font-size: 0.78rem;
+    font-weight: 850;
+    pointer-events: none;
+}
+
+.feed-filter-loading i {
+    color: #f7941d;
+}
+
+/* ──────────────────────────────────────────────
+   Feed discovery header
+────────────────────────────────────────────── */
+.feed-command-center {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    background: rgba(13, 22, 40, 0.72);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+}
+
+.feed-inline-filters {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.feed-inline-filters .filter-group {
+    margin: 0;
+}
+
+.feed-inline-filters .filter-group label {
+    margin-bottom: 0.55rem;
+    color: rgba(255,255,255,0.42);
+    letter-spacing: 1.4px;
+}
+
+.feed-inline-filters .filter-group select {
+    min-height: 42px;
+    padding: 0 0.85rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    background-color: rgba(255,255,255,0.035);
+}
+
+.feed-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #22c55e;
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+}
+
+.feed-command-copy h2 {
+    color: #fff;
+    font-size: clamp(1.45rem, 2.2vw, 2.25rem);
+    line-height: 1.05;
+    margin: 0 0 0.45rem;
+    font-weight: 950;
+}
+
+.feed-command-copy p {
+    color: rgba(255,255,255,0.58);
+    margin: 0;
+    max-width: 660px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.feed-quick-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.feed-quick-tabs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.72);
+    border-radius: 999px;
+    min-height: 34px;
+    padding: 0 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 850;
+    cursor: pointer;
+    text-decoration: none;
+    gap: 0.45rem;
+}
+
+.feed-quick-tabs a:hover,
+.feed-quick-tabs a.active {
+    border-color: rgba(247,148,29,0.58);
+    color: #101827;
+    background: linear-gradient(135deg, #f7941d, #fbbf24);
+    box-shadow: 0 12px 28px rgba(247,148,29,0.16);
+}
+
+.feed-hot-strip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0 1rem;
+    padding: 0.85rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(250,204,21,0.08), rgba(13,22,40,0.72));
+    border: 1px solid rgba(250,204,21,0.12);
+}
+
+.feed-hot-strip__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #facc15;
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    padding: 0 0.35rem;
+}
+
+.feed-hot-strip__items {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.feed-hot-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 42px;
+    padding: 0 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.035);
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    min-width: 0;
+}
+
+.feed-hot-item:hover {
+    border-color: rgba(247,148,29,0.35);
+    background: rgba(255,255,255,0.06);
+}
+
+.feed-hot-item strong {
+    color: #facc15;
+    font-size: 0.76rem;
+    font-weight: 950;
+}
+
+.feed-hot-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.feed-hot-item em {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: rgba(255,255,255,0.62);
+    font-size: 0.7rem;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.feed-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin: 1.5rem 0 0.8rem;
+}
+
+.feed-results-header strong {
+    display: block;
+    color: #fff;
+    font-size: 1.05rem;
+    margin-top: 0.25rem;
+}
+
+.feed-results-header > span {
+    color: rgba(255,255,255,0.38);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.feed-empty-state button {
+    border: 0;
+    min-height: 42px;
+    padding: 0 1rem;
+    border-radius: 10px;
+    background: #f7941d;
+    color: #111827;
+    font-weight: 950;
+    cursor: pointer;
+}
+
+.feed-empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.025);
+    border-radius: 16px;
+    border: 1px dashed rgba(255,255,255,0.09);
+}
+
+.feed-empty-state i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--elite-orange);
+}
+
+.feed-empty-state h3 {
+    color: #fff;
+    margin: 0 0 0.4rem;
+}
+
+.feed-empty-state p {
+    margin: 0 auto 1.1rem;
+    max-width: 420px;
+}
+
+/* ──────────────────────────────────────────────
+   3. FEED PRINCIPAL
+   Estrutura simplificada do dashboard pos-login.
+────────────────────────────────────────────── */
+.platform-dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin-top: 2rem;
+}
+
+#feed-content {
+    min-width: 0;
+    width: 100%;
+}
+
+/* ──────────────────────────────────────────────
+   5. CABEÇALHO DO FEED & FILTROS (ELITE)
+   Organização elegante de descrição e pesquisa.
+────────────────────────────────────────────── */
+.feed-header-premium {
+    position: relative;
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.filter-trigger-btn {
+    background: rgba(247, 148, 29, 0.1);
+    border: 1px solid rgba(247, 148, 29, 0.2);
+    color: var(--elite-orange);
+    padding: 0.8rem 1.8rem;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.4s;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+.filter-trigger-btn:hover {
+    background: var(--elite-orange);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(247, 148, 29, 0.25);
+}
+
+.feed-filter-dropdown {
+    position: relative;
+}
+.filter-dropdown-content {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 320px;
+    padding: 2.5rem;
+    border-radius: 24px;
+    z-index: 2000;
+    display: none;
+    animation: slideDownFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(13, 22, 40, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+.filter-dropdown-content.show {
+    display: block;
+}
+
+@keyframes slideDownFade {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-group {
+    margin-bottom: 2.2rem;
+}
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: var(--surface-40);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1.2rem;
+}
+.filter-group select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: #fff;
+    padding: 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    outline: none;
+}
+.filter-group select:hover { border-color: rgba(255,255,255,0.2); }
+.filter-group select:focus {
+    border-color: var(--elite-orange);
+    background: rgba(247, 148, 29, 0.05);
+}
+
+/* ──────────────────────────────────────────────
+   6. GRID DE PROJETOS (Cards do Feed)
+   Layout de 2 colunas para os cards de projeto.
+────────────────────────────────────────────── */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas dinâmicas */
+    gap: 1rem;                             /* Espaçamento compacto */
+}
+
+/* ──────────────────────────────────────────────
+   8. PAGINAÇÃO DO FEED
+   Botões de navegação entre páginas do feed.
+────────────────────────────────────────────── */
+.feed-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;  /* Quebra linha em ecrãs pequenos */
+}
+
+/* Cada botão/link de paginação */
+.pagination-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+.pagination-btn:hover {
+    background: rgba(247,148,29,0.12);
+    border-color: rgba(247,148,29,0.4);
+    color: var(--accent-orange, #f7941d);
+}
+/* Página activa: fundo laranja */
+.pagination-btn.active {
+    background: var(--accent-orange, #f7941d);
+    border-color: var(--accent-orange, #f7941d);
+    color: #fff;
+}
+
+.community-feedback-section {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    background: rgba(15,23,42,0.6);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+}
+
+.community-feedback-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.community-feedback-heading span {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+
+.community-feedback-heading h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 900;
+}
+
+.community-feedback-heading strong,
+.community-feedback-stars {
+    color: #f7941d;
+}
+
+.community-feedback-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(247,148,29,0.08);
+    color: rgba(247,148,29,0.75);
+}
+
+.community-feedback-copy {
+    max-width: 580px;
+    margin: 0 0 1.5rem;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.community-feedback-swiper {
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden;
+}
+
+.community-feedback-swiper .swiper-wrapper {
+    height: auto !important;
+    align-items: stretch;
+}
+
+.community-feedback-swiper .swiper-slide {
+    height: auto !important;
+    display: flex !important;
+    align-items: stretch;
+    background: transparent !important;
+    overflow: visible;
+}
+
+.community-feedback-card {
+    min-height: 116px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.03);
+}
+
+.community-feedback-avatar {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.community-feedback-avatar img {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 2px solid rgba(247,148,29,0.2);
+}
+
+.community-feedback-avatar span {
+    position: absolute;
+    right: -4px;
+    bottom: -3px;
+    width: 13px;
+    height: 13px;
+    border: 2px solid #0f172a;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.community-feedback-body {
+    min-width: 0;
+}
+
+.community-feedback-body h3 {
+    margin: 0 0 0.45rem;
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 850;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.community-feedback-stars {
+    display: flex;
+    gap: 3px;
+    font-size: 0.78rem;
+}
+
+.community-feedback-body p {
+    margin: 0.65rem 0 0;
+    color: rgba(255,255,255,0.58);
+    font-size: 0.78rem;
+    font-style: italic;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.community-feedback-empty {
+    justify-content: center;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────────
+   10. ANÚNCIOS — VARIÁVEIS DE REUTILIZAÇÃO
+   Herda o estilo do ticker da landing mas
+   adapta tamanho para o contexto do dashboard.
+────────────────────────────────────────────── */
+.feed-ads-section .swiper-ads {
+    height: 220px !important;
+}
+.feed-ads-section .area-ads-slide {
+    height: 220px !important;
+}
+.feed-ads-section .ads-img-bg {
+    width: 42% !important;
+    background-size: cover !important;
+    background-position: center right !important;
+}
+.feed-ads-section .ads-conteudo-box {
+    padding: 2rem 3.5rem !important;
+}
+
+@media (max-width: 900px) {
+    .feed-ads-section .swiper-ads {
+        height: 360px !important;
+    }
+    .feed-ads-section .area-ads-slide {
+        height: 360px !important;
+    }
+    .feed-ads-section .ads-img-bg {
+        width: 100% !important;
+        height: 190px !important;
+        background-position: center !important;
+    }
+}
+
+/* ──────────────────────────────────────────────
+   11. RESPONSIVIDADE — TABLETS (max 1200px)
+   Remove a coluna esquerda e ajusta o grid.
+────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .platform-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ──────────────────────────────────────────────
+   12. RESPONSIVIDADE — MOBILE (max 900px)
+   Layout de coluna única, oculta sidebars.
+────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .platform-index-canvas {
+        padding: 0.5rem 1rem 5rem; /* Reduz padding lateral */
+    }
+    .platform-dashboard-grid {
+        grid-template-columns: 1fr; /* Coluna única no mobile */
+    }
+    .projects-grid {
+        grid-template-columns: 1fr; /* 1 coluna no mobile */
+        gap: 1rem;
+    }
+    .feed-command-center {
+        grid-template-columns: 1fr;
+    }
+    .feed-quick-tabs {
+        justify-content: flex-start;
+    }
+    .feed-inline-filters {
+        grid-template-columns: 1fr;
+    }
+    .platform-index-canvas {
+        max-width: 100%; /* Remove limite de largura no mobile */
+    }
+}
+
+/* ──────────────────────────────────────────────
+   13. OVERRIDES DE CARDS NO CONTEXTO DO FEED
+   Ajusta proporções dos cards do feed do index
+   sem alterar o projects.css global.
+────────────────────────────────────────────── */
+
+/* Corrige o grid herdado do projects.css:
+   O global usa minmax(320px,1fr) mas no feed
+   já definimos 2 colunas fixas — esta regra
+   garante que o grid respeita o nosso layout */
+.platform-index-canvas .projects-grid {
+    grid-template-columns: repeat(3, 1fr); /* Força as 3 colunas dentro do canvas */
+}
+
+/* Reduz a altura da imagem de 210px (global) para
+   150px no feed — design ultra compacto */
+.platform-index-canvas .project-image-wrapper {
+    height: 150px; /* Altura compacta, mas com presença visual */
+}
+
+/* Reduz o padding e o gap do card no feed do index para garantir 3 colunas */
+.platform-index-canvas .project-card-premium {
+    padding: 0.75rem;
+    gap: 0.55rem;
+}
+
+/* Reduz o gap entre o autor, título e orçamento */
+.platform-index-canvas .project-info-block {
+    gap: 0.42rem;
+}
+
+/* Reduz o tamanho do título para caber no layout de 3 colunas */
+.platform-index-canvas .project-title-premium {
+    font-size: 0.95rem;
+    line-height: 1.22;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.44em;
+}
+
+.platform-index-canvas .project-signal-row {
+    margin-top: 0.1rem;
+}
+
+.platform-index-canvas .project-signal-row span {
+    max-width: 100%;
+}
+
+.platform-index-canvas .project-card-actions .btn-view-details {
+    min-width: 0;
+}
+
+.platform-index-canvas .project-card-actions button,
+.platform-index-canvas .project-card-actions a {
+    height: 38px !important;
+}
+
+.platform-index-canvas .market-score-badge {
+    font-size: 0.6rem !important;
+    padding: 4px 9px !important;
+}
+
+.platform-index-canvas .project-verified-chip {
+    font-size: 0.5rem !important;
+    padding: 4px 8px !important;
+}
+
+/* Imagens e vídeos dentro do wrapper — mantém
+   o cover e adiciona uma transição suave */
+.platform-index-canvas .project-image-wrapper img,
+.platform-index-canvas .project-image-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cobre o espaço sem distorcer a imagem */
+}
+
+/* ──────────────────────────────────────────────
+   Feed refinement — menos publicidade, mais foco
+────────────────────────────────────────────── */
+.platform-index-canvas .sponsored-card {
+    display: none !important;
+}
+
+#dynamic-feed-zone {
+    position: relative;
+}
+
+.feed-command-center {
+    background: linear-gradient(180deg, rgba(13,22,40,0.82), rgba(8,14,26,0.66));
+    border-color: rgba(255,255,255,0.07);
+    border-radius: 16px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.22);
+}
+
+.feed-inline-filters .filter-group select {
+    border-color: rgba(255,255,255,0.085);
+    background-color: rgba(2,6,23,0.28);
+}
+
+.feed-results-header {
+    padding: 0.9rem 1rem;
+    margin: 1.35rem 0 1rem;
+    background: rgba(255,255,255,0.022);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+}
+
+.feed-results-header .feed-ads-label {
+    color: rgba(247,148,29,0.58);
+}
+
+.platform-index-canvas .projects-grid {
+    gap: 1.15rem;
+    align-items: stretch;
+}
+
+.platform-index-canvas .project-card-premium {
+    background: rgba(9, 16, 30, 0.78);
+    border-color: rgba(255,255,255,0.075);
+    border-radius: 14px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.20);
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.platform-index-canvas .project-card-premium:hover {
+    transform: translateY(-4px);
+    border-color: rgba(247,148,29,0.26);
+    background: rgba(11, 20, 36, 0.92);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.30);
+}
+
+.platform-index-canvas .project-image-wrapper {
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+}
+
+.platform-index-canvas .project-card-actions {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+    .feed-command-center {
+        grid-template-columns: 1fr;
+    }
+    .feed-quick-tabs {
+        justify-content: flex-start;
+    }
+    .feed-hot-strip {
+        grid-template-columns: 1fr;
+    }
+    .feed-hot-strip__items {
+        grid-template-columns: 1fr;
+    }
+    .platform-index-canvas .projects-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .feed-command-center {
+        padding: 1rem;
+        border-radius: 14px;
+    }
+    .feed-results-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .platform-index-canvas .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    .platform-index-canvas .project-image-wrapper {
+        height: 190px;
+    }
+}
+

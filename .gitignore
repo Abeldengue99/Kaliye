@@ -1,0 +1,79 @@
+# Ficheiros de sistema e temporários
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Configurações do IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Uploads de utilizadores (manter estrutura de pastas)
+uploads/*
+!uploads/.gitkeep
+!uploads/projects/
+!uploads/profiles/
+
+# Configurações sensíveis (não commitar passwords)
+config/database.php
+
+# Scripts de debug (já movidos para /scripts)
+*_fix.php
+check_*.php
+verify_*.php
+count_*.php
+
+# Ficheiros temporários PHP
+*.swp
+*~
+
+# Node modules (se usar npm no futuro)
+node_modules/
+
+# Ficheiros de sistema e temporários
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Configurações do IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Uploads de utilizadores (manter estrutura de pastas)
+uploads/*
+!uploads/.gitkeep
+!uploads/projects/
+!uploads/profiles/
+
+# Configurações sensíveis (não commitar passwords)
+config/database.php
+
+# Scripts de debug (já movidos para /scripts)
+*_fix.php
+check_*.php
+verify_*.php
+count_*.php
+
+# Ficheiros temporários PHP
+*.swp
+*~
+
+# Node modules (se usar npm no futuro)
+node_modules/
+
+# Composer
+vendor/
+
+# Cache
+cache/
+*.cache
+!api/verify_user.php
+
+# Aksanti Agent Workflows & Memory
+.agent/
+.agents/

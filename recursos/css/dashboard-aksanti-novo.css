@@ -1,0 +1,239 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+/* --- Reset & Core --- */
+:root {
+  --aksanti-bg: var(--bg-0, #050a15);
+  --aksanti-surface: var(--glass-bg, var(--surface-3));
+  --aksanti-surface-solid: var(--bg-2, #131b2e);
+  --aksanti-border: var(--glass-border, var(--surface-8));
+  --aksanti-orange: var(--brand-primary, #f7941d);
+  --aksanti-blue: var(--brand-blue, #b0c8eb);
+  --aksanti-green: var(--brand-green, #4edea3);
+  --aksanti-text: var(--text-primary, #ffffff);
+  --aksanti-text-muted: var(--text-muted, var(--surface-40));
+}
+
+body {
+  background-color: var(--primary-bg, var(--aksanti-bg));
+  color: var(--text-primary, var(--aksanti-text));
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-headline {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* --- Layout --- */
+.dashboard-canvas {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-main-grid {
+    grid-template-columns: 8fr 4fr;
+  }
+}
+
+/* --- Components --- */
+.glass-card {
+  background: var(--aksanti-surface);
+  border: 1px solid var(--aksanti-border);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+/* Hero Action Buttons */
+.hero-actions-container {
+  background: var(--surface-3);
+  border: 1px solid var(--surface-5);
+  border-radius: 12px;
+  display: inline-flex;
+  padding: 4px;
+}
+
+.btn-hero {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-hero-active {
+  background-color: var(--aksanti-orange);
+  color: #000;
+}
+
+.btn-hero-muted {
+  background-color: transparent;
+  color: var(--aksanti-text-muted);
+}
+
+/* Bento Stats Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+@media (min-width: 640px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1200px) {
+  .bento-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.stat-card {
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--aksanti-text-muted);
+}
+
+/* Progress Bars (Sidebar) */
+.progress-container {
+  height: 5px;
+  background: var(--surface-8);
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* AI Pulse */
+.ai-pulse {
+  width: 10px;
+  height: 10px;
+  background: var(--aksanti-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--aksanti-green);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.5; }
+  100% { transform: scale(0.9); opacity: 1; }
+}
+
+/* Footer Refs */
+.footer-elite {
+  background: #050a15;
+  border-top: 1px solid var(--aksanti-border);
+  padding: 80px 0 40px;
+  margin-top: 60px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 40px;
+}
+
+.dashboard-footer-logo {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+}
+
+.dashboard-footer-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.footer-col-brand { grid-column: span 12; }
+.footer-col-links { grid-column: span 4; }
+
+@media (min-width: 1024px) {
+  .footer-col-brand { grid-column: span 5; }
+  .footer-col-links { grid-column: span 2 1 1; }
+}
+
+.footer-title {
+  color: var(--aksanti-orange);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--aksanti-text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
+
+
+/* Navbar Match - Align with Dashboard Canvas logic moved to component */

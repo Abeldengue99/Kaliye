@@ -1,0 +1,26 @@
+RewriteEngine On
+
+# Autenticação
+RewriteRule ^autenticacao/(.*)$ ../interface_programacao/auth/$1 [L,QSA]
+
+# Conteúdo e Projetos
+RewriteRule ^projects/(.*)$ ../interface_programacao/projects/$1 [L,QSA]
+
+# Social e Interações
+RewriteRule ^social/(.*)$ ../interface_programacao/social/$1 [L,QSA]
+
+# Mentoria
+RewriteRule ^mentoria/(.*)$ ../interface_programacao/mentorship/$1 [L,QSA]
+RewriteRule ^mentorship/(.*)$ ../interface_programacao/mentorship/$1 [L,QSA]
+
+# Usuário e Perfil
+RewriteRule ^user/(.*)$ ../interface_programacao/user/$1 [L,QSA]
+
+# Administração e Sistema
+RewriteRule ^admin/(.*)$ ../interface_programacao/admin/$1 [L,QSA]
+RewriteRule ^administracao/(.*)$ ../interface_programacao/admin/$1 [L,QSA]
+RewriteRule ^ads/(.*)$ ../interface_programacao/ads/$1 [L,QSA]
+RewriteRule ^system/(.*)$ ../interface_programacao/system/$1 [L,QSA]
+
+# Caso haja chamadas diretas na raiz do servicos
+RewriteRule ^([^/]+\.php)$ ../interface_programacao/$1 [L,QSA]

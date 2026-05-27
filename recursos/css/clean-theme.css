@@ -1,0 +1,256 @@
+/* assets/css/clean-theme.css - INSPIRADO NO LAYOUT PROFISSIONAL E LIMPO (TIPO MENTORIZE) */
+
+/* ========================================
+   🎨 PALETA DE CORES CLARA E PROFISSIONAL
+   ======================================== */
+:root {
+    /* Eu escolhi uma paleta de cores clara para dar leveza e clareza, inspirada no Mentorize */
+    --cor-fundo: #f8fafc;
+    /* Um fundo cinza quase branco, muito moderno */
+    --cor-card: #ffffff;
+    /* Cards brancos puros para destacar o conteúdo */
+    --cor-primaria: #2563eb;
+    /* Um azul royal profissional e confiável */
+    --cor-secundaria: #7c3aed;
+    /* Um roxo vibrante para elementos de destaque */
+    --cor-sucesso: #10b981;
+    /* Verde esmeralda para ações positivas */
+    --cor-aviso: #f59e0b;
+    /* Laranja para alertas visíveis */
+    --cor-perigo: #ef4444;
+    /* Vermelho para ações críticas */
+
+    /* Eu defini as cores de texto para máxima legibilidade */
+    --texto-titulo: #020617;
+    --texto-corpo: #1e293b;
+    --texto-suave: #475569;
+    /* Cinza médio para informações menos vitais */
+
+    /* Eu criei bordas e sombras que dão profundidade sem pesar */
+    --borda-leve: #cbd5e1;
+    --sombra-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --sombra-hover: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================================
+   🌐 CONFIGURAÇÃO GERAL DO BODY
+   ======================================== */
+body {
+    /* Eu estou aplicando o fundo claro em toda a plataforma */
+    background-color: var(--cor-fundo) !important;
+    color: var(--texto-corpo);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ========================================
+   📦 CARDS ESTILO MENTORIZE (LIMPOS)
+   ======================================== */
+.card-limpo,
+.glass {
+    /* Eu transformei os cards para um estilo branco e elevado, como no Mentorize */
+    background: var(--cor-card) !important;
+    border: 1px solid var(--borda-leve) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem;
+    box-shadow: var(--sombra-soft) !important;
+    backdrop-filter: none !important;
+    /* Eu removi o efeito de vidro para ser mais leve */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.card-limpo:hover,
+.glass:hover {
+    /* Eu adicionei uma elevação suave ao passar o mouse */
+    transform: translateY(-4px) !important;
+    box-shadow: var(--sombra-hover) !important;
+    border-color: var(--cor-primaria) !important;
+}
+
+/* ========================================
+   🔘 BOTÕES MODERNOS E CHAMATIVOS
+   ======================================== */
+.btn-limpo {
+    /* Eu desenhei botões com cantos arredondados e cores sólidas */
+    padding: 0.75rem 1.75rem;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Eu criei as variantes de cores dos botões */
+.btn-limpo.primario {
+    background: var(--cor-primaria);
+    color: white;
+}
+
+.btn-limpo.primario:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-limpo.destaque {
+    background: var(--cor-secundaria);
+    color: white;
+}
+
+.btn-limpo.destaque:hover {
+    background: #6d28d9;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-limpo.sucesso {
+    background: var(--cor-sucesso);
+    color: white;
+}
+
+.btn-limpo.alerta {
+    background: var(--cor-aviso);
+    color: white;
+}
+
+/* ========================================
+   🎯 INPUTS E FORMULÁRIOS PROFISSIONAIS
+   ======================================== */
+.input-limpo {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    color: var(--texto-titulo);
+    font-size: 1rem;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.input-limpo::placeholder {
+    color: #94a3b8;
+    opacity: 1;
+}
+
+.input-limpo:focus {
+    background: #ffffff;
+    border-color: var(--cor-primaria);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* ========================================
+   🏷️ BADGES E STATUS
+   ======================================== */
+.badge-limpo {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.badge-limpo.azul {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-limpo.roxo {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #e9d5ff;
+}
+
+.badge-limpo.verde {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+/* ========================================
+   🎨 TEXTOS E TÍTULOS
+   ======================================== */
+h1,
+h2,
+h3,
+h4 {
+    /* Eu estou aplicando uma cor forte aos títulos para guiarem a visão */
+    color: var(--texto-titulo) !important;
+    font-weight: 800 !important;
+}
+
+.texto-destaque {
+    /* Eu uso esta classe para dar ênfase em palavras específicas */
+    color: var(--cor-primaria);
+    font-weight: 700;
+}
+
+/* ========================================
+   📱 AJUSTES GERAIS DE INTERFACE
+   ======================================== */
+
+/* Eu estou ajustando a barra de navegação para ser branca e fixa */
+header {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--borda-leve) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Eu estou melhorando os ícones para ficarem mais visíveis */
+i {
+    color: var(--cor-primaria);
+}
+
+/* Eu defini que as imagens de perfil devem ter sempre uma borda limpa */
+.user-avatar,
+.profile-pic {
+    border: 2px solid white;
+    box-shadow: var(--sombra-soft);
+}
+
+/* ========================================
+   ⚡ PERFORMANCE E ACESSIBILIDADE
+   ======================================== */
+
+/* Eu desativo animações desnecessárias para manter a plataforma super leve */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Eu garanto que o layout se adapte bem a qualquer tamanho de tela */
+@media (max-width: 600px) {
+    .card-limpo {
+        padding: 1.25rem;
+    }
+
+    .btn-limpo {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   🧩 ELEMENTOS ESPECÍFICOS DO FEED
+   ======================================== */
+
+/* Eu estou deixando os posts mais espaçados e legíveis */
+.post-header h4 {
+    margin: 0;
+    color: var(--texto-titulo);
+}
+
+.post-action {
+    /* Eu tornei os botões de curtir e comentar mais amigáveis */
+    color: var(--texto-suave);
+    font-weight: 600;
+}
+
+.post-action:hover {
+    color: var(--cor-primaria);
+    background: rgba(37, 99, 235, 0.05);
+}

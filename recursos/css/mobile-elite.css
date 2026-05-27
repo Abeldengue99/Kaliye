@@ -1,0 +1,867 @@
+/* 
+ * recursos/css/mobile-elite.css
+ * Otimizacoes de Responsividade e Bottom Navigation da plataforma
+ */
+
+/* ─────────────────────────────────────────────
+   0. PREMIUM TEXTURE (GRAIN)
+   ───────────────────────────────────────────── */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* ─────────────────────────────────────────────
+   1. BOTTOM NAVIGATION BAR (APP STYLE)
+   ───────────────────────────────────────────── */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    background: rgba(13, 22, 40, 0.85);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: none; /* Escondido por padrão, aparece no mobile */
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    z-index: 9999;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: content-box;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    gap: 4px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-width: 0;
+}
+
+.bottom-nav-item i {
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+.bottom-nav-item.active {
+    color: #f7941d;
+}
+
+.bottom-nav-item.active i {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 0 12px rgba(247, 148, 29, 0.6));
+}
+
+/* Indicador luminoso sob o ícone activo */
+.bottom-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    width: 4px;
+    height: 4px;
+    background: #f7941d;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #f7941d;
+}
+
+.mobile-only-search {
+    display: none !important;
+    color: var(--surface-40) !important;
+}
+
+/* ─────────────────────────────────────────────
+   2. MOBILE BREAKPOINTS (CORE)
+   ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* Ocultar Pesquisa Mobile no Header a pedido do utilizador */
+    .mobile-only-search { display: none !important; }
+
+    /* Exibir Bottom Nav */
+    .bottom-nav { display: grid; }
+    
+    /* Compensar espaço no fundo do body */
+    body { padding-bottom: 80px !important; }
+
+    /* Ajustes do Header */
+    .header-search { display: none !important; } /* Esconde busca gigante */
+    .navbar-links { display: none !important; } /* Esconde links de texto centrais */
+    
+    .navbar-header {
+        padding: 0 1.2rem !important;
+        height: 75px !important;
+        background: rgba(5, 10, 21, 0.8) !important;
+        backdrop-filter: blur(25px) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .header-main-box {
+        gap: 1rem !important;
+    }
+    
+    .logo-symbol {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 8px !important;
+    }
+
+    .marca-titulo {
+        font-size: 0.95rem !important;
+    }
+
+    /* Manter ações mas compactar e dar espaço luxuoso */
+    .header-actions {
+        gap: 1.2rem !important; /* Aumenta espaço entre busca e grupo */
+    }
+
+    .action-group {
+        gap: 12px !important;
+        padding: 6px 12px !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
+        border-radius: 20px !important;
+    }
+
+    .btn-action {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 1.1rem !important;
+        color: rgba(255,255,255,0.7) !important;
+    }
+
+    .mobile-only-search {
+        display: none !important;
+    }
+
+    /* Garantir Perfil Visível e Elegante no Header */
+    .profile-container {
+        display: block !important;
+    }
+
+    .btn-profile {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: 50% !important; /* Foto redonda para estilo premium */
+        border: 2px solid var(--elite-orange) !important;
+    }
+
+    .btn-profile img {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 50% !important;
+    }
+
+    .dd-chevron-tiny {
+        display: none !important; /* Esconde a seta para poupar espaço */
+    }
+
+    /* Ajustes do Hero (Bom dia, João) */
+    .dashboard-hero-section {
+        margin-bottom: 1.4rem !important;
+    }
+
+    .dashboard-hero-section::before {
+        top: -120px !important;
+        bottom: -38px !important;
+        background:
+            radial-gradient(circle at 68% 22%, rgba(59, 130, 246, 0.14), transparent 30%),
+            linear-gradient(135deg, rgba(247, 148, 29, 0.08), transparent 42%),
+            #030814 !important;
+    }
+
+    .dashboard-hero-section::after,
+    .dashboard-hero-ambient {
+        opacity: 0.45 !important;
+    }
+
+    .dashboard-hero-container {
+        align-items: stretch !important;
+        gap: 1.15rem !important;
+        padding-top: 1.1rem !important;
+        padding-bottom: 1.4rem !important;
+        border-bottom-color: rgba(255,255,255,0.06) !important;
+    }
+
+    .dashboard-hero-welcome {
+        min-width: 0 !important;
+        flex: 1 1 100% !important;
+    }
+
+    .dashboard-hero-title {
+        font-size: 1.85rem !important;
+        line-height: 1.04 !important;
+        letter-spacing: 0 !important;
+        max-width: 100% !important;
+        text-wrap: balance !important;
+    }
+
+    .dashboard-hero-msg {
+        margin-top: 1rem !important;
+        max-width: 18rem !important;
+    }
+
+    .dashboard-hero-msg p {
+        font-size: 0.74rem !important;
+        line-height: 1.45 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .btn-publish-idea {
+        width: min(100%, 240px) !important;
+        height: 52px !important;
+        margin-top: 1.65rem !important;
+        padding: 0 1.25rem !important;
+        border-radius: 16px !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        font-size: 0.68rem !important;
+        letter-spacing: 1.6px !important;
+        box-shadow: 0 12px 28px rgba(247, 148, 29, 0.24) !important;
+    }
+
+    .btn-publish-idea i {
+        width: 20px !important;
+        height: 20px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 6px !important;
+    }
+    
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        padding: 0.2rem 0 0 !important;
+        border: none !important;
+        margin-bottom: 0 !important;
+    }
+
+    .stats-grid > div[style*="text-align: center"] {
+        min-width: 0 !important;
+        background: rgba(255,255,255,0.035) !important;
+        backdrop-filter: blur(14px) !important;
+        border: 1px solid rgba(255,255,255,0.065) !important;
+        border-radius: 14px !important;
+        padding: 0.9rem 0.35rem 0.8rem !important;
+        transition: 0.3s;
+    }
+
+    .stats-grid div[style*="width: 1px"] {
+        display: none !important;
+    }
+
+    .stats-grid div[style*="font-size: 3rem"] {
+        font-size: 1.55rem !important;
+        line-height: 1 !important;
+        letter-spacing: 0 !important;
+        color: #f7941d !important; /* Destaque nos números */
+    }
+
+    /* Grid do Dashboard em coluna única */
+    .stats-grid div[style*="font-size: 0.55rem"] {
+        font-size: 0.48rem !important;
+        margin-top: 0.45rem !important;
+        letter-spacing: 1.4px !important;
+        white-space: nowrap !important;
+    }
+
+    .platform-dashboard-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2rem !important;
+        padding: 0 1rem !important;
+    }
+
+    /* Otimização de Cards do Feed */
+    .projects-grid {
+        grid-template-columns: 1fr !important; /* Sempre 1 coluna no mobile */
+        gap: 1.5rem !important;
+    }
+
+    .project-card {
+        padding: 1.5rem !important;
+    }
+
+    .project-card-title {
+        font-size: 1.1rem !important;
+        font-weight: 850 !important;
+        letter-spacing: -0.5px !important;
+    }
+
+    /* Widgets Estilizados */
+    .dashboard-widget-card {
+        background: rgba(255,255,255,0.02) !important;
+        backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
+        border-radius: 24px !important;
+        padding: 1.5rem !important;
+    }
+
+    /* ==========================================
+       OTIMIZAÇÃO DE PÁGINAS INTERNAS (Global)
+       ========================================== */
+    .elite-hero-header {
+        padding: 2rem 1.5rem !important;
+        border-radius: 20px !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .elite-hero-content h1 {
+        font-size: 1.8rem !important;
+    }
+
+    .hero-search-bar input {
+        padding: 0.9rem 1.2rem 0.9rem 3rem !important;
+    }
+
+    /* Redes de Mentores / Estudantes / Projetos */
+    .elite-mentor-grid, 
+    .mentorship-container .projects-grid,
+    .mentorship-container .tab-grid {
+        grid-template-columns: 1fr !important; /* Sempre 1 coluna no telemóvel */
+        gap: 1.2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* ==========================================
+       OTIMIZAÇÃO TABS & CARTÕES MENTORIA
+       ========================================== */
+
+    /* Força o container principal a não vazar do ecrã */
+    .mentorship-container {
+        padding: 1rem 0.5rem !important;
+        width: 100vw !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Reduz o padding gigante do Desktop no Card Principal */
+    .dashboard-card {
+        padding: 1.5rem 1rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        border-radius: 20px !important;
+    }
+    
+    /* Transformar os separadores (Tabs) numa barra deslizante horizontal */
+    .mentor-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 8px !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        border-radius: 12px !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+    }
+    
+    .mentor-tabs::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .mentor-tabs::-webkit-scrollbar-thumb {
+        background: rgba(247, 148, 29, 0.4);
+        border-radius: 4px;
+    }
+
+    .m-tab {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start;
+        font-size: 0.85rem !important;
+        padding: 0.6rem 1rem !important;
+    }
+
+    /* Correção de Overflow nos Cartões de Tarefa (Mentoria) */
+    .task-card {
+        padding: 1.25rem 1rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Cabeçalho do Cartão de Tarefa (Onde está o PENDING e a Data) */
+    .task-card > div:first-child {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    /* Quebrar apenas textos longos, proteger etiquetas */
+    .task-card h3, 
+    .task-card h4, 
+    .task-card p {
+        word-break: break-word !important; 
+    }
+
+    /* Proteger Badges/Etiquetas de quebrarem a palavra a meio (Ex: PENDI-NG) */
+    .task-card div[style*="border-radius"],
+    .task-card span {
+        white-space: nowrap !important;
+        word-break: normal !important;
+    }
+
+    .task-card button {
+        white-space: normal !important; /* Permite que o botão respire em 2 linhas */
+        height: auto !important;
+        padding: 10px !important;
+        line-height: 1.2 !important;
+        font-size: 0.8rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .card-cover-image {
+        height: 140px !important; /* Capas mais curtas para não ocupar o ecrã todo */
+    }
+
+    /* ==========================================
+       PAINEL DE ADMINISTRAÇÃO (MOBILE-ELITE)
+       ========================================== */
+       
+    .admin-main-content {
+        padding: max(1rem, env(safe-area-inset-top)) 1rem calc(6.25rem + env(safe-area-inset-bottom)) 1rem !important; /* EspaÃ§o em baixo para a Bottom Nav */
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    .dashboard-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1.5rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .header-title h1 {
+        font-size: 2rem !important; 
+        line-height: 1.1 !important;
+        word-break: break-word !important;
+    }
+
+    .dashboard-header > div {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .dashboard-header .btn-admin {
+        flex: 1 1 calc(50% - 0.5rem) !important; /* 2 botões por linha */
+        padding: 0.8rem 0.5rem !important;
+        font-size: 0.75rem !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        min-width: 0 !important;
+        min-height: 44px !important;
+        white-space: normal !important;
+        line-height: 1.2 !important;
+    }
+
+    .dashboard-header .btn-admin-primary {
+        flex: 1 1 100% !important; /* Botão principal ocupa a linha toda */
+    }
+
+    .admin-card-premium {
+        padding: 1.25rem !important;
+        border-radius: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .stats-grid,
+    .responsive-grid-3 {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .dashboard-hero-section .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .table-container {
+        border-radius: 8px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-width: 100% !important;
+    }
+
+    .admin-main-content [style*="grid-template-columns"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .admin-main-content [style*="min-width: 250px"],
+    .admin-main-content [style*="min-width: 300px"],
+    .admin-main-content [style*="min-width: 350px"],
+    .admin-main-content [style*="minmax(300px"],
+    .admin-main-content [style*="minmax(350px"],
+    .admin-main-content [style*="minmax(450px"] {
+        min-width: 0 !important;
+    }
+
+    .admin-main-content [style*="display: flex"] {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .admin-main-content input,
+    .admin-main-content select,
+    .admin-main-content textarea,
+    .admin-main-content button {
+        max-width: 100% !important;
+    }
+
+    .admin-main-content img,
+    .admin-main-content canvas,
+    .admin-main-content video {
+        max-width: 100% !important;
+    }
+
+    .admin-main-content section[style*="padding"] {
+        padding: 1.25rem !important;
+        border-radius: 8px !important;
+    }
+
+    .admin-main-content section[style*="padding"] > div[style*="display: flex"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+    }
+
+    .admin-save-bar,
+    #saveBar {
+        left: 0.75rem !important;
+        right: 0.75rem !important;
+        bottom: calc(5.25rem + env(safe-area-inset-bottom)) !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        padding: 0.85rem !important;
+        border-radius: 8px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.8rem !important;
+    }
+
+    .admin-save-bar > div,
+    #saveBar > div {
+        width: 100% !important;
+        justify-content: stretch !important;
+    }
+
+    .admin-save-bar .btn-admin,
+    #saveBar .btn-admin {
+        flex: 1 1 0 !important;
+    }
+    
+    /* Contentores principais nas sub-páginas */
+    .mentorship-container,
+    .profile-page-wrapper,
+    .doubts-page {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .back-button-glass {
+        width: 38px !important;
+        height: 38px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Correção do Botão de Voltar "Fixo" nas Dúvidas */
+    .doubts-page button[onclick*="window.history.back"] {
+        position: static !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* ==========================================
+       OTIMIZAÇÃO DÚVIDAS DA COMUNIDADE (doubts.php)
+       ========================================== */
+    .dq-card-top { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 0.8rem !important; 
+    }
+    
+    .dq-card-name { 
+        flex-wrap: wrap !important; 
+        gap: 4px !important; 
+    }
+    
+    .dq-tags {
+        margin-top: 5px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .dq-card-footer {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .dq-new-btn { 
+        width: 100% !important; 
+        justify-content: center !important; 
+    }
+
+    .dq-filter-bar { 
+        flex-direction: column !important; 
+        align-items: stretch !important; 
+        gap: 0.8rem !important;
+    }
+
+    /* Ajuste de Margens Globais */
+    .platform-index-canvas {
+        padding: 0 0.5rem !important;
+    }
+
+    .dashboard-hero-section {
+        margin-bottom: 1.4rem !important;
+    }
+
+    .dashboard-hero-container {
+        padding-top: 1.1rem !important;
+        padding-bottom: 1.4rem !important;
+        gap: 1.15rem !important;
+    }
+
+    /* Refinamento de Newsletter Elite */
+    .rodape-newsletter {
+        max-width: 100% !important;
+        background: rgba(255,255,255,0.02) !important;
+        padding: 2rem !important;
+        border-radius: 24px !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    .rodape-nl-input {
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 12px !important;
+        padding: 0.8rem 1rem !important;
+        height: 50px !important;
+        transition: 0.3s !important;
+    }
+
+    .rodape-nl-input:focus {
+        background: rgba(255,255,255,0.06) !important;
+        border-color: #f7941d !important;
+        box-shadow: 0 0 20px rgba(247, 148, 29, 0.1) !important;
+    }
+
+    .rodape-nl-input::placeholder {
+        color: rgba(255,255,255,0.6) !important; /* Mais visível */
+    }
+
+    .rodape-nl-btn {
+        background: #f7941d !important;
+        color: #000 !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
+    }
+
+    /* Rodapé de Direitos - Menos agressivo que branco total */
+    .rodape-direitos {
+        background: #0d1628 !important;
+        color: rgba(255,255,255,0.4) !important;
+        border-top: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    .rodape-direitos p {
+        color: rgba(255,255,255,0.4) !important;
+    }
+
+    .legal-links a {
+        color: rgba(255,255,255,0.6) !important;
+    }
+}
+
+/* ─────────────────────────────────────────────
+   3. ANIMAÇÕES DE TOQUE & SWEETALERT
+   ───────────────────────────────────────────── */
+.bottom-nav-item:active {
+    transform: scale(0.92);
+    opacity: 0.7;
+}
+
+.swal-backdrop-intense-blur {
+    background: rgba(5, 10, 21, 0.7) !important; /* Escurece mais o fundo */
+    backdrop-filter: blur(15px) !important;      /* Aplica um blur muito forte */
+    -webkit-backdrop-filter: blur(15px) !important;
+}
+
+/* Camada final do modo claro: este ficheiro carrega por ultimo no header. */
+body.light-theme .main-content-wrapper {
+    background: var(--primary-bg, #f6f8fb) !important;
+    color: var(--text-primary, #101828) !important;
+}
+
+body.light-theme .glass-card,
+body.light-theme .dashboard-card,
+body.light-theme .dashboard-widget-card,
+body.light-theme .admin-card-premium,
+body.light-theme .project-card,
+body.light-theme .project-card-premium,
+body.light-theme .elite-mentor-card,
+body.light-theme .dq-card,
+body.light-theme .task-card,
+body.light-theme .mentor-card,
+body.light-theme .wallet-card,
+body.light-theme .profile-card,
+body.light-theme .post-composer-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-color: rgba(16, 24, 40, 0.1) !important;
+    color: var(--text-primary, #101828) !important;
+}
+
+body.light-theme .glass-card [style*="color: #fff"],
+body.light-theme .dashboard-card [style*="color: #fff"],
+body.light-theme .dashboard-widget-card [style*="color: #fff"],
+body.light-theme .admin-card-premium [style*="color: #fff"],
+body.light-theme .project-card [style*="color: #fff"],
+body.light-theme .project-card-premium [style*="color: #fff"],
+body.light-theme .elite-mentor-card [style*="color: #fff"],
+body.light-theme .dq-card [style*="color: #fff"],
+body.light-theme .task-card [style*="color: #fff"],
+body.light-theme .mentor-card [style*="color: #fff"],
+body.light-theme .wallet-card [style*="color: #fff"],
+body.light-theme .profile-card [style*="color: #fff"],
+body.light-theme .post-composer-card [style*="color: #fff"],
+body.light-theme .glass-card [style*="color:#fff"],
+body.light-theme .dashboard-card [style*="color:#fff"],
+body.light-theme .dashboard-widget-card [style*="color:#fff"],
+body.light-theme .admin-card-premium [style*="color:#fff"],
+body.light-theme .project-card [style*="color:#fff"],
+body.light-theme .project-card-premium [style*="color:#fff"],
+body.light-theme .elite-mentor-card [style*="color:#fff"],
+body.light-theme .dq-card [style*="color:#fff"],
+body.light-theme .task-card [style*="color:#fff"],
+body.light-theme .mentor-card [style*="color:#fff"],
+body.light-theme .wallet-card [style*="color:#fff"],
+body.light-theme .profile-card [style*="color:#fff"],
+body.light-theme .post-composer-card [style*="color:#fff"],
+body.light-theme .glass-card [class*="text-white"],
+body.light-theme .dashboard-card [class*="text-white"],
+body.light-theme .dashboard-widget-card [class*="text-white"],
+body.light-theme .admin-card-premium [class*="text-white"],
+body.light-theme .project-card [class*="text-white"],
+body.light-theme .project-card-premium [class*="text-white"],
+body.light-theme .elite-mentor-card [class*="text-white"],
+body.light-theme .dq-card [class*="text-white"],
+body.light-theme .task-card [class*="text-white"],
+body.light-theme .mentor-card [class*="text-white"],
+body.light-theme .wallet-card [class*="text-white"],
+body.light-theme .profile-card [class*="text-white"],
+body.light-theme .post-composer-card [class*="text-white"] {
+    color: var(--text-primary, #101828) !important;
+}
+
+body.light-theme .glass-card p,
+body.light-theme .dashboard-card p,
+body.light-theme .dashboard-widget-card p,
+body.light-theme .admin-card-premium p,
+body.light-theme .project-card p,
+body.light-theme .project-card-premium p,
+body.light-theme .elite-mentor-card p,
+body.light-theme .dq-card p,
+body.light-theme .task-card p,
+body.light-theme .mentor-card p,
+body.light-theme .wallet-card p,
+body.light-theme .profile-card p,
+body.light-theme .post-composer-card p,
+body.light-theme .glass-card [class*="text-white/"],
+body.light-theme .dashboard-card [class*="text-white/"],
+body.light-theme .dashboard-widget-card [class*="text-white/"],
+body.light-theme .admin-card-premium [class*="text-white/"],
+body.light-theme .project-card [class*="text-white/"],
+body.light-theme .project-card-premium [class*="text-white/"],
+body.light-theme .elite-mentor-card [class*="text-white/"],
+body.light-theme .dq-card [class*="text-white/"],
+body.light-theme .task-card [class*="text-white/"],
+body.light-theme .mentor-card [class*="text-white/"],
+body.light-theme .wallet-card [class*="text-white/"],
+body.light-theme .profile-card [class*="text-white/"],
+body.light-theme .post-composer-card [class*="text-white/"] {
+    color: var(--text-secondary, #475467) !important;
+}
+
+body.light-theme input,
+body.light-theme textarea,
+body.light-theme select {
+    background-color: #ffffff !important;
+    border-color: rgba(16, 24, 40, 0.14) !important;
+    color: var(--text-primary, #101828) !important;
+}
+
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder {
+    color: #7a8699 !important;
+}
+
+body.light-theme .project-title-premium,
+body.light-theme .author-name-small,
+body.light-theme .feed-command-copy h2,
+body.light-theme .feed-results-header strong,
+body.light-theme .community-feedback-heading h2,
+body.light-theme .community-feedback-body h3,
+body.light-theme .feed-empty-state h3 {
+    color: var(--text-primary, #101828) !important;
+}
+
+body.light-theme .project-description-premium,
+body.light-theme .project-description-compact,
+body.light-theme .author-type-small,
+body.light-theme .project-card-tools span,
+body.light-theme .project-signal-row span,
+body.light-theme .feed-command-copy p,
+body.light-theme .feed-results-header > span,
+body.light-theme .community-feedback-copy,
+body.light-theme .community-feedback-body p {
+    color: var(--text-secondary, #475467) !important;
+}
+
+body.light-theme .project-signal-row span,
+body.light-theme .translate-trigger {
+    background: rgba(16, 24, 40, 0.045) !important;
+    border-color: rgba(16, 24, 40, 0.1) !important;
+}
+
+body.light-theme .btn-view-details:not([style*="linear-gradient"]):not([style*="#fff; color: #000"]) {
+    background: rgba(16, 24, 40, 0.055) !important;
+    border-color: rgba(16, 24, 40, 0.12) !important;
+    color: var(--text-primary, #101828) !important;
+}

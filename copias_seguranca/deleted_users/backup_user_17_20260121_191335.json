@@ -1,0 +1,175 @@
+{
+    "deleted_at": "2026-01-21 19:13:35",
+    "deleted_by": 15,
+    "user_profile": {
+        "user_id": 17,
+        "full_name": "Aniel Dengue",
+        "email": "anieldengue@gmail.com",
+        "password_hash": "$2y$10$p4JNbnI8AJJXI\/XHzZcdAe1xq7qd4eTOXYXkwxwZWVSsyz2psaZcq",
+        "user_type": "sec_student",
+        "profile_pic": "uploads\/profiles\/1766320220_IMG_E6264.JPG",
+        "academic_info": "Estudante",
+        "specialty": null,
+        "experience_years": null,
+        "linkedin_url": null,
+        "cv_path": null,
+        "mentorship_status": "unsubmitted",
+        "bio": null,
+        "language_pref": "pt",
+        "created_at": "2025-12-21 13:15:14",
+        "updated_at": "2025-12-21 13:30:20",
+        "is_verified": 0,
+        "phone": null,
+        "id_number": null,
+        "verification_status": "unsubmitted",
+        "bi_front_path": null,
+        "bi_back_path": null,
+        "selfie_path": null,
+        "admin_notes": null,
+        "submitted_at": null,
+        "wallet_balance": "0.00",
+        "email_otp": null,
+        "xp_points": 0,
+        "user_level": 1,
+        "impact_score": 0,
+        "is_elite_mentor": 0,
+        "is_visionary_investor": 0,
+        "mentor_status": "none"
+    },
+    "projects": [
+        {
+            "project_id": 4,
+            "owner_id": 17,
+            "mentor_id": null,
+            "title": "AgroLink \u2013 Plataforma Digital de Comercializa\u00e7\u00e3o e Gest\u00e3o Agr\u00edcola",
+            "description": "O AgroLink \u00e9 uma plataforma digital inovadora criada para conectar produtores agr\u00edcolas, compradores, transportadores e investidores, promovendo uma cadeia agr\u00edcola mais eficiente, transparente e rent\u00e1vel em Angola.\r\n\r\nO projeto surge como solu\u00e7\u00e3o para os principais desafios enfrentados pelos agricultores: dificuldade de acesso ao mercado, perdas p\u00f3s-colheita, falta de informa\u00e7\u00e3o de pre\u00e7os e aus\u00eancia de ferramentas de gest\u00e3o.",
+            "category": "Tecnologia | Agricultura | Inova\u00e7\u00e3o Rural | E-commerce",
+            "video_url": null,
+            "image_url": null,
+            "budget_needed": "20.00",
+            "is_public": 1,
+            "created_at": "2025-12-21 13:22:13",
+            "originality_score": 100,
+            "ia_analysis_report": null,
+            "ai_status": "pending",
+            "execution_time": null,
+            "team_size": 1,
+            "project_stage": "Ideia",
+            "target_audience": null,
+            "needs_to_advance": null,
+            "idea_origin": null,
+            "motivation": null,
+            "media": [
+                {
+                    "media_id": 5,
+                    "project_id": 4,
+                    "media_url": "uploads\/projects\/1766319733_0_images (3).jpeg",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:22:13"
+                },
+                {
+                    "media_id": 6,
+                    "project_id": 4,
+                    "media_url": "uploads\/projects\/1766319733_1_images (2).jpeg",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:22:13"
+                },
+                {
+                    "media_id": 7,
+                    "project_id": 4,
+                    "media_url": "uploads\/projects\/1766319733_2_images (1).jpeg",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:22:13"
+                },
+                {
+                    "media_id": 8,
+                    "project_id": 4,
+                    "media_url": "uploads\/projects\/1766319733_3_images.jpeg",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:22:13"
+                }
+            ]
+        },
+        {
+            "project_id": 5,
+            "owner_id": 17,
+            "mentor_id": null,
+            "title": "EduFlex \u2013 Plataforma de Cursos T\u00e9cnicos e Profissionais Online",
+            "description": "O EduFlex \u00e9 uma plataforma de ensino online focada em cursos t\u00e9cnicos e profissionais, voltada para jovens e adultos que desejam adquirir compet\u00eancias pr\u00e1ticas para o mercado de trabalho.\r\n\r\nA plataforma oferece cursos em \u00e1reas como inform\u00e1tica, eletricidade, mec\u00e2nica, design, marketing digital e empreendedorismo, com aulas gravadas, materiais de apoio e certifica\u00e7\u00e3o digital.",
+            "category": "Educa\u00e7\u00e3o | Tecnologia | Forma\u00e7\u00e3o Profissional",
+            "video_url": null,
+            "image_url": null,
+            "budget_needed": "12.00",
+            "is_public": 1,
+            "created_at": "2025-12-21 13:25:15",
+            "originality_score": 100,
+            "ia_analysis_report": null,
+            "ai_status": "pending",
+            "execution_time": null,
+            "team_size": 1,
+            "project_stage": "Ideia",
+            "target_audience": null,
+            "needs_to_advance": null,
+            "idea_origin": null,
+            "motivation": null,
+            "media": [
+                {
+                    "media_id": 9,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766319915_0_images (4).jpeg",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:25:15"
+                },
+                {
+                    "media_id": 10,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321480_0_Gemini_Generated_Image_y0zoi1y0zoi1y0zo.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:51:20"
+                },
+                {
+                    "media_id": 11,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321480_1_Gemini_Generated_Image_f19mivf19mivf19m.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:51:20"
+                },
+                {
+                    "media_id": 12,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321480_2_Gemini_Generated_Image_90qc1690qc1690qc.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:51:20"
+                },
+                {
+                    "media_id": 13,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321480_3_Gemini_Generated_Image_u457efu457efu457.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:51:20"
+                },
+                {
+                    "media_id": 14,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321541_0_Gemini_Generated_Image_y0zoi1y0zoi1y0zo.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:52:21"
+                },
+                {
+                    "media_id": 15,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321541_1_Gemini_Generated_Image_f19mivf19mivf19m.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:52:21"
+                },
+                {
+                    "media_id": 16,
+                    "project_id": 5,
+                    "media_url": "uploads\/projects\/1766321541_2_Gemini_Generated_Image_90qc1690qc1690qc.png",
+                    "media_type": "image",
+                    "created_at": "2025-12-21 13:52:21"
+                }
+            ]
+        }
+    ]
+}

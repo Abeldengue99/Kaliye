@@ -1,0 +1,124 @@
+/* Custom Scrollbars - Both on FAR RIGHT of Page */
+
+/* Make body scrollable - this becomes the FEED scrollbar */
+body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+body::-webkit-scrollbar {
+    width: 12px !important;
+    /* Larger scrollbar for feed/page */
+}
+
+body::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: var(--surface-25) !important;
+    border-radius: 10px !important;
+    border: 3px solid transparent !important;
+    background-clip: padding-box !important;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-40) !important;
+    background-clip: padding-box !important;
+}
+
+body {
+    scrollbar-width: auto !important;
+    scrollbar-color: var(--surface-25) transparent !important;
+}
+
+/* Layout container */
+.social-layout {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+/* Main Feed - No individual scrollbar, uses body scroll */
+.center-feed {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+/* Sidebar - Fixed position with own scrollbar */
+/* Sidebar - Uses Sticky in index.php */
+.right-sidebar {
+    /* Layout handled in index.php */
+}
+
+.right-sidebar::-webkit-scrollbar {
+    width: 8px !important;
+    /* Smaller scrollbar for sidebar */
+}
+
+.right-sidebar::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.5) !important;
+    border-radius: 10px !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box !important;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.7) !important;
+    background-clip: padding-box !important;
+}
+
+.right-sidebar {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(212, 175, 55, 0.5) transparent !important;
+}
+
+/* FOOTER - Don't overlap sidebar */
+/* FOOTER - Full width */
+.professional-footer {
+    width: 100% !important;
+}
+
+/* Smooth Scrolling */
+body,
+.right-sidebar {
+    scroll-behavior: smooth !important;
+}
+
+/* Light Theme */
+body.light-theme::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25) !important;
+    background-clip: padding-box !important;
+}
+
+body.light-theme .right-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.6) !important;
+}
+
+/* Mobile: Single scrollbar */
+@media (max-width: 1024px) {
+    .right-sidebar {
+        /* Mobile styles handled in index.php */
+    }
+
+    .professional-footer {
+        width: 100% !important;
+    }
+
+    body::-webkit-scrollbar {
+        width: 8px !important;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        background: var(--surface-30) !important;
+        border-radius: 10px !important;
+    }
+
+    body {
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--surface-30) transparent !important;
+    }
+}

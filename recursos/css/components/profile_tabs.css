@@ -1,0 +1,89 @@
+/* 
+ * profile_tabs.css - Navegação Unificada de Perfil
+ * Design Elite com Glassmorphism e Transições Suaves
+ */
+
+.profile-tabs-nav {
+    display: flex;
+    gap: 1rem;
+    margin: -2rem 2rem 2.5rem; /* Encaixa ligeiramente sobre o hero */
+    padding: 0.8rem;
+    background: rgba(13, 22, 40, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.tab-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 1.2rem;
+    border-radius: 18px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+
+.tab-item i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.tab-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+}
+
+.tab-item:hover i {
+    transform: translateY(-2px);
+}
+
+.tab-item.active {
+    background: linear-gradient(135deg, rgba(247, 148, 29, 0.1), rgba(247, 148, 29, 0.05));
+    border-color: rgba(247, 148, 29, 0.3);
+    color: var(--elite-orange);
+    box-shadow: 0 10px 20px rgba(247, 148, 29, 0.1);
+}
+
+.tab-item.active i {
+    color: var(--elite-orange);
+}
+
+/* Responsividade para Mobile */
+@media (max-width: 768px) {
+    .profile-tabs-nav {
+        margin: -1rem 1rem 2rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .tab-item {
+        padding: 0.8rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+    }
+    .tab-item i {
+        display: none; /* Esconde ícones em telas muito pequenas para dar espaço ao texto */
+    }
+}
+
+/* Animação de entrada das secções */
+.tab-content-section {
+    animation: tabFadeIn 0.5s ease-out forwards;
+}
+
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}

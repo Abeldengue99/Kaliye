@@ -1,0 +1,44 @@
+﻿{
+  "name": "KALIYE",
+  "short_name": "KALIYE",
+  "description": "Ecossistema de Talento, Mentoria e Investimento Estratégico",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f7941d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./recursos/images/marca/favicon-k-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "./recursos/images/marca/favicon-k-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "./recursos/images/marca/favicon-k-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./recursos/images/marca/favicon-k-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./recursos/images/marca/logotipo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "business", "social"],
+  "lang": "pt-AO",
+  "dir": "ltr",
+  "scope": "./",
+  "prefer_related_applications": false
+}

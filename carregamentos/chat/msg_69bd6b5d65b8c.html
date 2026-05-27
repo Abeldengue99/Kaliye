@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../recursos/images/marca/favicon-k-32x32.png">
+    <link rel="shortcut icon" href="../../favicon-k.ico">
+    <title>Apresentação Aksanti - Estratégia Digital</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Variáveis com a paleta de cores oficial da Aksanti */
+        :root {
+            --ink: #0a0c14; /* Fundo escuro principal */
+            --gold: #c9a84c; /* Dourado principal para destaques */
+            --cream: #f9f5ed; /* Cor creme para o texto principal */
+            --slate: #1e2236; /* Azul escuro para caixas e fundos secundários */
+            --border: rgba(201,168,76,0.25); /* Cor das linhas de separação */
+        }
+
+        /* Reseta as margens padrão do navegador */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Configuração do corpo da página (fundo e fonte geral) */
+        body {
+            background-color: var(--ink); /* Aplica o fundo escuro */
+            color: var(--cream); /* Aplica o texto claro */
+            font-family: 'DM Sans', sans-serif; /* Fonte moderna para textos */
+            display: flex; /* Permite alinhar o conteúdo flexivelmente */
+            flex-direction: column; /* Organiza os itens de cima para baixo */
+            height: 100vh; /* Ocupa 100% da altura do ecrã */
+            overflow: hidden; /* Impede a rolagem principal para manter estilo de slide no desktop */
+        }
+
+        /* Recipiente que segura todos os slides */
+        .slider-container {
+            flex-grow: 1; /* Ocupa todo o espaço disponível, empurrando os controlos para baixo */
+            position: relative; /* Necessário para posicionar os slides */
+            width: 100%; /* Ocupa toda a largura */
+            max-width: 1200px; /* Largura máxima para não ficar muito esticado em ecrãs gigantes */
+            margin: 0 auto; /* Centraliza o recipiente no meio do ecrã */
+            display: flex; /* Usa flexbox para gerir a visibilidade do slide ativo */
+            justify-content: center; /* Centraliza os slides */
+            align-items: center; /* Centraliza verticalmente */
+        }
+
+        /* Estilo base para cada slide individual (Escondido por padrão) */
+        .slide {
+            display: none; /* Esconde o slide por padrão */
+            width: 100%; /* Ocupa toda a largura do container */
+            max-height: 100%; /* Não excede a altura do container */
+            padding: 60px; /* Espaço interno para o texto no desktop */
+            flex-direction: column; /* Organiza o conteúdo do slide em coluna */
+            justify-content: center; /* Centraliza o conteúdo verticalmente */
+            overflow-y: auto; /* Permite rolar *dentro* do slide se o conteúdo for longo no mobile */
+        }
+
+        /* Classe que torna o slide atual visível */
+        .slide.active {
+            display: flex; /* Torna visível e aplica flexbox */
+        }
+
+        /* Estilo para a etiqueta indicadora no topo (ex: "Secção 01") */
+        .slide-kicker {
+            font-family: 'Space Mono', monospace; /* Fonte técnica */
+            font-size: 12px; /* Tamanho pequeno */
+            letter-spacing: 0.2em; /* Espaçamento entre letras */
+            color: var(--gold); /* Cor dourada */
+            text-transform: uppercase; /* Tudo em maiúsculas */
+            margin-bottom: 20px; /* Espaço abaixo da etiqueta */
+        }
+
+        /* Estilo para os títulos principais dos slides */
+        h1, h2 {
+            font-family: 'Cormorant Garamond', serif; /* Fonte elegante oficial */
+            font-weight: 300; /* Peso da fonte leve */
+            color: #ffffff; /* Cor branca para o título brilhar mais que o texto */
+            margin-bottom: 30px; /* Espaço abaixo do título */
+        }
+
+        /* Título gigante para a capa (Responsivo) */
+        h1 {
+            font-size: 64px; /* Tamanho desktop */
+            line-height: 1.1;
+        }
+
+        /* Títulos secundários para os slides de conteúdo (Responsivo) */
+        h2 {
+            font-size: 48px; /* Tamanho desktop */
+            border-bottom: 1px solid var(--border); /* Linha dourada suave abaixo do título */
+            padding-bottom: 15px;
+        }
+
+        /* Destaques em itálico e dourado dentro dos títulos */
+        h1 em, h2 em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        /* Estilo para os parágrafos de texto (Responsivo) */
+        p {
+            font-size: 18px; /* Tamanho desktop */
+            line-height: 1.8; /* Espaçamento entre as linhas do texto */
+            margin-bottom: 20px; /* Espaço entre parágrafos */
+            color: rgba(249, 245, 237, 0.85); /* Cor creme ligeiramente transparente */
+        }
+
+        /* Estilo para listas com marcadores */
+        ul {
+            margin-left: 20px; /* Afasta a lista da margem esquerda */
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para os itens da lista (Responsivo) */
+        li {
+            font-size: 18px; /* Tamanho desktop */
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: rgba(249, 245, 237, 0.85);
+        }
+
+        /* Cor dourada para destacar texto em negrito */
+        strong {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        /* Caixa de destaque para informações cruciais */
+        .highlight-box {
+            background: rgba(30, 34, 54, 0.6); /* Fundo azul ardósia transparente */
+            border-left: 3px solid var(--gold); /* Linha dourada espessa à esquerda */
+            padding: 24px 32px; /* Espaço interno da caixa */
+            margin-top: 20px;
+        }
+
+        /* Estilo da barra de botões na parte inferior */
+        .controls {
+            display: flex; /* Alinha os botões lado a lado */
+            justify-content: space-between; /* Um botão na esquerda, outro na direita */
+            padding: 30px 60px; /* Espaço interno da barra desktop */
+            border-top: 1px solid var(--border); /* Linha separadora superior */
+            background-color: var(--ink); /* Garante que o fundo coincide com a página */
+            width: 100%; /* Ocupa toda a largura */
+        }
+
+        /* Estilo base dos botões de navegação (Responsivo) */
+        button {
+            background: transparent; /* Fundo transparente */
+            border: 1px solid var(--gold); /* Borda dourada */
+            color: var(--gold); /* Texto dourado */
+            padding: 12px 24px; /* Tamanho do botão desktop */
+            font-family: 'Space Mono', monospace; /* Fonte técnica */
+            font-size: 12px; /* Tamanho do texto do botão */
+            letter-spacing: 0.15em; /* Espaçamento das letras */
+            text-transform: uppercase; /* Texto em maiúsculas */
+            cursor: pointer; /* Muda a seta do rato para a "mãozinha" */
+            transition: all 0.3s ease; /* Efeito suave ao passar o rato */
+        }
+
+        /* Efeito quando o rato passa por cima do botão (hover) */
+        button:hover {
+            background: var(--gold); /* Fundo preenche de dourado */
+            color: var(--ink); /* Texto muda para a cor escura do fundo */
+        }
+
+        /* Desativa o botão quando não há mais slides */
+        button:disabled {
+            border-color: var(--slate);
+            color: var(--slate);
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        /* ----- MEDIA QUERIES (RESPONSIVIDADE) ----- */
+
+        /* Ajustes para Tablets e ecrãs médios (máx 768px) */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px; /* Reduz o padding interno do slide */
+            }
+
+            h1 { font-size: 40px; } /* Título menor no tablet */
+            h2 { font-size: 32px; } /* Título secundário menor no tablet */
+            p, li { font-size: 16px; } /* Texto ligeiramente menor */
+            
+            .controls {
+                padding: 20px 40px; /* Menos espaço na barra inferior */
+            }
+        }
+
+        /* Ajustes para Telemóveis e ecrãs pequenos (máx 480px) */
+        @media (max-width: 480px) {
+            body {
+                overflow: auto; /* Permite rolagem principal no telemóvel para não quebrar layout */
+                height: auto; /* Altura adapta-se ao conteúdo */
+            }
+
+            .slider-container {
+                align-items: flex-start; /* Alinha os slides no topo */
+                margin-bottom: 100px; /* Espaço para os controlos fixos no fundo */
+            }
+
+            .slide {
+                padding: 20px; /* Padding mínimo no telemóvel */
+                overflow-y: visible; /* O slide cresce com o conteúdo */
+            }
+
+            h1 { font-size: 32px; } /* Título ainda menor */
+            h2 { font-size: 28px; } /* Título secundário ainda menor */
+            p, li { font-size: 15px; line-height: 1.6; } /* Texto compacto */
+
+            .highlight-box {
+                padding: 16px 20px; /* Menos padding na caixa de destaque */
+            }
+
+            .controls {
+                position: fixed; /* Fixa os botões no fundo do ecrã */
+                bottom: 0;
+                left: 0;
+                padding: 15px 20px; /* Padding compacto para o telemóvel */
+                z-index: 100; /* Garante que fica por cima de tudo */
+            }
+
+            button {
+                padding: 10px 16px; /* Botões menores */
+                font-size: 10px; /* Texto dos botões menor */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slider-container">
+
+        <div class="slide active">
+            <div class="slide-kicker">Documento Confidencial · 20 de Março de 2026</div>
+            <h1>Relatório Estratégico de Posicionamento Digital e <em>Ecossistema Web</em></h1>
+            <p><strong>Para:</strong> Liderança / Co-Fundadores da Aksanti Investimentos</p>
+            <p><strong>De:</strong> Abel Dengue – Desenvolvedor Fullstack & Gestor de Estratégia Digital</p>
+            </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Introdução</div>
+            <h2>O Motor de Crescimento <em>Unificado</em></h2>
+            <p>Este documento apresenta a minha análise técnica e estratégica do nosso ecossistema digital. A nossa infraestrutura web e a comunicação nas redes sociais não podem operar como silos isolados.</p>
+            <div class="highlight-box">
+                <p>Elas devem atuar como um motor de Inbound Marketing unificado, capaz de traduzir a nossa excelência técnica e rigor científico em autoridade de mercado tangível no Huambo e além.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Parte 01 · Perspetiva Fullstack</div>
+            <h2>Visão Técnica e UX: <em>O Website Atual</em></h2>
+            <ul>
+                <li><strong>Arquitetura de Informação:</strong> Precisamos reestruturar o front-end para refletir as Unidades: Consulting, Tech, TrainTest, Education. Preparar infraestrutura para APIs SaaS.</li>
+                <li><strong>Vitrine Dinâmica:</strong> Criar um ambiente para os 8 produtos de 2026 (Pesquisa, UAT, Produção) com formulários "Solicitar Demo" ou "Lista de Espera".</li>
+                <li><strong>SEO e Internacionalização:</strong> Implementar renderização multilingue nativa (PT, EN, FR) para expansão na SADC e captação de parceiros institucionais.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Parte 02 · Estratégia Corporativa</div>
+            <h2>Visão de Negócio: <em>O Pedigree Aksanti</em></h2>
+            <p>O nosso valor reside na combinação rara de rigor de auditoria Big 4 (EY/PwC) e profundo domínio em IA e Finanças (BNP Paribas/SAP).</p>
+            <ul>
+                <li><strong>Institucionalização da Marca:</strong> Salvaguardando a imagem atual dos fundadores (por questões contratuais), a comunicação focará no "know-how" e nas metodologias. A marca será a protagonista.</li>
+                <li><strong>A Vantagem Geográfica:</strong> Usaremos o LinkedIn para consolidar autoridade na região Centro-Sul (Huambo, Bié, Benguela, Huíla). A expansão para Luanda será feita como uma potência já consolidada, não como uma startup principiante.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Parte 03 · Ponto de Situação</div>
+            <h2>Diagnóstico do Ecossistema <em>LinkedIn</em></h2>
+            <p>Encontramo-nos no "Nível Zero": 9 seguidores e 0 impressões recentes. Estruturalmente, falta configurar Localidade, Serviços e Identidade Visual (Banner).</p>
+            <div class="highlight-box">
+                <p><strong>A Oportunidade:</strong> Uma "tela em branco" é o cenário ideal. Não temos algoritmos viciados nem histórico incorreto. Vamos implementar Brand Awareness Premium desde o primeiro clique.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Parte 04 · Pontos de Decisão</div>
+            <h2>Estratégia e <em>Autorizações Necessárias</em></h2>
+            <ul>
+                <li><strong>Produção Multimédia (Design/Vídeo):</strong> Possuo nível básico/intermediário. Opção A: Autorizam-me a criar artes minimalistas para arrancar já? Opção B: Esperamos pela contratação de um Designer Gráfico/Editor profissional?</li>
+                <li><strong>Brand Advocacy Interna:</strong> Sem a exposição inicial dos fundadores, solicito que os nossos colaboradores (Devs, Investigadores) vinculem a Aksanti nos seus perfis, dando um "rosto humano" à operação técnica.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <div class="slide-kicker">Parte 05 · Próximos Passos</div>
+            <h2>Roteiro Editorial e <em>Lançamentos</em></h2>
+            <p>Sugiro um Calendário Editorial mensal dividido em:</p>
+            <ul>
+                <li><strong>30% Técnico/Institucional:</strong> Explicar de forma técnica (mas acessível) como a IA está a transformar a auditoria e a gestão de risco. Partilha de fragmentos dos nossos *white papers*.</li>
+                <li><strong>30% I&D (TrainTest) e Education:</strong> Bastidores da inovação e promoção de STEM.</li>
+                <li><strong>40% Lançamentos:</strong> Foco imediato na Lista de Espera do <strong>Aksanti Referência (1 Mai)</strong> e recrutamento de Clientes Beta para <strong>Audit Tests (30 Abr)</strong>.</li>
+            </ul>
+            <p style="margin-top: 30px; font-style: italic; color: var(--gold);">Gostaria da vossa validação sobre os temas e autorizações de design para arrancar com a otimização da página (banner e copy) na próxima semana.</p>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn" disabled>← Anterior</button>
+        <button id="nextBtn">Próximo →</button>
+    </div>
+
+    <script>
+        // Seleciona todos os elementos HTML que têm a classe 'slide' e guarda numa lista (Array)
+        const slides = document.querySelectorAll('.slide');
+        // Seleciona os botões pelo seu ID
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // Variável que guarda qual é o slide atual (começa no 0, que é o Slide 1)
+        let currentSlide = 0;
+
+        // Função que atualiza a visibilidade dos slides e o estado dos botões
+        function showSlide(index) {
+            // Um ciclo (loop) que passa por todos os slides
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    // Se o número do slide no ciclo for igual ao index atual, adiciona a classe 'active'
+                    slide.classList.add('active');
+                } else {
+                    // Caso contrário, remove a classe 'active' para o esconder
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Atualiza o estado dos botões (ativa ou desativa consoante o limite)
+            // Se estivermos no slide 0, desativa o botão "Anterior"
+            prevBtn.disabled = currentSlide === 0;
+            // Se estivermos no último slide, desativa o botão "Próximo"
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        // Evento: O que acontece quando clico no botão "Próximo"
+        nextBtn.addEventListener('click', () => {
+            // Se não estivermos no último slide...
+            if (currentSlide < slides.length - 1) {
+                currentSlide++; // Aumenta o contador do slide atual
+                showSlide(currentSlide); // Mostra o novo slide
+            }
+        });
+
+        // Evento: O que acontece quando clico no botão "Anterior"
+        prevBtn.addEventListener('click', () => {
+            // Se não estivermos no primeiro slide...
+            if (currentSlide > 0) {
+                currentSlide--; // Diminui o contador do slide atual
+                showSlide(currentSlide); // Mostra o slide anterior
+            }
+        });
+
+        // Evento de teclado: Permite usar as setas do teclado para mudar de slide
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' && currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            } else if (event.key === 'ArrowLeft' && currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+    </script>
+</body>
+</html>
