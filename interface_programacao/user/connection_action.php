@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../inclusoes/auth_check.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Nao autenticado']);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
     exit();
 }
 
@@ -32,13 +32,13 @@ try {
     $db->beginTransaction();
 
     if ($user_id === $target_id) {
-        throw new Exception('Nao podes conectar contigo mesmo.');
+        throw new Exception('Não podes conectar contigo mesmo.');
     }
 
     $targetCheck = $db->prepare('SELECT user_id FROM users WHERE user_id = ?');
     $targetCheck->execute([$target_id]);
     if (!$targetCheck->fetchColumn()) {
-        throw new Exception('Utilizador nao encontrado.');
+        throw new Exception('Utilizador não encontrado.');
     }
 
     $u1 = min($user_id, $target_id);
@@ -86,7 +86,7 @@ try {
         $stmt->execute([':u1' => $u1, ':u2' => $u2, ':target_id' => $target_id]);
 
         if ($stmt->rowCount() === 0) {
-            throw new Exception('Pedido nao encontrado, ja processado ou sem permissao para aceitar.');
+            throw new Exception('Pedido não encontrado, ja processado ou sem permissão para aceitar.');
         }
 
         $stmt_u = $db->prepare('SELECT full_name, user_type FROM users WHERE user_id = ?');
@@ -100,7 +100,7 @@ try {
         $link = 'paginas/social/profile.php?id=' . $user_id;
         $notif_stmt->execute([$target_id, $user_id, $actor_name_acc . ' aceitou a sua conexao!', $link]);
 
-        $msg = 'Voce aceitou o pedido de conexao.';
+        $msg = 'Você aceitou o pedido de conexao.';
         $newStatus = 'accepted';
     } elseif ($action === 'reject') {
         $query = "DELETE FROM user_connections
@@ -111,7 +111,7 @@ try {
         $stmt->execute([':u1' => $u1, ':u2' => $u2, ':target_id' => $target_id]);
 
         if ($stmt->rowCount() === 0) {
-            throw new Exception('Pedido nao encontrado ou sem permissao para recusar.');
+            throw new Exception('Pedido não encontrado ou sem permissão para recusar.');
         }
 
         $msg = 'Pedido de conexao recusado.';
@@ -125,7 +125,7 @@ try {
         $stmt->execute([':u1' => $u1, ':u2' => $u2, ':user_id' => $user_id]);
 
         if ($stmt->rowCount() === 0) {
-            throw new Exception('Pedido nao encontrado ou ja processado.');
+            throw new Exception('Pedido não encontrado ou ja processado.');
         }
 
         $msg = 'Pedido de conexao cancelado.';
@@ -138,7 +138,7 @@ try {
         $stmt->execute([':u1' => $u1, ':u2' => $u2]);
 
         if ($stmt->rowCount() === 0) {
-            throw new Exception('Conexao nao encontrada.');
+            throw new Exception('Conexao não encontrada.');
         }
 
         $msg = 'Conexao removida.';

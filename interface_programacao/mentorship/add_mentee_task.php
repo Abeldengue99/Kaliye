@@ -63,7 +63,7 @@ try {
     ");
     $allowed->execute([$mentee_id, $mentor_id, $mentor_id]);
     if (!$allowed->fetchColumn()) {
-        echo json_encode(['success' => false, 'error' => 'Este estudante ainda nao esta associado a sua mentoria.']);
+        echo json_encode(['success' => false, 'error' => 'Este estudante ainda não esta associado a sua mentoria.']);
         exit;
     }
 

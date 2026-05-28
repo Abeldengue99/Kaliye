@@ -2,7 +2,7 @@
 /**
  * inclusoes/ProjectMediaHelper.php
  * Helper para capas de projectos, usando imagem real quando existe
- * e uma capa SVG contextual quando o projecto ainda nao tem upload.
+ * e uma capa SVG contextual quando o projecto ainda não tem upload.
  */
 
 class ProjectMediaHelper {

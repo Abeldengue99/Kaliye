@@ -16,7 +16,7 @@ if (!isset($payments_config['payments_enabled']) || $payments_config['payments_e
 }
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit();
 }
 
@@ -40,7 +40,7 @@ try {
     $check = $db->prepare("SELECT investment_id FROM project_investments WHERE investment_id = ? AND investor_id = ?");
     $check->execute([$investment_id, $user_id]);
     if (!$check->fetch()) {
-        echo json_encode(['success' => false, 'message' => 'Investimento nao encontrado ou acesso negado.']);
+        echo json_encode(['success' => false, 'message' => 'Investimento não encontrado ou acesso negado.']);
         exit();
     }
 
@@ -66,7 +66,7 @@ try {
     $update = $db->prepare("UPDATE project_investments SET proof_document_path = ?, status = 'pending_approval' WHERE investment_id = ?");
     $update->execute([$stored['path'], $investment_id]);
 
-    echo json_encode(['success' => true, 'message' => 'Comprovativo enviado com sucesso. Aguarde a validacao.']);
+    echo json_encode(['success' => true, 'message' => 'Comprovativo enviado com sucesso. Aguarde a validação.']);
 } catch (PDOException $e) {
     error_log('upload_investment_proof error: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Erro interno ao guardar comprovativo. Tente novamente.']);

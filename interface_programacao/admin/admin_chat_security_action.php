@@ -44,7 +44,7 @@ try {
         exit();
     }
 
-    echo json_encode(['success' => false, 'message' => 'Acao invalida.']);
+    echo json_encode(['success' => false, 'message' => 'Acção invalida.']);
 } catch (Throwable $e) {
-    echo json_encode(['success' => false, 'message' => 'Falha ao processar acao.']);
+    echo json_encode(['success' => false, 'message' => 'Falha ao processar acção.']);
 }

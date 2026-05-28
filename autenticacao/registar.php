@@ -171,7 +171,7 @@ if (isset($_SESSION['user_id'])) {
             line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 0.4rem;
         }
         .titulo-info span { color: var(--cor-destaque-laranja); }
-        .descricao-info { font-size: 0.8rem; color: var(--cor-texto-paragrafo); line-height: 1.5; margin-bottom: 1.2rem; }
+        .descrição-info { font-size: 0.8rem; color: var(--cor-texto-paragrafo); line-height: 1.5; margin-bottom: 1.2rem; }
 
         /* Lista de passos do processo de registo na barra lateral */
         .lista-passos { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; }
@@ -186,14 +186,14 @@ if (isset($_SESSION['user_id'])) {
         .passo-texto strong { color: #fff; display: block; margin-bottom: 0.1rem; }
 
         /* Box de garantia de segurança na barra lateral */
-        .caixa-seguranca {
+        .caixa-segurança {
             background: rgba(16,185,129,0.06);
             border: 1px solid rgba(16,185,129,0.15);
             border-radius: 12px; padding: 1rem 1.1rem;
             display: flex; align-items: flex-start; gap: 0.75rem;
         }
-        .caixa-seguranca i { color: #10b981; font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
-        .caixa-seguranca p { font-size: 0.8rem; color: var(--cor-texto-paragrafo); line-height: 1.6; }
+        .caixa-segurança i { color: #10b981; font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+        .caixa-segurança p { font-size: 0.8rem; color: var(--cor-texto-paragrafo); line-height: 1.6; }
 
         /* ===== PAINEL DIREITO — FORMULÁRIO DE REGISTO ===== */
         .painel-direito {
@@ -440,7 +440,7 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Título apelativo do painel lateral de registo -->
         <h2 class="titulo-info">Junta-te à <span>nova geração</span> de profissionais africanos</h2>
-        <p class="descricao-info">Em menos de 5 minutos, tens acesso à maior rede de mentoria e investimento de Angola.</p>
+        <p class="descrição-info">Em menos de 5 minutos, tens acesso à maior rede de mentoria e investimento de Angola.</p>
 
         <!-- Passos do processo de criação de conta mostrados lateralmente -->
         <div class="lista-passos">
@@ -468,7 +468,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Caixa de garantia de segurança e privacidade -->
-        <div class="caixa-seguranca">
+        <div class="caixa-segurança">
             <i class="fas fa-shield-halved"></i>
             <p>Os teus dados estão protegidos. Nunca partilhamos informações pessoais sem o teu consentimento.</p>
         </div>

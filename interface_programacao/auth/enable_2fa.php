@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../inclusoes/GoogleAuthenticator.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (empty($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'error' => 'Sessão expirada.']);
     exit;
 }
 
@@ -26,5 +26,5 @@ try {
         'qr_code_url' => $ga->getQRCodeGoogleUrl($name, $secret, 'KALIYE')
     ]);
 } catch (Throwable $e) {
-    echo json_encode(['success' => false, 'error' => 'Nao foi possivel iniciar o 2FA.']);
+    echo json_encode(['success' => false, 'error' => 'Não foi possível iniciar o 2FA.']);
 }

@@ -56,6 +56,6 @@ try {
 
 } catch (PDOException $e) {
     error_log('delete_doubt error: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro interno ao eliminar duvida.']);
+    echo json_encode(['success' => false, 'message' => 'Erro interno ao eliminar dúvida.']);
 }
 

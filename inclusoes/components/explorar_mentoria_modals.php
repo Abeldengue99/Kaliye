@@ -44,7 +44,7 @@
                         <i class="fas fa-chevron-right arrow-indicator"></i>
                     </a>
 
-                    <?php if (!$is_investor): ?>
+                    <?php if ($is_student): ?>
                         <a href="javascript:void(0)" onclick="closeExplorarModal(); window.openPostModal();" class="modal-link-card highlight-glow-blue">
                             <div class="link-card-icon"><i class="fas fa-plus-circle"></i></div>
                             <div class="link-card-body">
@@ -65,26 +65,62 @@
                         <h3>Portfólio do Investidor</h3>
                     </div>
                     <div class="col-links-list">
-                        <a href="<?php echo $base_url; ?>paginas/explorar/invested_projects.php" onclick="closeExplorarModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-chart-line"></i></div>
-                            <div class="link-card-body">
-                                <strong>Meus Investimentos</strong>
-                                <span>Acompanhe o progresso e retorno financeiro</span>
+                        <?php 
+                        $is_approved_investor = ($is_verified && ($user_data['investor_status'] ?? $_SESSION['investor_status'] ?? '') === 'approved');
+                        if ($is_approved_investor): 
+                        ?>
+                            <a href="<?php echo $base_url; ?>paginas/plataforma/investor_dashboard.php?view=my_investments" onclick="closeExplorarModal()" class="modal-link-card">
+                                <div class="link-card-icon"><i class="fas fa-file-signature"></i></div>
+                                <div class="link-card-body">
+                                    <strong>Minhas Propostas</strong>
+                                    <span>Acompanhe o estado das propostas que enviou</span>
+                                </div>
+                                <i class="fas fa-chevron-right arrow-indicator"></i>
+                            </a>
+                        <?php else: ?>
+                            <div class="modal-link-card" style="opacity: 0.5; cursor: not-allowed;" title="Aguardando aprovação de perfil">
+                                <div class="link-card-icon"><i class="fas fa-lock"></i></div>
+                                <div class="link-card-body">
+                                    <strong>Minhas Propostas</strong>
+                                    <span>Funcionalidade bloqueada (Valide o perfil)</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                        
-                        <a href="<?php echo $base_url; ?>paginas/explorar/project_analytics.php" onclick="closeExplorarModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-eye"></i></div>
-                            <div class="link-card-body">
-                                <strong>Radar de Mercado</strong>
-                                <span>Análise profunda e monitorização de tendências</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
+                        <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <div class="col-title-box">
+                <?php endif; ?>
+                
+                <?php if ($is_mentor): ?>
+                    <div class="col-title-box" style="margin-top: 1.5rem;">
+                        <i class="fas fa-chalkboard-teacher text-glow-blue"></i>
+                        <h3>Portfólio do Mentor</h3>
+                    </div>
+                    <div class="col-links-list">
+                        <?php 
+                        $is_approved_mentor = ($is_verified && ($user_data['mentorship_status'] ?? $_SESSION['mentorship_status'] ?? '') === 'approved');
+                        if ($is_approved_mentor): 
+                        ?>
+                            <a href="<?php echo $base_url; ?>paginas/plataforma/mentor_dashboard.php?view=my_proposals" onclick="closeExplorarModal()" class="modal-link-card">
+                                <div class="link-card-icon"><i class="fas fa-file-signature"></i></div>
+                                <div class="link-card-body">
+                                    <strong>Minhas Propostas</strong>
+                                    <span>Acompanhe as suas candidaturas a projetos</span>
+                                </div>
+                                <i class="fas fa-chevron-right arrow-indicator"></i>
+                            </a>
+                        <?php else: ?>
+                            <div class="modal-link-card" style="opacity: 0.5; cursor: not-allowed;" title="Aguardando aprovação de perfil">
+                                <div class="link-card-icon"><i class="fas fa-lock"></i></div>
+                                <div class="link-card-body">
+                                    <strong>Minhas Propostas</strong>
+                                    <span>Funcionalidade bloqueada (Valide o perfil)</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($is_student || $is_investor): ?>
+                    <div class="col-title-box" <?php echo ($is_investor) ? 'style="margin-top: 1.5rem;"' : ''; ?>>
                         <i class="fas fa-tasks text-glow-blue"></i>
                         <h3>Planeamento & Gestão</h3>
                     </div>
@@ -126,25 +162,14 @@
                         <i class="fas fa-chevron-right arrow-indicator"></i>
                     </a>
 
-                    <?php if ($is_student || $is_mentor): ?>
-                        <a href="javascript:void(0)" onclick="closeExplorarModal(); showWalletDevMessage(event);" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-wallet"></i></div>
-                            <div class="link-card-body">
-                                <strong>Saldo & Transações</strong>
-                                <span>Aceda à sua Carteira Digital (Em Breve)</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                    <?php else: ?>
-                        <a href="<?php echo $base_url; ?>paginas/conta/wallet.php" onclick="closeExplorarModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-wallet"></i></div>
-                            <div class="link-card-body">
-                                <strong>Saldo & Transações</strong>
-                                <span>Aceda à sua Carteira Digital Completa</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                    <?php endif; ?>
+                    <a href="javascript:void(0)" onclick="closeExplorarModal(); Swal.fire({title: 'Em Breve', text: 'A carteira digital e gestão de saldos estarão disponíveis na Fase 2 do projeto KALIYE.', icon: 'info', background: '#0d1628', color: '#fff'});" class="modal-link-card">
+                        <div class="link-card-icon" style="opacity: 0.5;"><i class="fas fa-wallet"></i></div>
+                        <div class="link-card-body" style="opacity: 0.5;">
+                            <strong>Saldo & Transações</strong>
+                            <span>Aceda à sua Carteira Digital (Bloqueado)</span>
+                        </div>
+                        <i class="fas fa-lock arrow-indicator" style="opacity: 0.5;"></i>
+                    </a>
 
                     <?php if ($is_admin): ?>
                         <a href="<?php echo $base_url; ?>administracao/moderation/moderation.php" onclick="closeExplorarModal()" class="modal-link-card highlight-glow-orange">
@@ -288,23 +313,7 @@
                             </div>
                             <i class="fas fa-chevron-right arrow-indicator"></i>
                         </a>
-                        <a href="<?php echo $base_url; ?>paginas/mentoria/my_commissions.php" onclick="closeMentoriaModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                            <div class="link-card-body">
-                                <strong>Relatório de Ganhos</strong>
-                                <span>Consulte as suas receitas de ensino</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                        <a href="<?php echo $base_url; ?>paginas/mentoria/my_expertise.php" onclick="closeMentoriaModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-certificate"></i></div>
-                            <div class="link-card-body">
-                                <strong>Minhas Especialidades</strong>
-                                <span>Faça a gestão das suas áreas de ensino</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                    <?php elseif ($is_student): ?>
+                    <?php elseif ($is_student && !in_array($_SESSION['mentor_status'] ?? 'unsubmitted', ['approved', 'pending', 'under_review', 'shortlisted'])): ?>
                         <a href="javascript:void(0)" onclick="closeMentoriaModal(); openMentorAppModal();" class="modal-link-card highlight-glow-orange">
                             <div class="link-card-icon"><i class="fas fa-crown"></i></div>
                             <div class="link-card-body">
@@ -361,7 +370,7 @@
         <div class="perfil-signal-strip">
             <div><strong><?php echo $perfil_is_verified ? 'Ativo' : 'Pendente'; ?></strong><span>Confianca</span></div>
             <div><strong>KALIYE</strong><span>Ecossistema</span></div>
-            <div><strong><?php echo date('Y'); ?></strong><span>Sessao</span></div>
+            <div><strong><?php echo date('Y'); ?></strong><span>Sessão</span></div>
         </div>
 
         <div class="elite-center-modal-grid">
@@ -375,20 +384,31 @@
                     <a href="javascript:void(0)" onclick="closePerfilMenuModal(); openMyProfileEdit();" class="modal-link-card highlight-glow-orange">
                         <div class="link-card-icon"><i class="fas fa-id-card"></i></div>
                         <div class="link-card-body">
-                            <strong>Editar Perfil</strong>
+                            <strong>O Meu Perfil</strong>
                             <span>Atualize os seus dados e dossier de competências</span>
                         </div>
                         <i class="fas fa-chevron-right arrow-indicator"></i>
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="closePerfilMenuModal(); openMyProfileEdit();" class="modal-link-card">
-                        <div class="link-card-icon"><i class="fas fa-external-link-alt"></i></div>
-                        <div class="link-card-body">
-                            <strong>Perfil Público</strong>
-                            <span>Veja como a comunidade e investidores visualizam o seu perfil</span>
-                        </div>
-                        <i class="fas fa-chevron-right arrow-indicator"></i>
-                    </a>
+                    <?php if ($perfil_is_verified || (isset($user_data['user_type']) && in_array($user_data['user_type'], ['admin', 'superadmin']))): ?>
+                        <a href="<?php echo $base_url; ?>paginas/social/rede.php" onclick="closePerfilMenuModal()" class="modal-link-card highlight-glow-blue">
+                            <div class="link-card-icon"><i class="fas fa-users"></i></div>
+                            <div class="link-card-body">
+                                <strong>A Minha Rede</strong>
+                                <span>Faça a gestão das suas conexões e pedidos pendentes</span>
+                            </div>
+                            <i class="fas fa-chevron-right arrow-indicator"></i>
+                        </a>
+                    <?php else: ?>
+                        <a href="javascript:void(0)" onclick="closePerfilMenuModal(); if(typeof openKYCModal === 'function') { openKYCModal(); } else { window.location.href='<?php echo $base_url; ?>index.php?kyc_required=1'; }" class="modal-link-card highlight-glow-blue" style="opacity: 0.6;">
+                            <div class="link-card-icon"><i class="fas fa-users"></i></div>
+                            <div class="link-card-body">
+                                <strong>A Minha Rede</strong>
+                                <span>Conta precisa ser verificada para aceder à rede</span>
+                            </div>
+                            <i class="fas fa-lock arrow-indicator"></i>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -399,25 +419,14 @@
                     <h3>Finanças & Gestão</h3>
                 </div>
                 <div class="col-links-list">
-                    <?php if ($is_student || $is_mentor): ?>
-                        <a href="javascript:void(0)" onclick="closePerfilMenuModal(); showWalletDevMessage(event);" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-wallet"></i></div>
-                            <div class="link-card-body">
-                                <strong>Carteira Digital</strong>
-                                <span>Aceda ao seu saldo e transações (Em Breve)</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                    <?php else: ?>
-                        <a href="<?php echo $base_url; ?>paginas/conta/wallet.php" onclick="closePerfilMenuModal()" class="modal-link-card">
-                            <div class="link-card-icon"><i class="fas fa-wallet"></i></div>
-                            <div class="link-card-body">
-                                <strong>Carteira Digital</strong>
-                                <span>Faça a gestão completa do seu saldo e fundos</span>
-                            </div>
-                            <i class="fas fa-chevron-right arrow-indicator"></i>
-                        </a>
-                    <?php endif; ?>
+                    <a href="javascript:void(0)" onclick="closePerfilMenuModal(); showWalletDevMessage(event);" class="modal-link-card">
+                        <div class="link-card-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="link-card-body">
+                            <strong>Carteira Digital</strong>
+                            <span>Aceda ao seu saldo e transações (Em Breve)</span>
+                        </div>
+                        <i class="fas fa-chevron-right arrow-indicator"></i>
+                    </a>
 
                     <?php if (isset($user_data['user_type']) && ($user_data['user_type'] == 'admin' || $user_data['user_type'] == 'superadmin')): ?>
                         <a href="<?php echo $base_url; ?>administracao/index.php" onclick="closePerfilMenuModal()" class="modal-link-card highlight-glow-blue">
@@ -1082,6 +1091,7 @@
    ========================================================================== */
 
 function openExplorarModal() {
+    if (typeof enforceKYC === 'function' && !enforceKYC()) return;
     const modal = document.getElementById('explorarModal');
     if (modal) {
         modal.style.display = 'flex';
@@ -1103,6 +1113,7 @@ function closeExplorarModal(event) {
 }
 
 function openMentoriaModal() {
+    if (typeof enforceKYC === 'function' && !enforceKYC()) return;
     const modal = document.getElementById('mentoriaModal');
     if (modal) {
         modal.style.display = 'flex';

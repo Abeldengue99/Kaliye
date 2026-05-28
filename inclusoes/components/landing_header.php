@@ -36,7 +36,6 @@
             </div>
             <div class="marca-titulo">
                 <span>KALIYE</span>
-                <span class="marca-subtitulo">Conectar • Crescer • Investir</span>
             </div>
         </a>
         <button class="btn-close-mobile" id="fecharMenuMobile" aria-label="Fechar Menu"><i class="fas fa-times"></i></button>

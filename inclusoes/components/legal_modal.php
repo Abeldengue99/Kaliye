@@ -213,8 +213,8 @@ window.openLegalModal = function(type) {
             </div>
 
             <div class="legal-section-card">
-                <div class="legal-section-title">5. Projectos, ideias e propriedade intelectual</div>
-                <p>O utilizador mantém a titularidade dos seus projectos, ideias, textos, imagens, vídeos, pitch decks, relatórios, documentos e demais conteúdos que publicar, salvo acordo escrito em contrário. Ao submeter conteúdo à KALIYE, concede à plataforma uma licença limitada, não exclusiva e necessária para alojar, apresentar, organizar, processar, moderar, promover e disponibilizar esse conteúdo dentro do ecossistema.</p>
+                <div class="legal-section-title">5. Projectos, projectos e propriedade intelectual</div>
+                <p>O utilizador mantém a titularidade dos seus projectos, projectos, textos, imagens, vídeos, pitch decks, relatórios, documentos e demais conteúdos que publicar, salvo acordo escrito em contrário. Ao submeter conteúdo à KALIYE, concede à plataforma uma licença limitada, não exclusiva e necessária para alojar, apresentar, organizar, processar, moderar, promover e disponibilizar esse conteúdo dentro do ecossistema.</p>
                 <p>O utilizador garante que tem direito de publicar o conteúdo enviado e que este não viola direitos de terceiros. A KALIYE pode utilizar mecanismos manuais, automáticos ou assistidos por IA para detectar plágio, abuso, risco, violação de regras ou inconsistências.</p>
                 <p>Publicações públicas podem ser vistas por outros membros. Documentos sensíveis ou detalhes privados devem ser partilhados apenas quando necessário e com atenção ao nível de visibilidade escolhido.</p>
             </div>
@@ -227,7 +227,7 @@ window.openLegalModal = function(type) {
 
             <div class="legal-section-card">
                 <div class="legal-section-title">7. Investimentos, oportunidades e ausência de garantia financeira</div>
-                <p>A KALIYE pode permitir que investidores conheçam projectos, que empreendedores apresentem ideias e que membros sinalizem interesse em colaboração ou financiamento. Qualquer investimento, parceria, contrato, promessa, proposta, participação societária, comissão, retorno, doação ou pagamento entre utilizadores deve ser avaliado com prudência e, quando aplicável, formalizado por contrato próprio.</p>
+                <p>A KALIYE pode permitir que investidores conheçam projectos, que empreendedores apresentem projectos e que membros sinalizem interesse em colaboração ou financiamento. Qualquer investimento, parceria, contrato, promessa, proposta, participação societária, comissão, retorno, doação ou pagamento entre utilizadores deve ser avaliado com prudência e, quando aplicável, formalizado por contrato próprio.</p>
                 <p>A KALIYE não é banco, corretora, consultora financeira, sociedade de investimento, seguradora ou entidade de garantia de retorno. Informações apresentadas por utilizadores não constituem recomendação de investimento. Cada participante assume a responsabilidade de fazer a sua própria análise, diligência, validação documental, fiscal, jurídica e financeira.</p>
             </div>
 

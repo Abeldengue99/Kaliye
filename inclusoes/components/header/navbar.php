@@ -11,8 +11,8 @@ $display_pic = isset($header_user_pic) ? $header_user_pic : getUserAvatarUrl($us
 $display_pic_src = (strpos($display_pic, 'http') === 0) ? $display_pic : $base_url . $display_pic;
 
 // ── Lógica de Permissões por Perfil  ──
-$user_role   = $user_role ?? 'student';
-$m_status    = $m_status ?? 'unsubmitted';
+$user_role   = $_SESSION['user_type'] ?? 'student';
+$m_status    = $_SESSION['mentor_status'] ?? 'unsubmitted';
 
 $is_student    = (strpos($user_role, 'student') !== false);
 // Mentor Oficial: Apenas se o tipo for mentor E estiver aprovado OU se for estudante E estiver aprovado
@@ -42,7 +42,7 @@ if ($is_mentor || $is_admin) {
             <div class="header-search">
                 <div class="search-input-field">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="globalSearchInput" placeholder="Pesquisar..." onfocus="showCommandCenter()" onkeyup="handleGlobalSearch(event)" autocomplete="off">
+                    <input type="text" id="globalSearchInput" placeholder="Pesquisar..." onfocus="if(enforceKYC()) showCommandCenter()" onkeyup="handleGlobalSearch(event)" autocomplete="off">
                     <!-- Painel de Comandos Inteligente -->
                     <div id="commandCenterDropdown" class="command-dropdown glass-effect">
                         <div class="command-section">
@@ -77,17 +77,19 @@ if ($is_mentor || $is_admin) {
             </div>
 
             <!-- Menu: Mentorias (Education & Growth) -->
+            <?php if (($_SESSION['user_type'] ?? '') !== 'investor'): ?>
             <div class="nav-dropdown-modal">
                 <a href="javascript:void(0)" onclick="openMentoriaModal()" class="nav-link">
                     <i class="fas fa-chalkboard-teacher"></i> Mentorias
                 </a>
             </div>
+            <?php endif; ?>
         </div>
 
         <!-- Ações da Direita -->
         <div class="header-actions">
             <!-- Ícone de Pesquisa (Apenas Mobile) -->
-            <a href="javascript:void(0)" class="btn-action mobile-only-search" onclick="toggleMobileSearch()" title="Pesquisar">
+            <a href="javascript:void(0)" class="btn-action mobile-only-search" onclick="if(!enforceKYC(event)) return false; toggleMobileSearch()" title="Pesquisar">
                 <i class="fas fa-search"></i>
             </a>
 
@@ -97,7 +99,7 @@ if ($is_mentor || $is_admin) {
                 </button>
 
                 <!-- Canal de Mensagens -->
-                <a href="<?php echo $base_url; ?>paginas/social/messages.php" class="btn-action btn-action--msg" title="Mensagens">
+                <a href="<?php echo $base_url; ?>paginas/social/messages.php" onclick="return enforceKYC(event);" class="btn-action btn-action--msg" title="Mensagens">
                     <i class="fas fa-comment-dots"></i>
                     <?php if (isset($m_count) && (int)$m_count > 0): ?>
                         <span class="elite-badge-pulse badge-msg" id="msgBadge"><?php echo (int)$m_count; ?></span>
@@ -107,7 +109,7 @@ if ($is_mentor || $is_admin) {
                 </a>
                 
                 <!-- Central de Notificações -->
-                <a href="javascript:void(0)" onclick="toggleNotifs(event)" class="btn-action btn-action--notif" title="Notificações">
+                <a href="javascript:void(0)" onclick="if(!enforceKYC(event)) return false; toggleNotifs(event)" class="btn-action btn-action--notif" title="Notificações">
                     <i class="fas fa-bell"></i>
                     <?php if (isset($n_count) && (int)$n_count > 0): ?>
                         <span class="elite-badge-pulse badge-notif" id="notifBadge"><?php echo (int)$n_count; ?></span>
@@ -117,7 +119,7 @@ if ($is_mentor || $is_admin) {
                 </a>
 
                 <!-- Dúvidas (Comunidade) -->
-                <a href="<?php echo $base_url; ?>paginas/explorar/doubts.php" class="btn-action btn-action--doubt" title="Dúvidas na Comunidade">
+                <a href="<?php echo $base_url; ?>paginas/explorar/doubts.php" onclick="return enforceKYC(event);" class="btn-action btn-action--doubt" title="Dúvidas na Comunidade">
                     <i class="fas fa-question-circle"></i>
                     <?php if (isset($open_doubts) && (int)$open_doubts > 0): ?>
                         <span class="elite-badge-pulse badge-doubt" id="doubtBadge"><?php echo (int)$open_doubts; ?></span>

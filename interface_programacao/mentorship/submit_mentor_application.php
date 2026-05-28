@@ -8,7 +8,7 @@ require_once '../../inclusoes/Security.php';
 header('Content-Type: application/json');
 
 if (!isLoggedIn()) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit();
 }
 
@@ -25,7 +25,7 @@ $experience_years = (int)($_POST['experience_years'] ?? 0);
 $linkedin_url = trim($_POST['linkedin_url'] ?? '');
 
 if ($specialty === '' || $linkedin_url === '') {
-    echo json_encode(['success' => false, 'message' => 'Todos os campos sao obrigatorios.']);
+    echo json_encode(['success' => false, 'message' => 'Todos os campos são obrigatorios.']);
     exit();
 }
 

@@ -88,7 +88,7 @@ try {
     foreach ($counts as $table => $count) {
         echo "{$table}: {$count} mensagens cifradas." . PHP_EOL;
     }
-    echo "Historico de chat cifrado com AES-256-GCM." . PHP_EOL;
+    echo "Histórico de chat cifrado com AES-256-GCM." . PHP_EOL;
 } catch (Throwable $e) {
     $db->rollBack();
     $message = 'Falha na migracao: ' . $e->getMessage() . PHP_EOL;

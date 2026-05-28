@@ -368,7 +368,7 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
             font-size: 1.8rem; font-weight: 800;
             letter-spacing: -0.5px; margin-bottom: 1rem; line-height: 1.2;
         }
-        .descricao-direita {
+        .descrição-direita {
             font-size: 0.875rem; color: var(--cor-texto-paragrafo);
             line-height: 1.7; margin-bottom: 2rem;
         }
@@ -506,7 +506,7 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
         <?php if (isset($_GET['msg']) && $_GET['msg'] == 'session_expired'): ?>
             <div class="alerta alerta-aviso">
                 <i class="fas fa-clock"></i>
-                A tua sessÃ£o expirou por inatividade. Entra novamente para continuar.
+                A tua sessão expirou por inatividade. Entra novamente para continuar.
             </div>
         <?php endif; ?>
 
@@ -583,7 +583,7 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
 
         <!-- Título do painel informativo sobre a plataforma -->
         <h2 class="titulo-direito">A tua plataforma de crescimento profissional</h2>
-        <p class="descricao-direita">A plataforma angolana que conecta estudantes, mentores e investidores num único ecossistema digital de oportunidades.</p>
+        <p class="descrição-direita">A plataforma angolana que conecta estudantes, mentores e investidores num único ecossistema digital de oportunidades.</p>
 
         <!-- Lista de vantagens de ser membro da plataforma -->
         <div class="lista-beneficios">

@@ -12,19 +12,19 @@ async function editUser(user) {
             <div style="text-align: left;">
                 <label style="font-size: 0.8rem; color: #94a3b8;">Tipo de Perfil:</label>
                 <select id="swal-type" class="swal2-input" style="width: 100%; margin: 0.5rem 0 1rem 0;">
-                    <option value="univ_student" ${user.user_type === 'univ_student' ? 'selected' : ''}>Estudante UniversitÃ¡rio</option>
-                    <option value="high_student" ${user.user_type === 'high_student' ? 'selected' : ''}>Estudante do Ensino MÃ©dio</option>
+                    <option value="univ_student" ${user.user_type === 'univ_student' ? 'selected' : ''}>Estudante Universitário</option>
+                    <option value="high_student" ${user.user_type === 'high_student' ? 'selected' : ''}>Estudante do Ensino Médio</option>
                     <option value="mentor" ${user.user_type === 'mentor' ? 'selected' : ''}>Mentor</option>
                     <option value="investor" ${user.user_type === 'investor' ? 'selected' : ''}>Investidor</option>
                     <option value="admin" ${user.user_type === 'admin' ? 'selected' : ''}>Administrador</option>
                 </select>
                 
-                <label style="font-size: 0.8rem; color: #94a3b8;">InstituiÃ§Ã£o (Texto):</label>
+                <label style="font-size: 0.8rem; color: #94a3b8;">Instituição (Texto):</label>
                 <input id="swal-institution" class="swal2-input" value="${user.institution || ''}" placeholder="Ex: Universidade Agostinho Neto" style="width: 100%; margin: 0.5rem 0 1rem 0;">
             </div>
         `,
         showCancelButton: true,
-        confirmButtonText: 'Guardar AlteraÃ§Ãµes',
+        confirmButtonText: 'Guardar Alterações',
         preConfirm: () => {
             return {
                 user_id: user.user_id,
@@ -53,13 +53,13 @@ async function inviteAdmin() {
     // Permissions list same as before
     const permissions = [
         { slug: 'dashboard', label: 'Dashboard' },
-        { slug: 'users', label: 'GestÃ£o de Utilizadores' },
+        { slug: 'users', label: 'Gestão de Utilizadores' },
         { slug: 'ads', label: 'Publicidade' },
-        { slug: 'moderation', label: 'ModeraÃ§Ã£o' },
+        { slug: 'moderation', label: 'Moderação' },
         { slug: 'support', label: 'Suporte' },
         { slug: 'kyc', label: 'KYC' },
         { slug: 'mentor_approval', label: 'Acolhimento Mentores' },
-        { slug: 'finances', label: 'FinanÃ§as' },
+        { slug: 'finances', label: 'Finanças' },
         { slug: 'settings', label: 'Definicoes' }
     ];
 
@@ -80,7 +80,7 @@ async function inviteAdmin() {
             <div style="text-align: left;">
                 <input id="invite_name" class="swal2-input" placeholder="Nome Completo">
                 <input id="invite_email" type="email" class="swal2-input" placeholder="Email">
-                <p style="margin-top: 15px; font-weight: bold; color: var(--accent-orange);">PermissÃµes:</p>
+                <p style="margin-top: 15px; font-weight: bold; color: var(--accent-orange);">Permissões:</p>
                 ${permsHtml}
             </div>
         `,
@@ -91,7 +91,7 @@ async function inviteAdmin() {
             const name = document.getElementById('invite_name').value;
             const email = document.getElementById('invite_email').value;
             const perms = Array.from(document.querySelectorAll('.invite-perm-checkbox:checked')).map(cb => cb.value);
-            if (!name || !email) { Swal.showValidationMessage('Preencha os campos obrigatÃ³rios'); return false; }
+            if (!name || !email) { Swal.showValidationMessage('Preencha os campos obrigatórios'); return false; }
             return { name, email, perms };
         }
     });
@@ -129,9 +129,9 @@ async function managePermissions(userId, userName) {
 
         const permissions = [
             { slug: 'dashboard', label: 'Dashboard' }, { slug: 'users', label: 'Utilizadores' },
-            { slug: 'ads', label: 'Publicidade' }, { slug: 'moderation', label: 'ModeraÃ§Ã£o' },
+            { slug: 'ads', label: 'Publicidade' }, { slug: 'moderation', label: 'Moderação' },
             { slug: 'support', label: 'Suporte' }, { slug: 'kyc', label: 'KYC' },
-            { slug: 'mentor_approval', label: 'AprovaÃ§Ã£o Mentores' }, { slug: 'finances', label: 'FinanÃ§as' },
+            { slug: 'mentor_approval', label: 'Aprovação Mentores' }, { slug: 'finances', label: 'Finanças' },
             { slug: 'settings', label: 'Definicoes' }
         ];
 
@@ -148,7 +148,7 @@ async function managePermissions(userId, userName) {
         html += `</div>`;
 
         const { value: selectedPerms } = await Swal.fire({
-            title: `PermissÃµes: ${userName}`,
+            title: `Permissões: ${userName}`,
             html: html,
             width: '600px',
             showCancelButton: true,
@@ -167,7 +167,7 @@ async function managePermissions(userId, userName) {
                 return res.json();
             })
             .then(data => {
-                if (!data.success) throw new Error(data.message || 'Nao foi possivel guardar permissoes.');
+                if (!data.success) throw new Error(data.message || 'Não foi possível guardar permissoes.');
                 Swal.fire('Sucesso!', 'Permissoes atualizadas.', 'success');
             })
             .catch(err => Swal.fire('Erro', err.message, 'error'));
@@ -177,8 +177,8 @@ async function managePermissions(userId, userName) {
 
 function deleteUser(userId) {
     Swal.fire({
-        title: 'Confirmar ExclusÃ£o?',
-        text: "O utilizador serÃ¡ removido permanentemente!",
+        title: 'Confirmar Exclusão?',
+        text: "O utilizador será removido permanentemente!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',

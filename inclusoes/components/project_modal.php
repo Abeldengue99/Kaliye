@@ -51,7 +51,7 @@
                             <div class="elite-input-group">
                                 <label class="elite-label-micro">ESTÁGIO ATUAL</label>
                                 <select name="project_stage" class="elite-input-premium" style="appearance: none;">
-                                    <option value="Ideia">Conceito Inicial</option>
+                                    <option value="Projecto">Conceito Inicial</option>
                                     <option value="MVP">MVP Funcional</option>
                                     <option value="Operacional">Tracionando</option>
                                     <option value="Escala">Pronto para Escala</option>
@@ -94,8 +94,8 @@
                     <div class="form-step" id="step3" style="display: none;">
                         <div class="elite-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                              <div class="elite-input-group" style="grid-column: span 2;">
-                                <label class="elite-label-micro">ORIGEM DA IDEIA</label>
-                                <textarea name="idea_origin" rows="3" placeholder="Como surgiu esta ideia?" class="elite-input-premium" style="resize: none;"></textarea>
+                                <label class="elite-label-micro">ORIGEM do projecto</label>
+                                <textarea name="idea_origin" rows="3" placeholder="Como surgiu este projecto?" class="elite-input-premium" style="resize: none;"></textarea>
                             </div>
 
                             <div class="elite-input-group" style="grid-column: span 2;">

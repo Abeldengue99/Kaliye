@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * inclusoes/components/evaluation_modal.php
  * Modal premium de avaliação da plataforma (Aksanti Feedback)
@@ -30,15 +30,15 @@ if (isset($_SESSION['user_id'])):
                 <input type="radio" id="star1" name="rating" value="1" onclick="handleStarClick(1)" /><label for="star1" title="1 estrela"><i class="fas fa-star"></i></label>
             </div>
             
-            <div id="suggestionArea" style="display: none;" class="animate-fade-in">
-                <p style="color: #f7941d; font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem;">Lamentamos que a tua experiência não tenha sido ideal. <br>Diz-nos o que podemos melhorar:</p>
-                <textarea id="negativeSuggestion" name="suggestion" placeholder="A tua sugestão de melhoria..." rows="3" style="margin-bottom: 1rem;"></textarea>
+            <div id="suggestionArea" style="display: block;" class="animate-fade-in">
+                <p style="color: #f7941d; font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem;">O que achou da plataforma?</p>
+                <textarea id="negativeSuggestion" name="suggestion" placeholder="Deixe um comentário sobre a sua experiência (opcional)..." rows="3" style="margin-bottom: 1rem;"></textarea>
             </div>
 
             <div class="evaluation-actions">
-                <button type="button" class="btn-later" onclick="closeEvaluationModal()">Talvez depois</button>
+                <button type="button" class="btn-later" onclick="closeEvaluationModal()">Cancelar</button>
                 <button type="button" id="btnSubmitEval" class="btn-submit-feedback" onclick="submitAksantiEvaluation()">
-                    <i class="fas fa-paper-plane"></i> Enviar Feedback
+                    <i class="fas fa-paper-plane"></i> Enviar Avaliação
                 </button>
             </div>
         </div>
@@ -116,7 +116,7 @@ if (isset($_SESSION['user_id'])):
     color: #f7941d;
 }
 
-.evaluation-form textarea {
+.evaluation-card textarea {
     width: 100%;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
@@ -128,11 +128,37 @@ if (isset($_SESSION['user_id'])):
     resize: none;
     margin-bottom: 2rem;
     transition: 0.3s;
+    font-family: inherit;
 }
 
-.evaluation-form textarea:focus {
+.evaluation-card textarea:focus {
     border-color: rgba(247, 148, 29, 0.4);
     background: rgba(255,255,255,0.05);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.modal-close-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    transform: rotate(90deg);
 }
 
 .evaluation-actions {
@@ -203,12 +229,7 @@ function closeEvaluationModal() {
 }
 
 function handleStarClick(rating) {
-    const area = document.getElementById('suggestionArea');
-    if (rating <= 2) {
-        area.style.display = 'block';
-    } else {
-        area.style.display = 'none';
-    }
+    // A caixa de comentário agora está sempre visível
 }
 
 async function submitAksantiEvaluation() {
@@ -222,11 +243,6 @@ async function submitAksantiEvaluation() {
 
     const rating = parseInt(ratingInput.value);
     const suggestion = document.getElementById('negativeSuggestion').value.trim();
-
-    if (rating <= 2 && !suggestion) {
-        Swal.fire({ icon: 'info', title: 'Diz-nos mais', text: 'Por favor, partilha connosco o que podemos melhorar.', background: '#1e293b', color: '#fff' });
-        return;
-    }
 
     btn.disabled = true;
     const originalContent = btn.innerHTML;
@@ -266,22 +282,7 @@ async function submitAksantiEvaluation() {
     }
 }
 
-// Lógica de auto-trigger com experiência de uso
-window.addEventListener('DOMContentLoaded', () => {
-    const alreadyEvaluated = localStorage.getItem('aksanti_evaluated');
-    const lastDismissed = localStorage.getItem('aksanti_evaluation_dismissed');
-    
-    // Mostra se não avaliou e não ignorou recentemente
-    // Aumentamos o delay para 60 segundos para garantir que o utilizador interagiu com a plataforma
-    const oneWeek = 7 * 24 * 60 * 60 * 1000;
-    const shouldShow = !alreadyEvaluated && (!lastDismissed || (Date.now() - lastDismissed > oneWeek));
-
-    if (shouldShow) {
-        setTimeout(() => {
-            // Verifica novamente se o utilizador ainda está na página e ativo
-            openEvaluationModal();
-        }, 60000); // 60 segundos (1 minuto) de experiência mínima na sessão
-    }
-});
+// Auto-trigger removido a pedido do utilizador.
+// O modal será aberto apenas por ação manual (clique no botão de feedback).
 </script>
 <?php endif; ?>

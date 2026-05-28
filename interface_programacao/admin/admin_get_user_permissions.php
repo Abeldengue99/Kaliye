@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../configuracoes/base_dados.php';
 require_once __DIR__ . '/../../inclusoes/auth_check.php';
 
 if (!isAdmin() || !hasPermission('users')) {
-    echo json_encode(['success' => false, 'message' => 'Nao autorizado']);
+    echo json_encode(['success' => false, 'message' => 'Não autorizado']);
     exit;
 }
 

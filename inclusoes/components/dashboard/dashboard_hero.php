@@ -29,13 +29,13 @@ $motivational = [
         6 => ["Grandes mentores constroem-se com o tempo.", "Mas começa sempre com uma primeira conversa."],
     ],
     'student' => [
-        0 => ["Domingo é o dia de pensar grande.", "Qual é a ideia que vai mudar o teu futuro?"],
-        1 => ["Nova semana, nova oportunidade.", "Que projecto tens em mente? A KALIYE está pronta."],
-        2 => ["Uma ideia não age sozinha.", "Dá o primeiro passo e publica o teu projecto hoje."],
-        3 => ["Pensa mais no que queres desenvolver.", "Qual é o problema que a tua ideia resolve?"],
-        4 => ["Quinta-feira: que problema à tua volta", "consegues resolver com uma boa ideia?"],
-        5 => ["Antes de terminar a semana,", "submete aquela ideia que tens há semanas na cabeça."],
-        6 => ["O teu maior concorrente és tu do passado.", "O que estás a construir melhor hoje?"],
+        0 => ["Domingo é o dia de pensar grande.", "Qual é o projecto que vai mudar o teu futuro? Publica agora."],
+        1 => ["Nova semana, novas oportunidades.", "Acelera a tua visão. Partilha o teu projecto com a comunidade."],
+        2 => ["Um projecto não ganha vida no papel.", "Dá o primeiro passo e publica o teu projecto hoje."],
+        3 => ["Grandes projectos precisam de palco.", "Qual é o problema real que vais resolver hoje?"],
+        4 => ["Quinta-feira: o ecossistema está à espera.", "O que consegues mudar com um bom projecto?"],
+        5 => ["Antes de terminar a semana, age.", "Submete aquele projecto que tens na cabeça há meses."],
+        6 => ["O teu maior concorrente és tu do passado.", "Começa a construir o teu futuro publicando um projecto."],
     ],
     'default' => [
         0 => ["Cada domingo é uma página em branco.", "Que história vais escrever esta semana?"],
@@ -84,7 +84,7 @@ $hero_base_url = $base_url ?? './';
         <span class="ambient-node node-c"></span>
         <span class="ambient-node node-d"></span>
     </div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--surface-5); padding-bottom: 3.5rem; flex-wrap: wrap; gap: 3rem;" class="dashboard-hero-container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--surface-5); padding-top: 3.5rem; padding-bottom: 3.5rem; flex-wrap: wrap; gap: 3rem;" class="dashboard-hero-container">
         
         <!-- SAUDAÇÃO -->
         <div style="flex: 1; min-width: 320px;" class="dashboard-hero-welcome">
@@ -103,9 +103,18 @@ $hero_base_url = $base_url ?? './';
             </div>
             
             <!-- BOTÃO DE ACÇÃO RÁPIDA -->
+            <?php
+            $user_types_hero = strtolower($_SESSION['user_type'] ?? '');
+            $is_mentor_only_hero = (strpos($user_types_hero, 'mentor') !== false || strpos($user_types_hero, 'especialista') !== false) 
+                              && strpos($user_types_hero, 'estudante') === false 
+                              && strpos($user_types_hero, 'investidor') === false
+                              && strpos($user_types_hero, 'admin') === false;
+            if (!$is_mentor_only_hero): 
+            ?>
             <button onclick="window.openPostModal()" class="btn-publish-idea" data-aos="zoom-in" data-aos-delay="600" style="margin-top: 2.5rem; background: var(--elite-orange); color: #fff; border: none; padding: 1.1rem 3rem; border-radius: 20px; font-size: 0.75rem; font-weight: 950; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; box-shadow: 0 10px 40px rgba(247, 148, 29, 0.3); transition: 0.4s; display: flex; align-items: center; gap: 15px;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <i class="fas fa-plus" style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 6px;"></i> Publicar Ideia
+                <i class="fas fa-plus" style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 6px;"></i> Publicar Projecto
             </button>
+            <?php endif; ?>
         </div>
         
         <!-- ESTATÍSTICAS DINÂMICAS POR PERFIL -->

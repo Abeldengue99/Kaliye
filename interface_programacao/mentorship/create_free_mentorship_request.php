@@ -5,7 +5,7 @@ require_once '../../inclusoes/free_mentorship_schema.php';
 
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit;
 }
 
@@ -26,7 +26,7 @@ $estimated_duration = trim($_POST['estimated_duration'] ?? '');
 $doubt_id = !empty($_POST['doubt_id']) ? intval($_POST['doubt_id']) : null;
 
 if ($title === '' || $description === '') {
-    echo json_encode(['success' => false, 'message' => 'Titulo e descricao sao obrigatorios.']);
+    echo json_encode(['success' => false, 'message' => 'Titulo e descrição são obrigatorios.']);
     exit;
 }
 
@@ -38,7 +38,7 @@ if ($doubt_id) {
     $check = $db->prepare("SELECT COUNT(*) FROM free_mentorship_requests WHERE student_id = ? AND doubt_id = ? AND status IN ('open', 'in_progress')");
     $check->execute([$user_id, $doubt_id]);
     if ($check->fetchColumn() > 0) {
-        echo json_encode(['success' => false, 'message' => 'Ja tens um pedido de mentoria ativo para esta duvida.']);
+        echo json_encode(['success' => false, 'message' => 'Ja tens um pedido de mentoria ativo para esta dúvida.']);
         exit;
     }
 }
@@ -74,7 +74,7 @@ try {
 
     if ($eligible_users) {
         $notif_title = 'Nova oportunidade de mentoria';
-        $notif_content = "Um estudante pediu ajuda no tema: '" . mb_strimwidth($title, 0, 70, '...') . "'. Candidate-se se esta area faz parte da sua experiencia.";
+        $notif_content = "Um estudante pediu ajuda no tema: '" . mb_strimwidth($title, 0, 70, '...') . "'. Candidate-se se esta area faz parte da sua experiência.";
         $link = 'paginas/mentoria/free_mentorship_requests.php?request_id=' . $request_id;
         $notif_ins = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at) VALUES (?, ?, ?, ?, 'mentorship_request', ?, false, CURRENT_TIMESTAMP)");
         foreach ($eligible_users as $mentor_id) {

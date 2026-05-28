@@ -190,7 +190,7 @@
         Swal.fire({
             icon: 'error',
             title: 'Candidatura indisponivel',
-            text: 'Nao foi possivel abrir o formulario de candidatura nesta pagina.',
+            text: 'Não foi possível abrir o formulario de candidatura nesta pagina.',
             background: '#111827',
             color: '#fff'
         });
@@ -431,6 +431,20 @@
                                 
                                 if (targetId) {
                                     window.openUserCard(targetId);
+                                    return;
+                                }
+                            }
+                        }
+
+                        // PRIORIDADE: Notificações de projecto → abrir modal directamente
+                        // Apanha project_id=, comment_project_id= e o formato legado id=
+                        if (destUrl && destUrl.includes('index.php?') && (destUrl.includes('project_id=') || destUrl.includes('comment_project_id=') || destUrl.includes('id='))) {
+                            if (typeof window.openProjectDetails === 'function') {
+                                let pId = null;
+                                const match = destUrl.match(/(?:project_id|comment_project_id|id)=(\d+)/);
+                                if (match) pId = parseInt(match[1], 10);
+                                if (pId) {
+                                    window.openProjectDetails(pId);
                                     return;
                                 }
                             }

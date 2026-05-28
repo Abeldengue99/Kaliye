@@ -50,12 +50,10 @@ try {
 
     $query = "UPDATE users SET 
                 verification_status = :status,
-                admin_notes = :notes,
                 updated_at = NOW()";
 
     $params = [
         ':status' => $status,
-        ':notes' => $notes,
         ':user_id' => $user_id
     ];
 
@@ -85,14 +83,14 @@ try {
     $stmt->execute($params);
 
     // Track for audit
-    $auditQuery = "INSERT INTO kyc_verifications (user_id, status, verification_level, rejection_reason, verified_by, verified_at) 
-                   VALUES (?, ?, 'full_identity_and_role', ?, ?, NOW())";
-    $auditStmt = $db->prepare($auditQuery);
-    $auditStmt->execute([$user_id, $status, $notes, $_SESSION['user_id']]);
+    $audit_action = $status === 'verified' ? 'approve_kyc' : 'reject_kyc';
+    $audit_details = "KYC " . ($status === 'verified' ? "aprovado" : "rejeitado") . " para o utilizador ID $user_id. Notas: $notes";
+    $auditStmt = $db->prepare("INSERT INTO audit_logs (admin_id, action, details) VALUES (?, ?, ?)");
+    $auditStmt->execute([$_SESSION['user_id'], $audit_action, $audit_details]);
 
     $notif = $db->prepare("
         INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at)
-        VALUES (?, ?, ?, ?, 'kyc', ?, false, NOW())
+        VALUES (?, ?, ?, ?, 'kyc', ?, 0, NOW())
     ");
     if ($status === 'verified') {
         $notif->execute([
@@ -150,7 +148,7 @@ function generateKYCEmailBody($name, $status, $notes) {
             "Área de Mensagens Privadas desbloqueada",
             "Gestão da Carteira Digital KALIYE"
         ];
-        $cta_text = "Explorar o Ecossistema";
+        $cta_text = "";
     } else {
         $title = "Atualização Necessária";
         $subtitle = "Precisamos de mais alguns detalhes para o seu KYC.";
@@ -208,7 +206,7 @@ function generateKYCEmailBody($name, $status, $notes) {
             <div class='container'>
                 <div class='header-logo'>
                     <img src='../../recursos/images/marca/favicon-k-32x32.png' alt='KALIYE Logo' style='width: 45px;'>
-                    <div style='color: #f7941d; font-weight: 800; font-size: 18px; margin-top: 12px; letter-spacing: 1px;'>KALIYE REFERÊNCIAS</div>
+                    <div style='color: #f7941d; font-weight: 800; font-size: 18px; margin-top: 12px; letter-spacing: 1px;'>KALIYE</div>
                 </div>
                 
                 <div class='hero-section'>
@@ -223,17 +221,17 @@ function generateKYCEmailBody($name, $status, $notes) {
                     $features_html
                     $note_section
 
-                    <div style='text-align: center;'>
+                    " . ($cta_text ? "<div style='text-align: center;'>
                         <a href='https://aksanti.xyz/paginas/social/profile.php' class='btn-cta'>$cta_text</a>
-                    </div>
+                    </div>" : "") . "
                     
                     <p style='margin-top: 40px; font-size: 14px; color: #718096;'>Atenciosamente,<br><strong>Equipa de Verificação KALIYE</strong></p>
                 </div>
 
                 <div class='footer'>
                     <p class='footer-text'>
-                        &copy; 2026 KALIYE Referências. Todos os direitos reservados.<br>
-                        Luanda, Angola. Transformando projectos em impacto real.
+                        &copy; 2026 KALIYE. Todos os direitos reservados.<br>
+                        Transformando projectos em impacto real.
                     </p>
                     <div class='footer-text' style='margin-top: 15px; font-size: 11px; opacity: 0.7;'>
                         Recebeu este email porque solicitou a verificação da sua conta na nossa plataforma. Por favor, não responda a este email.

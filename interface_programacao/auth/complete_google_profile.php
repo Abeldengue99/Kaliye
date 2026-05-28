@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../inclusoes/GoogleOAuth.php';
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit();
 }
 

@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../configuracoes/base_dados.php';
 require_once __DIR__ . '/../../inclusoes/Security.php';
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Nao autenticado.']);
+    echo json_encode(['success' => false, 'message' => 'Não autenticado.']);
     exit;
 }
 
@@ -23,7 +23,7 @@ try {
     $stmt->execute([$agreement_id, (int)$_SESSION['user_id']]);
     $agreement = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$agreement) {
-        throw new Exception('Contrato nao encontrado.');
+        throw new Exception('Contrato não encontrado.');
     }
 
     $user_signed_file = null;

@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (empty($_SESSION['user_id'])) {
     http_response_code(401);
-    echo '<p style="color:red;">Nao autorizado.</p>';
+    echo '<p style="color:red;">Não autorizado.</p>';
     exit();
 }
 
@@ -25,6 +25,7 @@ $current_user_type = $_SESSION['user_type'] ?? 'student';
 
 $feed_page      = isset($_GET['f_page']) ? max(1, (int)$_GET['f_page']) : 1;
 $feed_sort      = $_GET['sort'] ?? 'trending';
+$project_id     = isset($_GET['project_id']) ? (int)$_GET['project_id'] : (isset($_GET['project_modal']) ? (int)$_GET['project_modal'] : (isset($_GET['comment_project_id']) ? (int)$_GET['comment_project_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0)));
 if (!in_array($feed_sort, ['trending', 'recent', 'top'], true)) {
     $feed_sort = 'trending';
 }
@@ -35,6 +36,11 @@ $where_parts = [];
 $params      = [];
 
 $where_parts[] = "p.is_public = true AND p.approval_status = 'approved'";
+
+if ($project_id > 0) {
+    $where_parts[] = "p.project_id = :project_id";
+    $params[':project_id'] = $project_id;
+}
 
 if (!empty($_GET['category'])) {
     $where_parts[] = "LOWER(TRIM(COALESCE(p.category, ''))) = :category";
@@ -141,7 +147,7 @@ function buildFeedAjaxPageUrl(int $page): string {
         <?php foreach ($hot_projects as $idx => $hot): ?>
             <button type="button" onclick="openProjectDetails(<?php echo (int)$hot['project_id']; ?>, 1)" class="feed-hot-item">
                 <strong>#<?php echo $idx + 1; ?></strong>
-                <span><?php echo htmlspecialchars($hot['title'] ?: 'Ideia sem titulo'); ?></span>
+                <span><?php echo htmlspecialchars($hot['title'] ?: 'Projecto sem titulo'); ?></span>
                 <em><i class="fas fa-star"></i> <?php echo (int)$hot['vote_count']; ?></em>
             </button>
         <?php endforeach; ?>

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../inclusoes/ChatSecurity.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'error' => 'Sessão expirada.']);
     exit();
 }
 
@@ -31,7 +31,7 @@ try {
         echo json_encode(['success' => true, 'message' => 'Denuncia registada para analise.']);
         exit();
     }
-    echo json_encode(['success' => false, 'error' => 'Nao foi possivel registar a denuncia.']);
+    echo json_encode(['success' => false, 'error' => 'Não foi possível registar a denuncia.']);
 } catch (Throwable $e) {
     echo json_encode(['success' => false, 'error' => 'Falha ao registar denuncia.']);
 }

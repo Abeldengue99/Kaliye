@@ -1,4 +1,4 @@
-// Chat em Tempo Real - Aksanti ReferÃªncias
+// Chat em Tempo Real - Aksanti Referências
 // Sistema de mensagens com polling AJAX e interface moderna
 
 class RealtimeChat {
@@ -17,7 +17,7 @@ class RealtimeChat {
     }
 
     attachEventListeners() {
-        // Detectar digitaÃ§Ã£o
+        // Detectar digitação
         const messageInput = document.getElementById('message-input');
         if (messageInput) {
             messageInput.addEventListener('input', () => this.handleTyping());
@@ -29,7 +29,7 @@ class RealtimeChat {
             });
         }
 
-        // BotÃ£o de enviar
+        // Botão de enviar
         const sendBtn = document.getElementById('send-message-btn');
         if (sendBtn) {
             sendBtn.addEventListener('click', () => this.sendMessage());
@@ -206,7 +206,7 @@ class RealtimeChat {
                 body: formData
             });
         } catch (error) {
-            console.error('Erro ao atualizar status de digitaÃ§Ã£o:', error);
+            console.error('Erro ao atualizar status de digitação:', error);
         }
     }
 
@@ -313,7 +313,7 @@ class RealtimeChat {
     }
 
     playNotificationSound() {
-        // Som sutil de notificaÃ§Ã£o
+        // Som sutil de notificação
         const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWi77eefTRAMUKfj8LZjHAY4ktfyzHksBSR3x/DdkEAKFF606+uoVRQKRp/g8r5sIQUrg87y2Ik2CBlou+3nn00QDFCn4/C2YxwGOJLX8sx5LAUkd8fw3ZBAC');
         audio.volume = 0.3;
         audio.play().catch(() => { }); // Ignorar erros de autoplay
@@ -338,7 +338,7 @@ class RealtimeChat {
     }
 }
 
-// Inicializar apenas na pÃ¡gina de mensagens
+// Inicializar apenas na página de mensagens
 if (window.location.pathname.includes('messages.php')) {
     window.realtimeChat = new RealtimeChat();
 }

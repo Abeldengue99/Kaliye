@@ -133,7 +133,7 @@ $potential_projects = $db->query($potential_q)->fetchAll(PDO::FETCH_ASSOC);
                 <table class="aksanti-table">
                     <thead>
                         <tr>
-                            <th>Ideia Disponível</th>
+                            <th>Projecto Disponível</th>
                             <th>Fundador</th>
                             <th>Data de Publicação</th>
                             <th>Expectativa Orçamental</th>

@@ -83,8 +83,8 @@ class Security {
             UPLOAD_ERR_FORM_SIZE => 'O ficheiro excede o limite permitido.',
             UPLOAD_ERR_PARTIAL => 'O upload ficou incompleto. Tente novamente.',
             UPLOAD_ERR_NO_FILE => 'Nenhum ficheiro foi recebido.',
-            UPLOAD_ERR_NO_TMP_DIR => 'A pasta temporaria do servidor nao esta disponivel.',
-            UPLOAD_ERR_CANT_WRITE => 'O servidor nao conseguiu gravar o ficheiro.',
+            UPLOAD_ERR_NO_TMP_DIR => 'A pasta temporaria do servidor não esta disponivel.',
+            UPLOAD_ERR_CANT_WRITE => 'O servidor não conseguiu gravar o ficheiro.',
             UPLOAD_ERR_EXTENSION => 'Uma extensao do servidor bloqueou o upload.',
         ];
 
@@ -115,12 +115,12 @@ class Security {
         }
 
         if (!isset($allowedMimeMap[$mime])) {
-            return ['ok' => false, 'error' => 'Tipo de ficheiro nao permitido.'];
+            return ['ok' => false, 'error' => 'Tipo de ficheiro não permitido.'];
         }
 
         $absoluteDir = rtrim($absoluteDir, "/\\") . DIRECTORY_SEPARATOR;
         if (!is_dir($absoluteDir) && !mkdir($absoluteDir, 0755, true) && !is_dir($absoluteDir)) {
-            return ['ok' => false, 'error' => 'Nao foi possivel preparar a pasta de uploads.'];
+            return ['ok' => false, 'error' => 'Não foi possível preparar a pasta de uploads.'];
         }
 
         $safePrefix = preg_replace('/[^a-zA-Z0-9_-]/', '_', $prefix) ?: 'upload';

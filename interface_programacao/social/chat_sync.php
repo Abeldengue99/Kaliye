@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../inclusoes/ChatSecurity.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Nao autenticado']);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
     exit();
 }
 
@@ -31,7 +31,7 @@ if (isset($_GET['get_user_name'])) {
     $stmt->execute([$uid]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) {
-        echo json_encode(['success' => false, 'error' => 'Utilizador nao encontrado']);
+        echo json_encode(['success' => false, 'error' => 'Utilizador não encontrado']);
         exit();
     }
 
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = ChatSecurity::normalizeText($_POST['content'] ?? '');
 
     if ($receiver_id <= 0) {
-        echo json_encode(['success' => false, 'error' => 'Destinatario nao informado']);
+        echo json_encode(['success' => false, 'error' => 'Destinatario não informado']);
         exit();
     }
 

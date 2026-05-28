@@ -289,7 +289,7 @@ $projects = $db->query("
                                     <div style="flex:1; height:6px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
                                         <div style="width: ${p.project_stage === 'Beta' ? '60%' : (p.project_stage === 'MVP' ? '30%' : '10%')}; height:100%; background:var(--accent-orange);"></div>
                                     </div>
-                                    <span style="color:#fff; font-size:0.8rem; font-weight:700;">${p.project_stage || 'Ideia'}</span>
+                                    <span style="color:#fff; font-size:0.8rem; font-weight:700;">${p.project_stage || 'Projecto'}</span>
                                 </div>
                             </div>
 

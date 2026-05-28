@@ -54,11 +54,11 @@ class GoogleOAuth {
         $profile = $this->fetchGoogleProfile($token['access_token'] ?? '');
 
         if (empty($profile['sub']) || empty($profile['email'])) {
-            throw new RuntimeException('Nao foi possivel obter o email da conta Google.');
+            throw new RuntimeException('Não foi possível obter o email da conta Google.');
         }
 
         if (isset($profile['email_verified']) && !$this->enabledValue($profile['email_verified'])) {
-            throw new RuntimeException('A conta Google ainda nao tem email verificado.');
+            throw new RuntimeException('A conta Google ainda não tem email verificado.');
         }
 
         $this->ensureUserColumns();

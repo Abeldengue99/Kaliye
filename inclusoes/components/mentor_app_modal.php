@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Nao foi possivel enviar a candidatura.' });
+            Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Não foi possível enviar a candidatura.' });
             if (btn) {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;

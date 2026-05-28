@@ -41,7 +41,7 @@ if ($header_user_id) {
         $user_data['profile_pic'] ?? ''
     );
 
-    // Os contadores do header sao atualizados pelo polling JS depois do load.
+    // Os contadores do header são atualizados pelo polling JS depois do load.
     // Evitamos 3 COUNTs bloqueantes no primeiro render da pagina.
     $m_count = (int)($_SESSION['header_counts']['messages'] ?? 0);
     $n_count = (int)($_SESSION['header_counts']['notifications'] ?? 0);

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // auth/reset_password.php
 session_start();
 require_once __DIR__ . '/../configuracoes/base_dados.php';
@@ -23,7 +23,7 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redefinir Senha | KALIYE</title>
-    <!-- Favicon Oficial KALIYE — completo e local -->
+    <!-- Favicon Oficial KALIYE -->
     <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../recursos/images/marca/favicon-k-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../recursos/images/marca/apple-touch-icon-k.png">
@@ -33,13 +33,18 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../recursos/css/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS adicional para deixar o card menor e elegante */
+        .login-card-compact {
+            max-width: 400px; /* Reduz a largura maxima */
+            padding: 2.5rem; /* Ajusta o espacamento interno */
+            margin: auto;
+        }
+    </style>
 </head>
 <body class="auth-bg" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0.5rem;">
-    <div class="login-card glass glow-card" style="position: relative; z-index: 10;">
+    <div class="login-card glass glow-card login-card-compact" style="position: relative; z-index: 10;">
         <div class="text-center" style="margin-bottom: 2rem;">
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                <img src="../recursos/images/marca/YALIYE.png" alt="KALIYE" style="width: 145px; height: auto; border-radius: 10px;">
-            </div>
             <h2 class="text-gradient" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Redefinir Senha</h2>
             <p style="color: var(--text-secondary); font-size: 0.85rem;">Escolha uma nova senha segura para a sua conta.</p>
         </div>
@@ -47,8 +52,8 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
         <?php if(isset($_GET['error'])): ?>
             <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 0.8rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.2);">
                 <?php 
-                    if($_GET['error'] == 'invalid_token') echo "Token inv�lido ou expirado.";
-                    else if($_GET['error'] == 'mismatch') echo "As senhas n�o coincidem.";
+                    if($_GET['error'] == 'invalid_token') echo "Token inválido ou expirado.";
+                    else if($_GET['error'] == 'mismatch') echo "As senhas não coincidem.";
                     else echo "Ocorreu um erro.";
                 ?>
             </div>
@@ -75,4 +80,3 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
     </div>
 </body>
 </html>
-

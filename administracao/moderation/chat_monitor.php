@@ -449,9 +449,9 @@ $security_logs = $db->query("
                 method: 'POST',
                 body: fd
             }).then(r => r.json()).then(data => {
-                alert(data.message || 'Acao processada.');
+                alert(data.message || 'Acção processada.');
                 if (data.success) location.reload();
-            }).catch(() => alert('Falha ao processar acao.'));
+            }).catch(() => alert('Falha ao processar acção.'));
         }
     </script>
 </body>

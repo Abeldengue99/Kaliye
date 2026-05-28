@@ -22,7 +22,7 @@
             </div>
             <span class="chat-empty-kicker">Canal KALIYE</span>
             <h3>Selecione uma conexao para continuar.</h3>
-            <p>Organize conversas diretas, salas de mentoria e sinergias de projeto num espaco reservado para trocar ideias com contexto.</p>
+            <p>Organize conversas diretas, salas de mentoria e sinergias de projeto num espaco reservado para trocar projectos com contexto.</p>
             <div class="chat-empty-actions">
                 <span><i class="fas fa-shield-alt"></i> Canal privado</span>
                 <span><i class="fas fa-paperclip"></i> Anexos</span>
@@ -94,7 +94,7 @@
             <i class="fas fa-times"></i>
         </button>
         <div class="chat-safety-icon" id="chatSafetyIcon"><i class="fas fa-flag"></i></div>
-        <span class="chat-safety-kicker" id="chatSafetyKicker">Seguranca do chat</span>
+        <span class="chat-safety-kicker" id="chatSafetyKicker">Segurança do chat</span>
         <h3 id="chatSafetyTitle">Denunciar conversa</h3>
         <p id="chatSafetyText">Ajude a equipa KALIYE a analisar comportamentos suspeitos.</p>
 

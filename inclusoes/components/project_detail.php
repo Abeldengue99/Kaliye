@@ -74,7 +74,7 @@ if (isset($db) && isset($project['project_id'])) {
         <?php if ($project['owner_id'] == $_SESSION['user_id']): ?>
         <div style="display: flex; gap: 12px;">
             <button onclick="editProject(<?php echo $project['project_id']; ?>)" class="btn-primary" style="background: var(--surface-5); border: 1px solid var(--surface-10); padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 700;">
-                <i class="fas fa-edit"></i> Editar Ideia
+                <i class="fas fa-edit"></i> Editar Projecto
             </button>
             <button onclick="deleteProject(<?php echo $project['project_id']; ?>)" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.8rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: 700;">
                 <i class="fas fa-trash"></i>
@@ -171,7 +171,7 @@ if (isset($db) && isset($project['project_id'])) {
                         <i class="<?php echo ($project['is_liked'] ?? ($project['user_liked'] ?? 0)) ? 'fas' : 'far'; ?> fa-heart"></i>
                     </button>
                     <?php if ($_can_vote): ?>
-                    <button type="button" id="vote-detail-<?php echo $project['project_id']; ?>" onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)" title="Votar nesta ideia" style="background: <?php echo $_user_voted ? 'rgba(234,179,8,0.15)' : 'var(--surface-5)'; ?>; border: 1px solid <?php echo $_user_voted ? 'rgba(234,179,8,0.4)' : 'var(--surface-10)'; ?>; color: <?php echo $_user_voted ? '#facc15' : 'white'; ?>; border-radius: 18px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; transition: 0.3s; position: relative;">
+                    <button type="button" id="vote-detail-<?php echo $project['project_id']; ?>" onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)" title="Votar neste projecto" style="background: <?php echo $_user_voted ? 'rgba(234,179,8,0.15)' : 'var(--surface-5)'; ?>; border: 1px solid <?php echo $_user_voted ? 'rgba(234,179,8,0.4)' : 'var(--surface-10)'; ?>; color: <?php echo $_user_voted ? '#facc15' : 'white'; ?>; border-radius: 18px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; transition: 0.3s; position: relative;">
                         <i class="<?php echo $_user_voted ? 'fas' : 'far'; ?> fa-star"></i>
                         <?php if ($_vote_count > 0): ?><span style="position:absolute;top:-4px;right:-4px;background:#facc15;color:#000;font-size:0.5rem;font-weight:900;border-radius:20px;padding:2px 5px;"><?php echo $_vote_count; ?></span><?php endif; ?>
                     </button>
@@ -187,14 +187,14 @@ if (isset($db) && isset($project['project_id'])) {
     <div class="glass" style="padding: 3rem; border-radius: 32px; background: rgba(13,22,40,0.8); border: 1px dashed rgba(255,255,255,0.08); text-align: center; margin-bottom: 2rem;">
         <i class="fas fa-shield-alt" style="font-size:3rem; color: rgba(255,255,255,0.15); margin-bottom:1.5rem; display:block;"></i>
         <h3 style="color:white; font-weight:800; margin:0 0 1rem;">Dossier Protegido</h3>
-        <p style="color:var(--text-muted); font-size:0.95rem; max-width:400px; margin:0 auto 2rem; line-height:1.6;">O dossier completo desta ideia está reservado a Investidores verificados. Como estudante, podes ver o resumo público.</p>
+        <p style="color:var(--text-muted); font-size:0.95rem; max-width:400px; margin:0 auto 2rem; line-height:1.6;">O dossier completo desta projecto está reservado a Investidores verificados. Como estudante, podes ver o resumo público.</p>
         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:20px; padding:1.5rem; max-width:500px; margin:0 auto; text-align:left;">
             <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.7; margin:0;"><?php echo htmlspecialchars(substr($project['description'] ?? '', 0, 200)); ?>…</p>
         </div>
         <?php if ($_can_vote): ?>
-        <button type="button" id="vote-detail-<?php echo $project['project_id']; ?>" onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)" title="Votar nesta ideia" style="margin-top:1.5rem; background: <?php echo $_user_voted ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.06)'; ?>; border: 1px solid <?php echo $_user_voted ? 'rgba(234,179,8,0.4)' : 'rgba(255,255,255,0.12)'; ?>; color: <?php echo $_user_voted ? '#facc15' : 'white'; ?>; border-radius: 16px; min-width: 180px; height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.86rem; font-weight: 900; cursor: pointer; transition: 0.3s; position: relative;">
+        <button type="button" id="vote-detail-<?php echo $project['project_id']; ?>" onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)" title="Votar neste projecto" style="margin-top:1.5rem; background: <?php echo $_user_voted ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.06)'; ?>; border: 1px solid <?php echo $_user_voted ? 'rgba(234,179,8,0.4)' : 'rgba(255,255,255,0.12)'; ?>; color: <?php echo $_user_voted ? '#facc15' : 'white'; ?>; border-radius: 16px; min-width: 180px; height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.86rem; font-weight: 900; cursor: pointer; transition: 0.3s; position: relative;">
             <i class="<?php echo $_user_voted ? 'fas' : 'far'; ?> fa-star"></i>
-            Votar nesta ideia
+            Votar neste projecto
             <?php if ($_vote_count > 0): ?><span style="position:absolute;top:-6px;right:-6px;background:#facc15;color:#000;font-size:0.62rem;font-weight:900;border-radius:20px;padding:2px 6px;"><?php echo $_vote_count; ?></span><?php endif; ?>
         </button>
         <?php endif; ?>
@@ -226,7 +226,7 @@ if (isset($db) && isset($project['project_id'])) {
                         <label style="display:block; font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.8rem; letter-spacing:1px;">FASE DE DESENVOLVIMENTO</label>
                         <div style="font-weight: 800; font-size: 1.2rem; color: white;">
                             <i class="fas fa-layer-group" style="color: var(--brand-blue); margin-right: 8px;"></i>
-                            <?php echo htmlspecialchars($project['project_stage'] ?: 'IDEIA INICIAL'); ?>
+                            <?php echo htmlspecialchars($project['project_stage'] ?: 'PROJECTO INICIAL'); ?>
                         </div>
                     </div>
                     <div>
@@ -264,13 +264,13 @@ if (isset($db) && isset($project['project_id'])) {
             <!-- Origem e Motivação -->
             <div class="glass" style="padding: 3rem; border-radius: 32px; background: rgba(13, 22, 40, 0.6); border: 1px solid rgba(16, 185, 129, 0.05);">
                 <h3 style="margin-top: 0; color: white; display: flex; align-items: center; gap: 1rem; font-size: 1.3rem; margin-bottom: 2rem;">
-                    <i class="fas fa-seedling" style="color: #10b981;"></i> Génese da Ideia
+                    <i class="fas fa-seedling" style="color: #10b981;"></i> Génese do projecto
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                     <div>
                         <label style="display:block; font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.8rem; letter-spacing:1px;">COMO TUDO COMEÇOU</label>
                         <div style="line-height: 1.6; color: var(--text-muted); font-size: 1rem; white-space: pre-wrap; font-style: italic;">
-                            "<?php echo htmlspecialchars($project['idea_origin'] ?: 'O empreendedor ainda não detalhou a origem desta ideia.'); ?>"
+                            "<?php echo htmlspecialchars($project['idea_origin'] ?: 'O empreendedor ainda não detalhou a origem desta projecto.'); ?>"
                         </div>
                     </div>
                     <div>

@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../inclusoes/auth_check.php';
 require_once __DIR__ . '/../../inclusoes/Security.php';
 
 if (!isAdmin()) {
-    echo json_encode(['success' => false, 'message' => 'Nao autorizado.']);
+    echo json_encode(['success' => false, 'message' => 'Não autorizado.']);
     exit;
 }
 
@@ -18,7 +18,7 @@ $contract_terms = trim($_POST['contract_terms'] ?? '');
 $admin_id = (int)($_SESSION['user_id'] ?? 0);
 
 if ($user_id <= 0 || $agreement_type === '') {
-    echo json_encode(['success' => false, 'message' => 'Destinatario e tipo de acordo sao obrigatorios.']);
+    echo json_encode(['success' => false, 'message' => 'Destinatario e tipo de acordo são obrigatorios.']);
     exit;
 }
 
@@ -45,7 +45,7 @@ try {
     $check = $db->prepare("SELECT user_id FROM users WHERE user_id = ?");
     $check->execute([$user_id]);
     if (!$check->fetch()) {
-        throw new Exception('Utilizador nao encontrado.');
+        throw new Exception('Utilizador não encontrado.');
     }
 
     $admin_signed_file = null;

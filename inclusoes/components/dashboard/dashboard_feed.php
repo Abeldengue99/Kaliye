@@ -4,8 +4,17 @@
  * Feed Section - EXACT MATCH FOR REF IMAGE
  */
 ?>
+<?php
+$user_types = strtolower($_SESSION['user_type'] ?? '');
+$is_mentor_only = (strpos($user_types, 'mentor') !== false || strpos($user_types, 'especialista') !== false) 
+                  && strpos($user_types, 'estudante') === false 
+                  && strpos($user_types, 'investidor') === false
+                  && strpos($user_types, 'admin') === false;
+$can_post = !$is_mentor_only;
+?>
 <div class="space-y-10">
 
+  <?php if ($can_post): ?>
   <!-- POST COMPOSER -->
   <div class="glass-card !bg-white/[0.02] border-white/5">
     <div class="flex items-start gap-4">
@@ -18,7 +27,7 @@
       <div class="flex-1">
         <textarea
           class="w-full text-lg bg-transparent border-none focus:ring-0 outline-none placeholder:text-white/20 text-white resize-none"
-          placeholder="Qual é a sua ideia inovadora hoje?"
+          placeholder="Qual é o seu projecto inovadora hoje?"
           rows="1"
           onclick="window.openPostModal()"></textarea>
         
@@ -30,12 +39,13 @@
           </div>
           <button class="px-6 py-2.5 bg-[#f7941d] text-black font-bold rounded-xl text-sm hover:scale-105 transition-transform"
                   onclick="window.openPostModal()">
-            Publicar Ideia
+            Publicar Projecto
           </button>
         </div>
       </div>
     </div>
   </div>
+  <?php endif; ?>
 
   <div class="flex justify-between items-center px-1">
     <h3 class="text-xl font-bold tracking-tight">O seu feed está em órbita</h3>

@@ -40,7 +40,7 @@ class AdminAutomation {
         return [
             'success' => true,
             'dry_run' => $dryRun,
-            'message' => count($actions) . ' acao(oes) processada(s).',
+            'message' => count($actions) . ' acção(oes) processada(s).',
             'actions' => $actions,
             'counts' => array_count_values(array_column($actions, 'type')),
         ];
@@ -85,7 +85,7 @@ class AdminAutomation {
 
         $hours = $this->intSetting('automation_progress_hours', 24, 1, 720);
         $sql = "SELECT report_id AS user_id, title AS full_name FROM project_progress_reports WHERE report_status = 'pending_admin' AND COALESCE(created_at, NOW()) <= NOW() - (? * INTERVAL '1 hour') LIMIT 50";
-        return $this->notifyRows($sql, [$hours], 'progress_pending', 'Relatorio de progresso ha mais de ' . $hours . 'h', 'Validar relatorio de progresso', 'manage_progress.php', $dryRun, 'report_id');
+        return $this->notifyRows($sql, [$hours], 'progress_pending', 'Relatório de progresso ha mais de ' . $hours . 'h', 'Validar relatório de progresso', 'manage_progress.php', $dryRun, 'report_id');
     }
 
     private function processPendingInvestments(bool $dryRun): array {
@@ -272,7 +272,7 @@ class AdminAutomation {
     private function logRun(array $actions): void {
         if ($this->tableExists('audit_logs')) {
             $stmt = $this->db->prepare("INSERT INTO audit_logs (admin_id, action, details, created_at) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$this->actorId, 'automation_run', count($actions) . ' acao(oes): ' . implode('; ', array_slice(array_column($actions, 'label'), 0, 8))]);
+            $stmt->execute([$this->actorId, 'automation_run', count($actions) . ' acção(oes): ' . implode('; ', array_slice(array_column($actions, 'label'), 0, 8))]);
         }
 
         $stmt = $this->db->prepare("INSERT INTO automation_runs (actor_id, actions_count, details, created_at) VALUES (?, ?, ?, NOW())");

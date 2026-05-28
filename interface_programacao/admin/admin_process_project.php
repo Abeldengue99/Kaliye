@@ -59,14 +59,14 @@ try {
             ':project_id' => $project_id
         ]);
 
-        // Notificação Humanizada para o Criador: "Parabéns, a tua ideia está viva!"
+        // Notificação Humanizada para o Criador: "Parabéns, o teu projecto está viva!"
         $owner_stmt = $db->prepare("SELECT owner_id, title FROM projects WHERE project_id = ?");
         $owner_stmt->execute([$project_id]);
         $project = $owner_stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($project) {
             $notif_title   = "Projecto Aprovado! 🚀";
-            $notif_content = "Excelente notícia! A sua ideia '{$project['title']}' foi validada pela equipa administrativa e já está disponível para todo o ecossistema.";
+            $notif_content = "Excelente notícia! o seu projecto '{$project['title']}' foi validada pela equipa administrativa e já está disponível para todo o ecossistema.";
             $notif_link    = "paginas/explorar/my_projects.php";
 
             // Inserção da notificação de sistema para o utilizador.
@@ -130,7 +130,7 @@ try {
         // Finalmente, removemos o registo mestre do projecto.
         $db->prepare("DELETE FROM projects WHERE project_id = ?")->execute([$project_id]);
 
-        // Feedback final de sistema para o ex-dono da ideia.
+        // Feedback final de sistema para o ex-dono do projecto.
         try {
             $notif_stmt = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, created_at) VALUES (?, ?, ?, ?, 'system', NOW())");
             $notif_stmt->execute([

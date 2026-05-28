@@ -39,7 +39,7 @@ try {
     $ad_stmt->execute([':ad_id' => $ad_id]);
     $ad = $ad_stmt->fetch(PDO::FETCH_ASSOC);
     if (!$ad) {
-        echo json_encode(['success' => false, 'message' => 'Anuncio nao encontrado']);
+        echo json_encode(['success' => false, 'message' => 'Anuncio não encontrado']);
         exit;
     }
 

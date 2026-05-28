@@ -6,7 +6,7 @@ require_once '../../inclusoes/auth_check.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Nao autenticado.']);
+    echo json_encode(['success' => false, 'message' => 'Não autenticado.']);
     exit();
 }
 requireValidCSRFTokenJson();

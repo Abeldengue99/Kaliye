@@ -56,7 +56,7 @@
     </div>
 
     <!-- Mentor Status (condicional) -->
-    <?php if($user['user_type'] == 'mentor' || ($user['verification_status'] ?? '') == 'verified'): ?>
+    <?php if($user['user_type'] == 'mentor' || (($user['verification_status'] ?? '') == 'verified' && $user['user_type'] !== 'investor')): ?>
     <div class="sidebar-card" style="border-color: rgba(245,177,5,0.2);">
         <div class="sidebar-card-title" style="color:#f5b105;"><i class="fas fa-medal"></i> Status de Mentor</div>
         <?php

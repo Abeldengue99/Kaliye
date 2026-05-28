@@ -63,7 +63,7 @@
         </div>
 
         <div class="input-group-premium" style="margin-top: 1.25rem;">
-            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 1px;">Expirar sessao inativa apos minutos</label>
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--surface-30); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 1px;">Expirar sessão inativa apos minutos</label>
             <input type="number" min="5" max="1440" name="session_idle_timeout_minutes" value="<?= htmlspecialchars($settings['session_idle_timeout_minutes'] ?? '30') ?>" style="width: 100%; background: var(--surface-3); border: 1px solid var(--surface-5); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; outline: none; transition: 0.3s; font-size: 0.9rem;">
         </div>
     </article>
@@ -310,7 +310,7 @@
             $maintenance_rules = [
                 ['automation_expire_otp_codes', 'Expirar OTP antigos', 'Fecha codigos vencidos para impedir reutilizacao.'],
                 ['automation_expire_mentorship_slots', 'Fechar horarios vencidos', 'Move horarios antigos de mentoria para expirado.'],
-                ['automation_cleanup_history', 'Limpar historico tecnico', 'Remove eventos antigos da automacao apos o prazo.'],
+                ['automation_cleanup_history', 'Limpar histórico técnico', 'Remove eventos antigos da automacao apos o prazo.'],
             ];
             foreach ($maintenance_rules as $rule):
             ?>

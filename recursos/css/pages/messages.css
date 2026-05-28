@@ -613,11 +613,13 @@
         min-height: 42vh;
         max-height: 48vh;
         border-radius: 22px;
+        grid-row: auto !important;
     }
 
     .chat-main-elite {
         min-height: 55vh;
         border-radius: 22px;
+        grid-row: auto !important;
     }
 
     .chat-header-elite {

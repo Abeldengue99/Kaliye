@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../inclusoes/ChatSecurity.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'error' => 'Sessão expirada.']);
     exit();
 }
 requireValidCSRFTokenJson();

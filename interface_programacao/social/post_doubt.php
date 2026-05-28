@@ -61,6 +61,6 @@ try {
 
 } catch (PDOException $e) {
     error_log('post_doubt error: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro interno ao publicar duvida.']);
+    echo json_encode(['success' => false, 'message' => 'Erro interno ao publicar dúvida.']);
 }
 

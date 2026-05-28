@@ -48,7 +48,7 @@ async function markDoubtsSeen() {
             doubtsSeenMarked = false;
         }
     } catch (error) {
-        console.error('Erro ao marcar duvidas como vistas:', error);
+        console.error('Erro ao marcar dúvidas como vistas:', error);
         doubtsSeenMarked = false;
     }
 }

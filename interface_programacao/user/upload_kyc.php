@@ -15,8 +15,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (!Security::requireFreshAuth(900)) {
-    echo json_encode(['success' => false, 'message' => 'Por seguranca, inicia sessao novamente antes de enviar documentos sensiveis.']);
+if (!Security::requireFreshAuth(7200)) {
+    echo json_encode(['success' => false, 'message' => 'A sua sessão expirou. Para proteger os seus documentos, precisa terminar sessão e entrar novamente antes de submeter a candidatura. Isto garante que só você tem acesso à sua conta neste momento.']);
     exit();
 }
 requireValidCSRFTokenJson();
@@ -139,9 +139,10 @@ try {
         $params[':inc'] = $_POST['annual_income'] ?? '';
         $params[':sof'] = $_POST['source_of_funds'] ?? '';
         
-        // Se enviou prova, podemos salvar em algum lugar (ex: kyc_steps ou notas admin por agora)
+        // Se enviou comprovativo de renda, guardamos o path no campo bio temporariamente
+        // (admin pode ver na consola de revisão KYC)
         if (isset($paths['income_proof'])) {
-            $sql .= ", admin_notes = CONCAT(COALESCE(admin_notes,''), '\n[PROVA RENDA]: ', :proof)";
+            $sql .= ", bio = CONCAT(COALESCE(bio,''), E'\\n[PROVA RENDA]: ', CAST(:proof AS text))";
             $params[':proof'] = $paths['income_proof'];
         }
     }
@@ -166,7 +167,9 @@ try {
     echo json_encode(['success' => true, 'message' => 'Dossiê enviado com sucesso! Aguarde a revisão da equipa Aksanti.']);
 
 } catch (Exception $e) {
-    $db->rollBack();
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
     error_log('upload_kyc error: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura. Tente novamente.']);
+    echo json_encode(['success' => false, 'message' => 'Não foi possível processar a sua candidatura neste momento. Detalhes técnicos: ' . $e->getMessage()]);
 }

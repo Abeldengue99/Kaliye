@@ -24,10 +24,10 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     $site_name = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'")->fetchColumn() ?: 'KALIYE';
-    $support_email = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'support_email'")->fetchColumn() ?: 'seguranca@aksanti.ao';
+    $support_email = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'support_email'")->fetchColumn() ?: 'segurança@aksanti.ao';
 } catch (Exception $e) {
     $site_name = 'KALIYE';
-    $support_email = 'seguranca@aksanti.ao';
+    $support_email = 'segurança@aksanti.ao';
 }
 ?>
 <!DOCTYPE html>

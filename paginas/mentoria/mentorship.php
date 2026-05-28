@@ -42,6 +42,24 @@ $initial_view = ($authorized_to_mentor) ? 'mentor' : 'mentee';
 if (!$authorized_to_mentor) {
     $initial_view = 'mentee';
 }
+
+// Fetch Mentor's Project Applications
+$my_project_apps = [];
+if ($authorized_to_mentor) {
+    try {
+        $app_stmt = $db->prepare("
+            SELECT pma.*, p.title as project_title, p.category 
+            FROM project_mentorship_applications pma
+            JOIN projects p ON p.project_id = pma.project_id
+            WHERE pma.mentor_id = ?
+            ORDER BY pma.created_at DESC
+        ");
+        $app_stmt->execute([$user_id]);
+        $my_project_apps = $app_stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $my_project_apps = [];
+    }
+}
 ?>
 
 <link rel="stylesheet" href="../../recursos/css/pages/mentorship.css?v=<?php echo time(); ?>">
@@ -91,6 +109,9 @@ if (!$authorized_to_mentor) {
                 </button>
                 <button class="m-tab mentor-only-tab" data-tab="projects" onclick="switchMentorTab('projects', this)" style="display: none; border-color: var(--accent-orange); color: var(--accent-orange);">
                     <i class="fas fa-rocket"></i> Revisão de Projectos
+                </button>
+                <button class="m-tab mentor-only-tab" data-tab="applications" onclick="switchMentorTab('applications', this)" style="display: none; border-color: #10b981; color: #10b981;">
+                    <i class="fas fa-paper-plane"></i> Minhas Candidaturas
                 </button>
             </div>
         </div>
@@ -163,6 +184,66 @@ if (!$authorized_to_mentor) {
                 <p style="margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.4;">Como mentor, deves validar os progressos dos teus mentoreados antes de seguirem para a KALIYE Admin.</p>
             </div>
             <div id="projectReviewsList" class="tab-grid"></div>
+        </div>
+
+        <!-- TAB: MY APPLICATIONS -->
+        <div id="tab-applications" class="mentor-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h4 style="margin: 0; color: white;">Minhas Candidaturas a Projectos</h4>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <?php if (empty($my_project_apps)): ?>
+                    <div style="text-align: center; padding: 3rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.1);">
+                        <i class="fas fa-inbox" style="font-size: 2.5rem; color: rgba(255,255,255,0.2); margin-bottom: 1rem;"></i>
+                        <h4 style="color: white; margin: 0 0 0.5rem 0;">Nenhuma Candidatura</h4>
+                        <p style="color: rgba(255,255,255,0.4); margin: 0; font-size: 0.9rem;">Ainda não te candidataste para mentorar nenhum projecto.</p>
+                        <a href="../explorar/explorar_projetos.php" class="btn-primary-small" style="margin-top: 1rem; display: inline-block; text-decoration: none;">Explorar Projectos</a>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($my_project_apps as $app): 
+                        $status_colors = [
+                            'pending' => ['bg' => 'rgba(247,148,29,0.1)', 'color' => '#f7941d', 'icon' => 'fa-clock', 'label' => 'Pendente'],
+                            'under_review' => ['bg' => 'rgba(96,165,250,0.1)', 'color' => '#60a5fa', 'icon' => 'fa-search', 'label' => 'Em Análise'],
+                            'shortlisted' => ['bg' => 'rgba(167,139,250,0.1)', 'color' => '#a78bfa', 'icon' => 'fa-star', 'label' => 'Shortlist'],
+                            'approved' => ['bg' => 'rgba(16,185,129,0.1)', 'color' => '#10b981', 'icon' => 'fa-check', 'label' => 'Aprovada'],
+                            'rejected' => ['bg' => 'rgba(239,68,68,0.1)', 'color' => '#ef4444', 'icon' => 'fa-times', 'label' => 'Rejeitada']
+                        ];
+                        $s = $status_colors[$app['status']] ?? $status_colors['pending'];
+                    ?>
+                        <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #10b981; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Projecto Alvo</div>
+                                    <h4 style="margin: 0; color: white; font-size: 1.2rem;"><?= htmlspecialchars($app['project_title']) ?></h4>
+                                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 5px;"><i class="fas fa-tag"></i> <?= htmlspecialchars($app['category']) ?></div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="background: <?= $s['bg'] ?>; color: <?= $s['color'] ?>; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                                        <i class="fas <?= $s['icon'] ?>"></i> <?= $s['label'] ?>
+                                    </span>
+                                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 8px;">
+                                        Enviado a <?= date('d M Y', strtotime($app['created_at'])) ?>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <?php if(!empty($app['motivation'])): ?>
+                                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; border-left: 3px solid #10b981; font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.5;">
+                                    <strong>Minha Motivação:</strong><br>
+                                    <?= nl2br(htmlspecialchars($app['motivation'])) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if(!empty($app['admin_response'])): ?>
+                                <div style="background: rgba(247,148,29,0.05); padding: 1rem; border-radius: 12px; border-left: 3px solid #f7941d; font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.5;">
+                                    <strong style="color: #f7941d;">Resposta KALIYE:</strong><br>
+                                    <?= nl2br(htmlspecialchars($app['admin_response'])) ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
     <?php endif; ?>

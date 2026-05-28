@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../configuracoes/base_dados.php';
 require_once __DIR__ . '/../../inclusoes/auth_check.php';
 
 if (!isAdmin() || !hasPermission('mentor_assignment')) {
-    echo json_encode(['success' => false, 'message' => 'Nao autorizado.']);
+    echo json_encode(['success' => false, 'message' => 'Não autorizado.']);
     exit;
 }
 
@@ -45,14 +45,14 @@ try {
     $project_stmt->execute([$project_id]);
     $project = $project_stmt->fetch(PDO::FETCH_ASSOC);
     if (!$project) {
-        throw new Exception('Projeto nao encontrado.');
+        throw new Exception('Projeto não encontrado.');
     }
 
     $mentor_stmt = $db->prepare("SELECT user_id, full_name FROM users WHERE user_id = ? AND (user_type = 'mentor' OR mentorship_status = 'approved')");
     $mentor_stmt->execute([$mentor_id]);
     $mentor = $mentor_stmt->fetch(PDO::FETCH_ASSOC);
     if (!$mentor) {
-        throw new Exception('Mentor nao encontrado ou nao aprovado.');
+        throw new Exception('Mentor não encontrado ou não aprovado.');
     }
 
     $admin_signed_file = null;
@@ -69,7 +69,7 @@ try {
         $filename = 'mentor_contract_' . $project_id . '_' . $mentor_id . '_' . time() . '.' . $ext;
         $target = $dir . '/' . $filename;
         if (!move_uploaded_file($_FILES['admin_signed_file']['tmp_name'], $target)) {
-            throw new Exception('Nao foi possivel guardar o contrato.');
+            throw new Exception('Não foi possível guardar o contrato.');
         }
         $admin_signed_file = 'carregamentos/legal/' . $filename;
     }

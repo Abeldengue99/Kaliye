@@ -24,7 +24,7 @@ function finishDistribution(bool $success, string $message): void {
 }
 
 if (!isAdmin() || !hasPermission('finances')) {
-    finishDistribution(false, 'Nao autorizado.');
+    finishDistribution(false, 'Não autorizado.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -46,7 +46,7 @@ if ($investment_id <= 0 || $project_id <= 0 || $owner_id <= 0 || $mentor_id <= 0
 }
 
 if ($mentor_amount < 0 || $company_amount < 0) {
-    finishDistribution(false, 'Valores negativos nao sao permitidos.');
+    finishDistribution(false, 'Valores negativos não são permitidos.');
 }
 
 try {
@@ -63,7 +63,7 @@ try {
     $investment = $investmentStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$investment) {
-        throw new Exception('Investimento nao encontrado.');
+        throw new Exception('Investimento não encontrado.');
     }
 
     if (!in_array($investment['status'], ['approved', 'paid'], true)) {
@@ -73,13 +73,13 @@ try {
     $mentorStmt = $db->prepare("SELECT user_id FROM users WHERE user_id = ? AND (user_type = 'mentor' OR mentorship_status = 'approved')");
     $mentorStmt->execute([$mentor_id]);
     if (!$mentorStmt->fetchColumn()) {
-        throw new Exception('Mentor invalido ou nao aprovado.');
+        throw new Exception('Mentor invalido ou não aprovado.');
     }
 
     $ownerStmt = $db->prepare('SELECT user_id FROM users WHERE user_id = ?');
     $ownerStmt->execute([$owner_id]);
     if (!$ownerStmt->fetchColumn()) {
-        throw new Exception('Autor do projeto nao encontrado.');
+        throw new Exception('Autor do projeto não encontrado.');
     }
 
     $existingStmt = $db->prepare('SELECT COALESCE(SUM(amount), 0) FROM payouts WHERE investment_id = ?');

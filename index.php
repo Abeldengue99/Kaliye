@@ -19,7 +19,7 @@ ensureProjectVotesTable($db);
 
 require_once 'inclusoes/components/header/logic.php'; // Garante $user_data e $header_user_id
 
-// --- VariÃ¡veis globais do utilizador para o Feed ---
+// --- Variáveis globais do utilizador para o Feed ---
 $current_user_id  = $header_user_id ?? 0;
 $is_verified      = $_SESSION['is_verified'] ?? false;
 $lang             = $_SESSION['lang'] ?? 'pt';
@@ -32,15 +32,15 @@ $current_user_type = $_SESSION['user_type'] ?? 'student';
 
 // Labels de tipo de utilizador
 $user_type_labels = [
-    'high_student'  => 'Estudante SecundÃ¡rio',
-    'univ_student'  => 'Estudante UniversitÃ¡rio',
+    'high_student'  => 'Estudante Secundário',
+    'univ_student'  => 'Estudante Universitário',
     'mentor'        => 'Mentor',
     'investor'      => 'Investidor',
     'entrepreneur'  => 'Empreendedor',
     'admin'         => 'Administrador',
 ];
 
-// --- LÃ³gica de EstatÃ­sticas DinÃ¢micas ---
+// --- Lógica de Estatísticas Dinâmicas ---
 $stat_v1 = "00";
 $stat_l1 = "PROJECTOS";
 $stat_v2 = "00";
@@ -73,7 +73,7 @@ catch (Exception $e) {
 
 }
 
-// --- AnÃºncios  ---
+// --- Anúncios  ---
 $ticker_ads = [];
 try {
     $ads_stmt = $db->query("SELECT * FROM ads WHERE is_active = true AND (start_date IS NULL OR start_date <= CURRENT_DATE) AND (end_date IS NULL OR end_date >= CURRENT_DATE) ORDER BY RANDOM() LIMIT 8");
@@ -85,7 +85,7 @@ catch (Throwable $e) {
 
 if (empty($ticker_ads)) {
     $ticker_ads = [
-        ['ad_id' => -1, 'title' => 'Parceria KALIYE', 'description' => 'Acelere o seu negÃ³cio com a maior rede de mentoria do paÃ­s.', 'image_url' => 'recursos/images/anuncios/ads1.png', 'type' => 'banner'],
+        ['ad_id' => -1, 'title' => 'Parceria KALIYE', 'description' => 'Acelere o seu negócio com a maior rede de mentoria do país.', 'image_url' => 'recursos/images/anuncios/ads1.png', 'type' => 'banner'],
         ['ad_id' => -2, 'title' => 'KALIYE Mentoria Elite', 'description' => 'Acesso direto aos mentores.', 'image_url' => 'recursos/images/anuncios/ads2.png', 'type' => 'premium']
     ];
 }
@@ -102,7 +102,7 @@ require_once 'inclusoes/cabecalho.php';
 </script>
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <!-- CANVAS PRINCIPAL DO INDEX (DASHBOARD PÃ“S-LOGIN)                -->
-<!-- Container mÃ¡ximo que envolve todos os blocos da pÃ¡gina          -->
+<!-- Container máximo que envolve todos os blocos da página          -->
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div class="platform-index-canvas" data-aos="fade">
 
@@ -113,25 +113,25 @@ require_once 'inclusoes/cabecalho.php';
     </div>
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <!-- TICKER DE ANÃšNCIOS (TOPO) â€” Igual Ã  landing page      -->
-    <!-- Exibe os anÃºncios reais da base de dados em carrossel  -->
+    <!-- TICKER DE ANÃšNCIOS (TOPO) â€” Igual à landing page      -->
+    <!-- Exibe os anúncios reais da base de dados em carrossel  -->
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="feed-ads-section" data-aos="fade-up" data-aos-delay="200">
-        <!-- Label discreta a identificar que Ã© publicidade -->
+        <!-- Label discreta a identificar que é publicidade -->
         <span class="feed-ads-label">
             <i class="fas fa-ad" style="font-size: 0.55rem; opacity: 0.6;"></i>
             Publicidade
         </span>
 
-        <!-- Container do ticker de anÃºncios com o mesmo componente da landing -->
-        <!-- Passamos os $ticker_ads como $items e definimos um ID Ãºnico para este swiper -->
+        <!-- Container do ticker de anúncios com o mesmo componente da landing -->
+        <!-- Passamos os $ticker_ads como $items e definimos um ID único para este swiper -->
         <div class="container-secao ticker-anuncios" style="max-width: 100%; padding: 0;">
             <?php
-            // Reutiliza os anÃºncios jÃ¡ carregados no topo do ficheiro ($ticker_ads)
-            // O componente landing_ads_ticker.php espera a variÃ¡vel $items com os anÃºncios
+            // Reutiliza os anúncios já carregados no topo do ficheiro ($ticker_ads)
+            // O componente landing_ads_ticker.php espera a variável $items com os anúncios
             $items = $ticker_ads;
-            $swiper_id = 'swiper-feed-top'; // ID Ãºnico para evitar conflito com outros swipers
-            $is_reverse_style = false;       // Estilo normal (nÃ£o invertido)
+            $swiper_id = 'swiper-feed-top'; // ID único para evitar conflito com outros swipers
+            $is_reverse_style = false;       // Estilo normal (não invertido)
             include 'inclusoes/components/landing_ads_ticker.php';
             ?>
         </div>
@@ -139,21 +139,21 @@ require_once 'inclusoes/cabecalho.php';
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <!-- ANÃšNCIOS GLOBAIS (SISTEMA)                             -->
-    <!-- NotificaÃ§Ãµes importantes do administrador da plataforma-->
+    <!-- Notificações importantes do administrador da plataforma-->
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <?php
-    // Carrega os anÃºncios/comunicados globais activos da plataforma
+    // Carrega os anúncios/comunicados globais activos da plataforma
     try {
         $ann_stmt = $db->query("SELECT * FROM announcements WHERE is_active = true ORDER BY created_at DESC");
         $announcements = $ann_stmt ? $ann_stmt->fetchAll() : [];
     } catch (Throwable $e) {
-        $announcements = []; // Tabela pode nÃ£o existir ainda
+        $announcements = []; // Tabela pode não existir ainda
     }
     foreach ($announcements as $an):
         // Define a cor de fundo com base no tipo de comunicado
         $bg = $an['type'] == 'alert' ? '#ef4444' : ($an['type'] == 'success' ? '#10b981' : '#3b82f6');
     ?>
-        <!-- Card de anÃºncio global â€” cor depende do tipo -->
+        <!-- Card de anúncio global â€” cor depende do tipo -->
         <div style="background: <?php echo $bg; ?>; color: white; padding: 1rem; border-radius: 12px;
                     margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -165,7 +165,7 @@ require_once 'inclusoes/cabecalho.php';
 
 
     <?php
-    // PrÃ©-carrega as categorias e o papel do utilizador para os componentes das colunas laterais
+    // Pré-carrega as categorias e o papel do utilizador para os componentes das colunas laterais
     try {
         // Busca todas as categorias distintas de projectos para o filtro lateral esquerdo
         $cat_stmt = $db->query("SELECT DISTINCT category FROM projects WHERE is_public = true AND approval_status = 'approved' AND category IS NOT NULL AND category != '' ORDER BY category ASC");
@@ -175,9 +175,9 @@ require_once 'inclusoes/cabecalho.php';
         $project_stages = $stage_stmt ? $stage_stmt->fetchAll(PDO::FETCH_COLUMN) : [];
     } catch (Exception $e) { $categories = []; $project_stages = []; }
     if (empty($project_stages)) {
-        $project_stages = ['Ideia', 'MVP', 'Operacional', 'Escala'];
+        $project_stages = ['Projecto', 'MVP', 'Operacional', 'Escala'];
     }
-    $default_project_stages = ['Ideia', 'MVP', 'Operacional', 'Escala'];
+    $default_project_stages = ['Projecto', 'MVP', 'Operacional', 'Escala'];
     $project_stages = array_values(array_unique(array_merge($default_project_stages, $project_stages)));
                     $user_role = $user_data['user_type'] ?? 'student'; // Perfil do utilizador para widgets
 
@@ -270,7 +270,7 @@ require_once 'inclusoes/cabecalho.php';
                             <option value="">Qualquer Est&aacute;gio</option>
                             <?php
                             $stage_labels = [
-                                'Ideia' => 'Ideia / Conceito',
+                                'Projecto' => 'Projecto / Conceito',
                                 'MVP' => 'MVP / Prot&oacute;tipo',
                                 'Operacional' => 'Operacional / Tracionando',
                                 'Escala' => 'Pronto para Escala',
@@ -304,9 +304,15 @@ require_once 'inclusoes/cabecalho.php';
                     $posts_per_page = 6;
                     $offset = ($feed_page - 1) * $posts_per_page;
 
-                    // Filtros dinÃ¢micos (para a contagem total tambÃ©m)
+                    // Filtros dinâmicos (para a contagem total também)
                     $where_clause = "WHERE p.is_public = true AND p.approval_status = 'approved'";
                     $params = [];
+
+                    $project_id = isset($_GET['project_id']) ? (int)$_GET['project_id'] : (isset($_GET['project_modal']) ? (int)$_GET['project_modal'] : (isset($_GET['comment_project_id']) ? (int)$_GET['comment_project_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0)));
+                    if ($project_id > 0) {
+                        $where_clause .= " AND p.project_id = :project_id";
+                        $params[':project_id'] = $project_id;
+                    }
 
                     if (!empty($_GET['category'])) {
                         $where_clause .= " AND LOWER(TRIM(COALESCE(p.category, ''))) = :category";
@@ -410,7 +416,7 @@ require_once 'inclusoes/cabecalho.php';
                             <?php foreach ($hot_projects as $idx => $hot): ?>
                                 <button type="button" onclick="openProjectDetails(<?php echo (int)$hot['project_id']; ?>, 1)" class="feed-hot-item">
                                     <strong>#<?php echo $idx + 1; ?></strong>
-                                    <span><?php echo htmlspecialchars($hot['title'] ?: 'Ideia sem titulo'); ?></span>
+                                    <span><?php echo htmlspecialchars($hot['title'] ?: 'Projecto sem titulo'); ?></span>
                                     <em><i class="fas fa-star"></i> <?php echo (int)$hot['vote_count']; ?></em>
                                 </button>
                             <?php endforeach; ?>
@@ -481,7 +487,7 @@ require_once 'inclusoes/cabecalho.php';
 
     </div><!-- End .platform-index-canvas (div principal da pagina index pos-login) -->
 
-    <!-- Scripts de GestÃ£o de Projectos (Modais Elite) 
+    <!-- Scripts de Gestão de Projectos (Modais Elite) 
          carregados via index_scripts.php em rodape.php -->
 </main>
 </div>
@@ -489,7 +495,7 @@ require_once 'inclusoes/cabecalho.php';
 
     <!-- Styles moved to top -->
 
-    <!-- Ad Detail Modal carregado via componentes (Removido, jÃ¡ estÃ¡ no rodape.php) -->
+    <!-- Ad Detail Modal carregado via componentes (Removido, já está no rodape.php) -->
 
 <script>
     // Rastreamento de mÃƒÂ©tricas de anÃƒÂºncios
@@ -688,6 +694,6 @@ require_once 'inclusoes/cabecalho.php';
     }
 </script>
 
-<!-- Modais removidos daqui porque sÃ£o carregados universalmente via rodape.php -->
+<!-- Modais removidos daqui porque são carregados universalmente via rodape.php -->
 
 <?php require_once 'inclusoes/rodape.php'; ?>

@@ -262,7 +262,7 @@ $projects = $projects_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
                 <p>Ainda não tens projectos criados.</p>
                 <a href="../index.php" class="btn-primary" style="display: inline-block; margin-top: 1rem; width: auto; padding: 0.75rem 2rem;">
-                    Criar Primeira Ideia
+                    Criar primeiro projecto
                 </a>
             </div>
         <?php endif; ?>
@@ -278,7 +278,7 @@ $projects = $projects_stmt->fetchAll(PDO::FETCH_ASSOC);
         <div style="display: grid; gap: 1rem;">
             <?php if (($stats['avg_score'] ?? 0) < 70): ?>
                 <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--accent-orange); border-radius: 8px;">
-                    <strong>ðŸ’¡ Melhore o Score IA:</strong> Adicione mais detalhes sobre a execução, público-alvo e diferencial da sua ideia.
+                    <strong>ðŸ’¡ Melhore o Score IA:</strong> Adicione mais detalhes sobre a execução, público-alvo e diferencial da seu projecto.
                 </div>
             <?php endif; ?>
 

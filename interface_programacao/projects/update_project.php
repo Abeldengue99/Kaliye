@@ -24,7 +24,7 @@ function ensure_project_upload_dir(&$error_message) {
     $upload_dir = __DIR__ . '/../../carregamentos/projects/';
 
     if (!is_dir($upload_dir) && !mkdir($upload_dir, 0775, true) && !is_dir($upload_dir)) {
-        $error_message = 'Nao foi possivel criar a pasta de uploads de projectos.';
+        $error_message = 'Não foi possível criar a pasta de uploads de projectos.';
         return null;
     }
 
@@ -35,7 +35,7 @@ function ensure_project_upload_dir(&$error_message) {
     $test_path = $upload_dir . '.write_test_' . uniqid('', true);
     $handle = @fopen($test_path, 'wb');
     if ($handle === false) {
-        $error_message = 'A pasta de uploads de projectos nao tem permissao de escrita.';
+        $error_message = 'A pasta de uploads de projectos não tem permissão de escrita.';
         return null;
     }
 
@@ -164,7 +164,7 @@ $category        = filter_var($_POST['category'] ?? '', FILTER_SANITIZE_STRING);
 $budget          = filter_var($_POST['budget'] ?? 0, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 $execution_time  = filter_var($_POST['execution_time'] ?? '', FILTER_SANITIZE_STRING);
 $team_size       = filter_var($_POST['team_size'] ?? 1, FILTER_SANITIZE_NUMBER_INT) ?: 1;
-$project_stage   = filter_var($_POST['project_stage'] ?? 'Ideia', FILTER_SANITIZE_STRING) ?: 'Ideia';
+$project_stage   = filter_var($_POST['project_stage'] ?? 'Projecto', FILTER_SANITIZE_STRING) ?: 'Projecto';
 $target_audience = filter_var($_POST['target_audience'] ?? '', FILTER_SANITIZE_STRING);
 $needs_to_advance= filter_var($_POST['needs_to_advance'] ?? '', FILTER_SANITIZE_STRING);
 $idea_origin     = filter_var($_POST['idea_origin'] ?? '', FILTER_SANITIZE_STRING);

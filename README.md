@@ -18,7 +18,7 @@ KALIYE/
 ├── index.php           # Feed social principal
 ├── entrar.php           # Autenticação
 ├── registar.php        # Registo de utilizadores
-├── projects.php        # Explorar ideias/projetos
+├── projects.php        # Explorar projectos/projetos
 ├── mentorship.php      # Sistema de mentoria em cascata
 ├── messages.php        # Sistema de mensagens
 └── profile.php         # Perfil do utilizador
@@ -32,7 +32,7 @@ KALIYE/
 - Tipos de utilizador: Estudante Universitário, Ensino Médio, Secundário, Mentor, Investidor, Admin
 
 ### Feed Social
-- Publicação de ideias/projetos com múltiplas imagens e vídeos
+- Publicação de projectos/projetos com múltiplas imagens e vídeos
 - Sistema de likes e comentários em tempo real
 - Edição e eliminação de posts próprios
 - Carrossel de anúncios/oportunidades

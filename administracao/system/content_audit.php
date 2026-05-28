@@ -24,11 +24,11 @@ $checks = [
     [
         'label' => 'Rotulo antigo de projectos',
         'severity' => 'alta',
-        'pattern' => '/\b(minhas ideias|as minhas ideias|ideias em alta|nova ideia|novas ideias|explorar ideias|pesquisar ideias|IDEIAS)\b/iu',
+        'pattern' => '/\b(meus projectos|os meus projectos|projectos em alta|novo projecto|novos projectos|explorar projectos|pesquisar projectos|PROJECTOS)\b/iu',
         'hint' => 'Usar Projectos, Meus Projectos, Novo Projecto ou Projectos em destaque, conforme o contexto.',
     ],
     [
-        'label' => 'Grafia brasileira ou nao padronizada',
+        'label' => 'Grafia brasileira ou não padronizada',
         'severity' => 'media',
         'pattern' => '/\b(usu[aá]rio|usu[aá]rios|gerenciar|gerencia|monitorar|controle|registro)\b/iu',
         'hint' => 'Preferir Utilizador, Utilizadores, Gerir, Gere, Monitorizar, Controlo e Registo.',
@@ -40,15 +40,15 @@ $checks = [
         'hint' => 'Padronizar para projecto/projectos quando for texto visivel ao utilizador.',
     ],
     [
-        'label' => 'Possivel falta de acento',
+        'label' => 'Possível falta de acento',
         'severity' => 'media',
-        'pattern' => '/\b(nao|Nao|possivel|Possivel|permissao|Permissao|proprio|Proprio|validacao|Validacao|descricao|Descricao|informacao|Informacao|acao|Acao|sessao|Sessao|publicacao|Publicacao|aprovacao|Aprovacao|seguranca|Seguranca|historico|Historico|relatorio|Relatorio|duvida|Duvida|rapido|Rapido|tecnico|Tecnico|academico|Academico|proxima|Proxima)\b/u',
-        'hint' => 'Corrigir acentuacao: nao, possivel, permissao, proprio, validacao, descricao, informacao, accao/acao, sessao, publicacao, aprovacao, seguranca, historico, relatorio, duvida, rapido, tecnico, academico e proxima.',
+        'pattern' => '/\b(não|Não|possível|Possível|permissão|Permissão|próprio|Próprio|validação|Validação|descrição|Descrição|informação|Informação|acção|Acção|sessão|Sessão|publicação|Publicação|aprovação|Aprovação|segurança|Segurança|histórico|Histórico|relatório|Relatório|dúvida|Dúvida|rápido|Rápido|técnico|Técnico|académico|Académico|próxima|Próxima)\b/u',
+        'hint' => 'Corrigir acentuacao: não, possível, permissão, próprio, validação, descrição, informação, accao/acção, sessão, publicação, aprovação, segurança, histórico, relatório, dúvida, rápido, técnico, académico e próxima.',
     ],
     [
         'label' => 'Codificacao quebrada',
         'severity' => 'critica',
-        'pattern' => '/(Ãƒ.|Ã‚.|Ã¢â‚¬|Ã¢â‚¬Å“|Ã¢â‚¬ï¿½|Ã°Å¸|ï¿½)/u',
+        'pattern' => '/(Ãƒ.|Ã‚.|ââ‚¬|ââ‚¬Å“|ââ‚¬ï¿½|Ã°Å¸|ï¿½)/u',
         'hint' => 'Rever o ficheiro em UTF-8 e corrigir caracteres acentuados que ficaram em mojibake.',
     ],
 ];
@@ -87,7 +87,7 @@ $unreadable_files = [];
 $scan_errors = [];
 
 if ($root === false) {
-    $scan_errors[] = 'Nao foi possivel localizar a raiz do projecto.';
+    $scan_errors[] = 'Não foi possível localizar a raiz do projecto.';
 } else {
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
@@ -321,7 +321,7 @@ if (($_GET['format'] ?? '') === 'csv') {
         <section class="audit-automation">
             <div class="audit-panel">
                 <span class="panel-label">Fila automatizada</span>
-                <h3 style="margin:0.35rem 0; color:#fff;">Proxima accao: <?= htmlspecialchars($next_action) ?></h3>
+                <h3 style="margin:0.35rem 0; color:#fff;">Próxima accao: <?= htmlspecialchars($next_action) ?></h3>
                 <p style="margin:0; color:rgba(255,255,255,0.58); font-size:0.86rem;">Pontuacao de risco <?= (int)$risk_score ?>, com prioridade a ficheiros que podem quebrar Unicode e rotulos visiveis antigos.</p>
                 <div class="progress-track"><div class="progress-fill"></div></div>
                 <div class="automation-list">

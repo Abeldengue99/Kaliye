@@ -6,7 +6,7 @@ require_once '../../inclusoes/free_mentorship_schema.php';
 session_start();
 require_once '../../inclusoes/auth_check.php';
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit;
 }
 
@@ -38,22 +38,22 @@ try {
     $req = $stmt_req->fetch(PDO::FETCH_ASSOC);
 
     if (!$req) {
-        echo json_encode(['success' => false, 'message' => 'Pedido nao encontrado.']);
+        echo json_encode(['success' => false, 'message' => 'Pedido não encontrado.']);
         exit;
     }
 
     if ($req['status'] !== 'open') {
-        echo json_encode(['success' => false, 'message' => 'Este pedido ja nao esta aberto para candidaturas.']);
+        echo json_encode(['success' => false, 'message' => 'Este pedido ja não esta aberto para candidaturas.']);
         exit;
     }
 
     if ((int)$req['student_id'] === $user_id) {
-        echo json_encode(['success' => false, 'message' => 'Nao pode candidatar-se ao seu proprio pedido.']);
+        echo json_encode(['success' => false, 'message' => 'Não pode candidatar-se ao seu próprio pedido.']);
         exit;
     }
 
     if (!isEligibleForFreeMentorshipRequest($db, $user_id, $req)) {
-        echo json_encode(['success' => false, 'message' => 'Este pedido foi direcionado a mentores com experiencia nesta categoria/tema. Atualize as suas especialidades se domina esta area.']);
+        echo json_encode(['success' => false, 'message' => 'Este pedido foi direcionado a mentores com experiência nesta categoria/tema. Atualize as suas especialidades se domina esta area.']);
         exit;
     }
 

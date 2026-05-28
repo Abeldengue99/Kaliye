@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../inclusoes/auth_check.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isLoggedIn()) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit;
 }
 
@@ -32,7 +32,7 @@ try {
     $stmt->execute([$slotId, $_SESSION['user_id']]);
 
     if ($stmt->rowCount() < 1) {
-        echo json_encode(['success' => false, 'message' => 'Horario nao encontrado ou ja confirmado.']);
+        echo json_encode(['success' => false, 'message' => 'Horario não encontrado ou ja confirmado.']);
         exit;
     }
 

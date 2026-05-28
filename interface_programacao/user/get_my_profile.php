@@ -6,7 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit();
 }
 
@@ -71,7 +71,7 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        echo json_encode(['success' => false, 'message' => 'Utilizador nao encontrado.']);
+        echo json_encode(['success' => false, 'message' => 'Utilizador não encontrado.']);
         exit();
     }
 

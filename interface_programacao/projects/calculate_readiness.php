@@ -9,13 +9,13 @@ function calculateProjectReadiness($p) {
 
     // 1. Estágio de Desenvolvimento (Peso: 40%)
     $stages = [
-        'Ideia' => 10,
+        'Projecto' => 10,
         'MVP' => 30,
         'Lançamento' => 45,
         'Crescimento' => 60,
         'Escala' => 75
     ];
-    $stage = $p['project_stage'] ?? 'Ideia';
+    $stage = $p['project_stage'] ?? 'Projecto';
     $score += isset($stages[$stage]) ? $stages[$stage] : 5;
 
     // 2. Densidade de Dados (Peso: 15%)

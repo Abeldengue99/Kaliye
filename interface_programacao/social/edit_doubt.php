@@ -60,6 +60,6 @@ try {
 
 } catch (PDOException $e) {
     error_log('edit_doubt error: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro interno ao atualizar duvida.']);
+    echo json_encode(['success' => false, 'message' => 'Erro interno ao atualizar dúvida.']);
 }
 

@@ -41,7 +41,7 @@
                 <div class="slide-overlay"></div>
                 <div class="slide-conteudo">
                     <h1 class="txt-hero">Trabalho em <span>Equipa</span></h1>
-                    <p class="desc-hero">Junta-te a profissionais dedicados e partilha ideias para alcançar o sucesso em conjunto.</p>
+                    <p class="desc-hero">Junta-te a profissionais dedicados e partilha projectos para alcançar o sucesso em conjunto.</p>
                     <a href="<?php echo $base_url; ?>autenticacao/registar.php" class="btn-cta-hero">Ver Mais</a>
                 </div>
             </div>

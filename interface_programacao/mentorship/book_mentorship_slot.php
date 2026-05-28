@@ -45,11 +45,11 @@ try {
     $slot_title = $slot['title'] ?: 'Sessão de Mentoria';
 
     if ((int)$mentor_id === (int)$user_id) {
-        throw new Exception('Nao pode reservar o seu proprio horario.');
+        throw new Exception('Não pode reservar o seu próprio horario.');
     }
 
     if ($slot['status'] !== 'available' || !empty($slot['participant_id'])) {
-        throw new Exception('Este horario ja nao esta disponivel.');
+        throw new Exception('Este horario ja não esta disponivel.');
     }
 
     // Book

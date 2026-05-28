@@ -188,7 +188,7 @@ function getFreeMentorshipKeywords(array $request): array
     $words = preg_split('/\s+/', normalizeFreeMentorshipText($source));
     $stopWords = [
         'com', 'para', 'por', 'uma', 'uns', 'das', 'dos', 'que', 'estou', 'preciso',
-        'ajuda', 'ajudar', 'duvida', 'mentoria', 'sobre', 'como', 'meu', 'minha',
+        'ajuda', 'ajudar', 'dúvida', 'mentoria', 'sobre', 'como', 'meu', 'minha',
         'the', 'and', 'for', 'with', 'help',
     ];
 

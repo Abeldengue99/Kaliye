@@ -53,7 +53,7 @@ function endSessionForInactivity(): void {
         echo json_encode([
             'success' => false,
             'session_expired' => true,
-            'message' => 'A sua sessao expirou por inatividade. Inicie sessao novamente.'
+            'message' => 'A sua sessão expirou por inatividade. Inicie sessão novamente.'
         ]);
         exit();
     }
@@ -237,7 +237,7 @@ function requireAdmin() {
 function requireAdminPermissionJson(string $permission) {
     if (!isAdmin() || !hasPermission($permission)) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Acesso negado. Permissao insuficiente.']);
+        echo json_encode(['success' => false, 'message' => 'Acesso negado. Permissão insuficiente.']);
         exit();
     }
 }
@@ -312,7 +312,7 @@ function requireValidCSRFTokenJson() {
 
     if (!verifyCSRFToken(getRequestCSRFToken())) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Pedido bloqueado por seguranca. Atualize a pagina e tente novamente.']);
+        echo json_encode(['success' => false, 'message' => 'Pedido bloqueado por segurança. Atualize a pagina e tente novamente.']);
         exit();
     }
 }

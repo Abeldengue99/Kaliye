@@ -6,7 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit();
 }
 
@@ -65,7 +65,7 @@ function storeProfileAvatar(int $userId): ?string {
     }
 
     if ($_FILES['profile_pic']['error'] !== UPLOAD_ERR_OK) {
-        throw new RuntimeException('Nao foi possivel carregar o avatar.');
+        throw new RuntimeException('Não foi possível carregar o avatar.');
     }
 
     if ($_FILES['profile_pic']['size'] > 4 * 1024 * 1024) {
@@ -86,14 +86,14 @@ function storeProfileAvatar(int $userId): ?string {
 
     $targetDir = __DIR__ . '/../../carregamentos/profiles';
     if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true)) {
-        throw new RuntimeException('Nao foi possivel preparar a pasta de avatars.');
+        throw new RuntimeException('Não foi possível preparar a pasta de avatars.');
     }
 
     $fileName = 'profile_' . $userId . '_' . time() . '.' . $allowed[$info[2]];
     $targetPath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
 
     if (!move_uploaded_file($tmp, $targetPath)) {
-        throw new RuntimeException('Nao foi possivel guardar o avatar.');
+        throw new RuntimeException('Não foi possível guardar o avatar.');
     }
 
     return 'carregamentos/profiles/' . $fileName;

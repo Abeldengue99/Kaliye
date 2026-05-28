@@ -13,7 +13,7 @@ $footer_home_url = $footer_user_logged_in ? ($base_url . 'index.php') : ($base_u
                     </div>
                     <span class="rodape-marca-nome">KALIYE</span>
                 </a>
-                <p class="rodape-descricao">
+                <p class="rodape-descrição">
                     A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos,
                     mentores, empreendedores e investidores encontram um espaço digital para desenvolver projectos, fortalecer
                     competências, construir relações profissionais e transformar projectos em impacto real para Angola.
@@ -137,7 +137,7 @@ $footer_home_url = $footer_user_logged_in ? ($base_url . 'index.php') : ($base_u
     font-weight: 900;
     letter-spacing: 0;
 }
-.rodape-descricao {
+.rodape-descrição {
     color: var(--cor-texto-paragrafo);
     font-size: 1rem;
     line-height: 1.8;
@@ -176,7 +176,7 @@ $footer_home_url = $footer_user_logged_in ? ($base_url . 'index.php') : ($base_u
 
 @media (max-width: 900px) {
     .rodape-principal { padding-top: 4rem; }
-    .rodape-descricao { font-size: 0.95rem; }
+    .rodape-descrição { font-size: 0.95rem; }
     .kaliye-newsletter {
         width: min(calc(100% - 1.5rem), 340px);
         margin-left: auto;

@@ -29,7 +29,7 @@ try {
     $member_stmt = $db->prepare("SELECT 1 FROM chat_group_members WHERE group_id = ? AND user_id = ? LIMIT 1");
     $member_stmt->execute([(int)$group_id, (int)$sender_id]);
     if (!$member_stmt->fetchColumn()) {
-        echo json_encode(['success' => false, 'error' => 'Sem permissao para enviar nesta sala.']);
+        echo json_encode(['success' => false, 'error' => 'Sem permissão para enviar nesta sala.']);
         exit();
     }
 

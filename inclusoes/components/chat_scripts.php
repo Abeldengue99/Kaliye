@@ -75,7 +75,7 @@ function loadChat(contactId, contactName, profilePic = null, meta = null) {
     `;
 
     document.getElementById('chatInputArea').style.display = 'block';
-    document.getElementById('chatMessages').innerHTML = '<div style="margin-top:10rem; text-align:center; color:rgba(255,255,255,0.1);"><i class="fas fa-spinner fa-spin"></i><br>Canalizando comunicaÃ§Ãµes...</div>';
+    document.getElementById('chatMessages').innerHTML = '<div style="margin-top:10rem; text-align:center; color:rgba(255,255,255,0.1);"><i class="fas fa-spinner fa-spin"></i><br>Canalizando comunicações...</div>';
     
     initEmojiPicker();
     fetchMessages();
@@ -89,7 +89,7 @@ function loadGroupChat(groupId, groupName) {
     document.getElementById('receiver_id').value = '';
     document.getElementById('chat_type').value = 'group';
     
-    // Esconder o botÃ£o de Jitsi por defeito em grupos normais
+    // Esconder o botão de Jitsi por defeito em grupos normais
     const jitsiBtn = document.getElementById('jitsiMeetBtn');
     if(jitsiBtn) jitsiBtn.style.display = 'none';
     
@@ -108,7 +108,7 @@ function loadGroupChat(groupId, groupName) {
 
 // INOVAÃ‡ÃƒO 1: Motor de Abertura de Salas VIP de Mentoria
 function loadMentorGroupChat(groupId, groupName, mentorId) {
-    chatType = 'mentor_group'; // Estado da mÃ¡quina de estados altera-se para o novo protocolo.
+    chatType = 'mentor_group'; // Estado da máquina de estados altera-se para o novo protocolo.
     currentGroup = groupId;
     currentReceiver = null;
     document.getElementById('group_id').value = groupId;
@@ -118,13 +118,13 @@ function loadMentorGroupChat(groupId, groupName, mentorId) {
     // Realce do contacto na aba esquerda
     document.querySelectorAll('.contact-item-elite').forEach(i => i.classList.remove('active'));
     
-    // RegulaÃ§Ã£o de PermissÃµes: SÃ³ o dono (Mentor) pode iniciar a VÃ­deo-Chamada.
+    // Regulação de Permissões: Só o dono (Mentor) pode iniciar a Vídeo-Chamada.
     const jitsiBtn = document.getElementById('jitsiMeetBtn');
     if (jitsiBtn) {
         if (AKSANTI_CONFIG.userId == mentorId) {
-            jitsiBtn.style.display = 'block'; // O botÃ£o verde de VÃ­deo aparece para o Mentor
+            jitsiBtn.style.display = 'block'; // O botão verde de Vídeo aparece para o Mentor
         } else {
-            jitsiBtn.style.display = 'none'; // Fica invisÃ­vel para os alunos.
+            jitsiBtn.style.display = 'none'; // Fica invisível para os alunos.
         }
     }
 
@@ -159,7 +159,7 @@ function createMentorGroup() {
             .then(r => r.json())
             .then(data => {
                 if(data.success) window.location.reload();
-                else showChatToast(data.error || 'Nao foi possivel criar a sala.');
+                else showChatToast(data.error || 'Não foi possível criar a sala.');
             });
         }
     });
@@ -205,7 +205,7 @@ function fetchMentorGroupMessages() {
     fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/get_mentor_group_messages.php?group_id=${currentGroup}`)
         .then(res => res.json())
         .then(data => {
-            // Utilizamos a engine de renderizaÃ§Ã£o avanÃ§ada com tags especÃ­ficas de mentoria
+            // Utilizamos a engine de renderização avançada com tags específicas de mentoria
             if (data.success) renderMentorMessages(data.messages);
         });
 }
@@ -263,7 +263,7 @@ function openReportModal(reportedUserId, messageId = 0, scope = 'direct') {
     document.getElementById('blockFields').style.display = 'none';
     document.getElementById('customTextFields').style.display = 'none';
     document.getElementById('chatSafetyIcon').innerHTML = '<i class="fas fa-flag"></i>';
-    document.getElementById('chatSafetyKicker').textContent = 'Seguranca do chat';
+    document.getElementById('chatSafetyKicker').textContent = 'Segurança do chat';
     document.getElementById('chatSafetyTitle').textContent = messageId ? 'Denunciar mensagem' : 'Denunciar conversa';
     document.getElementById('chatSafetyText').textContent = 'A equipa de moderacao tera acesso ao contexto necessario para analisar esta denuncia.';
     document.getElementById('chatSafetySubmit').textContent = 'Enviar denuncia';
@@ -291,7 +291,7 @@ function blockCurrentUser() {
     document.getElementById('chatSafetyIcon').innerHTML = '<i class="fas fa-ban"></i>';
     document.getElementById('chatSafetyKicker').textContent = 'Controle de privacidade';
     document.getElementById('chatSafetyTitle').textContent = 'Bloquear utilizador';
-    document.getElementById('chatSafetyText').textContent = 'Esta conversa deixara de aceitar novas mensagens entre voces. A acao fica registada para seguranca.';
+    document.getElementById('chatSafetyText').textContent = 'Esta conversa deixara de aceitar novas mensagens entre voces. A acção fica registada para segurança.';
     document.getElementById('chatSafetySubmit').textContent = 'Bloquear';
     document.getElementById('chatSafetySubmit').className = 'chat-safety-btn danger';
     document.getElementById('chatSafetyModal').style.display = 'flex';
@@ -303,7 +303,7 @@ function openChatTextModal(options) {
     document.getElementById('blockFields').style.display = 'none';
     document.getElementById('customTextFields').style.display = 'block';
     document.getElementById('chatSafetyIcon').innerHTML = `<i class="${options.icon || 'fas fa-pen'}"></i>`;
-    document.getElementById('chatSafetyKicker').textContent = options.kicker || 'Acao do chat';
+    document.getElementById('chatSafetyKicker').textContent = options.kicker || 'Acção do chat';
     document.getElementById('chatSafetyTitle').textContent = options.title || 'Continuar';
     document.getElementById('chatSafetyText').textContent = options.text || '';
     document.getElementById('customTextLabel').textContent = options.label || 'Texto';
@@ -357,7 +357,7 @@ function submitChatSafetyModal(e) {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
             if (!data.success) {
-                document.getElementById('chatSafetyText').textContent = data.error || 'Nao foi possivel processar o pedido.';
+                document.getElementById('chatSafetyText').textContent = data.error || 'Não foi possível processar o pedido.';
                 return;
             }
             closeChatSafetyModal();
@@ -370,7 +370,7 @@ function submitChatSafetyModal(e) {
         .catch(() => {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-            document.getElementById('chatSafetyText').textContent = 'Nao foi possivel contactar o servidor.';
+            document.getElementById('chatSafetyText').textContent = 'Não foi possível contactar o servidor.';
         });
 }
 
@@ -382,7 +382,7 @@ function showChatToast(message) {
     setTimeout(() => toast.remove(), 3200);
 }
 
-// INOVAÃ‡ÃƒO 2: RenderizaÃ§Ã£o Multimodal VIP (Com suporte nativo a Jitsi e Ãudios WebRTC)
+// INOVAÃ‡ÃƒO 2: Renderização Multimodal VIP (Com suporte nativo a Jitsi e Ãudios WebRTC)
 function renderMentorMessages(data) {
     const container = document.getElementById('chatMessages');
     container.innerHTML = '';
@@ -391,7 +391,7 @@ function renderMentorMessages(data) {
         const div = document.createElement('div');
         div.className = `msg-bubble-elite ${isMine ? 'msg-mine-elite' : 'msg-theirs-elite'}`;
         
-        // Fabrico DinÃ¢mico de Formatos Complexos HTML
+        // Fabrico Dinâmico de Formatos Complexos HTML
         let mediaHtml = '';
         if (msg.message_type === 'audio' && msg.file_url) {
             mediaHtml = `<audio controls src="${AKSANTI_CONFIG.baseUrl}${msg.file_url}" style="height: 40px; border-radius: 20px; outline: none; margin-bottom: 5px;"></audio>`;
@@ -399,10 +399,10 @@ function renderMentorMessages(data) {
             mediaHtml = `
             <div style="background: rgba(16,185,129,0.1); border-left: 3px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
                 <i class="fas fa-video" style="color:#10b981; font-size: 1.5rem; margin-bottom:10px;"></i>
-                <h5 style="color:#10b981; margin:0 0 5px 0; font-size:0.9rem;">SessÃ£o Jitsi Iniciada!</h5>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 10px;">Junte-se ao seu mentor nesta vÃ­deo-chamada criptografada ponto-a-ponto.</p>
+                <h5 style="color:#10b981; margin:0 0 5px 0; font-size:0.9rem;">Sessão Jitsi Iniciada!</h5>
+                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 10px;">Junte-se ao seu mentor nesta vídeo-chamada criptografada ponto-a-ponto.</p>
                 <a href="${msg.file_url}" target="_blank" style="background: #10b981; color: #fff; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: 800; display: inline-block;">
-                    Entrar na SessÃ£o <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i>
+                    Entrar na Sessão <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i>
                 </a>
             </div>`;
         }
@@ -424,7 +424,7 @@ let mediaRecorder;
 let audioChunks = [];
 
 async function startRecording() {
-    if(chatType !== 'mentor_group') return; // Bloqueio se nÃ£o for grupo VIP
+    if(chatType !== 'mentor_group') return; // Bloqueio se não for grupo VIP
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -432,9 +432,9 @@ async function startRecording() {
         mediaRecorder.start();
         
         let btn = document.getElementById('audioRecordBtn');
-        btn.style.color = '#ef4444'; // Pisca vermelho indicando gravaÃ§Ã£o em curso!
+        btn.style.color = '#ef4444'; // Pisca vermelho indicando gravação em curso!
     } catch (err) {
-        showChatToast('Permissao de microfone negada. Necessario para enviar notas de voz.');
+        showChatToast('Permissão de microfone negada. Necessario para enviar notas de voz.');
     }
 }
 
@@ -450,7 +450,7 @@ function stopRecording() {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             audioChunks = []; // Drena o Buffer
             
-            // ConstruÃ§Ã£o do pacote Ajax (Multi Part File Data)
+            // Construção do pacote Ajax (Multi Part File Data)
             const formData = new FormData();
             formData.append('group_id', currentGroup);
             formData.append('message_type', 'audio');
@@ -459,19 +459,19 @@ function stopRecording() {
             fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`, {
                 method: 'POST', body: formData
             }).then(r => r.json()).then(data => {
-                if(data.success) fetchMentorGroupMessages(); // Refresh rÃ¡pido do Chat VIP
+                if(data.success) fetchMentorGroupMessages(); // Refresh rápido do Chat VIP
             });
         };
     }
 }
 
-// INOVAÃ‡ÃƒO 4: LanÃ§amento de InstÃ¢ncia VÃ­deo (Jitsi Meet P2P Bridge)
+// INOVAÃ‡ÃƒO 4: Lançamento de Instância Vídeo (Jitsi Meet P2P Bridge)
 function startMentorMeeting() {
     openChatTextModal({
         title: 'Iniciar videochamada',
-        text: 'Defina o topico desta sessao de mentoria.',
-        label: 'Topico da sessao',
-        placeholder: 'Ex: Validacao do modelo financeiro',
+        text: 'Defina o topico desta sessão de mentoria.',
+        label: 'Topico da sessão',
+        placeholder: 'Ex: Validação do modelo financeiro',
         submitText: 'Criar reuniao',
         icon: 'fas fa-video',
         onSubmit: (title) => {
@@ -488,7 +488,7 @@ function startMentorMeeting() {
                     fetchMentorGroupMessages();
                     window.open(data.file_url, '_blank', 'noopener,noreferrer'); 
                 } else {
-                    showChatToast(data.error || 'Nao foi possivel criar a reuniao.');
+                    showChatToast(data.error || 'Não foi possível criar a reuniao.');
                 }
             });
         }
@@ -535,7 +535,7 @@ function handleSendElite(e) {
     if (chatType === 'group') {
         endpoint = `${AKSANTI_CONFIG.baseUrl}servicos/social/send_group_message.php`;
     } else if (chatType === 'mentor_group') {
-        endpoint = `${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`; // API que criÃ¡mos agora!
+        endpoint = `${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`; // API que criámos agora!
         if (!formData.get('message_type')) formData.append('message_type', 'text');
     }
     
@@ -547,7 +547,7 @@ function handleSendElite(e) {
         .then(res => res.json())
         .then(data => {
             if (!data.success) {
-                showChatToast(data.error || 'Nao foi possivel enviar a mensagem.');
+                showChatToast(data.error || 'Não foi possível enviar a mensagem.');
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
                 return;

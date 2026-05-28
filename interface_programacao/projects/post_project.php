@@ -32,7 +32,7 @@ function ensure_project_upload_dir(&$error_message) {
     $upload_dir = __DIR__ . '/../../carregamentos/projects/';
 
     if (!is_dir($upload_dir) && !mkdir($upload_dir, 0775, true) && !is_dir($upload_dir)) {
-        $error_message = 'Nao foi possivel criar a pasta de uploads de projectos.';
+        $error_message = 'Não foi possível criar a pasta de uploads de projectos.';
         return null;
     }
 
@@ -43,7 +43,7 @@ function ensure_project_upload_dir(&$error_message) {
     $test_path = $upload_dir . '.write_test_' . uniqid('', true);
     $handle = @fopen($test_path, 'wb');
     if ($handle === false) {
-        $error_message = 'A pasta de uploads de projectos nao tem permissao de escrita.';
+        $error_message = 'A pasta de uploads de projectos não tem permissão de escrita.';
         return null;
     }
 
@@ -178,7 +178,7 @@ function ensure_project_submission_schema(PDO $db) {
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS pitch_video_url VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS execution_time VARCHAR(100)",
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS team_size INTEGER DEFAULT 1",
-        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS project_stage VARCHAR(50) DEFAULT 'Ideia'",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS project_stage VARCHAR(50) DEFAULT 'Projecto'",
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS target_audience TEXT",
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS needs_to_advance TEXT",
         "ALTER TABLE projects ADD COLUMN IF NOT EXISTS idea_origin TEXT",
@@ -243,28 +243,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'mentor') {
-        $msg = "Acesso restrito: mentores podem orientar e validar projectos, mas nao podem publicar projectos próprios.";
+    // Restringir Mentores Puros (que não sejam estudantes nem investidores)
+    $user_types = strtolower($_SESSION['user_type'] ?? '');
+    $is_mentor_only = (strpos($user_types, 'mentor') !== false || strpos($user_types, 'especialista') !== false) 
+                      && strpos($user_types, 'estudante') === false 
+                      && strpos($user_types, 'investidor') === false
+                      && strpos($user_types, 'admin') === false;
+
+    if ($is_mentor_only) {
         if (isset($_POST['json'])) {
-            echo json_encode(['success' => false, 'error' => $msg]);
+            echo json_encode(['success' => false, 'error' => 'Acesso negado. Apenas Estudantes, Estudantes-Mentores e Investidores podem publicar projectos.']);
             exit();
         }
-        header("Location: ../../paginas/explorar/my_projects.php?error=restricted_role&details=" . urlencode($msg));
+        $redirect = isset($_POST['redirect']) ? $_POST['redirect'] : '../../index.php';
+        header("Location: " . $redirect . "?error=access_denied&details=" . urlencode('Apenas Estudantes e Investidores podem publicar projectos.'));
         exit();
     }
-
-    // REGRA DE NEGÓCIO: Mentores não podem publicar projectos (Projectos).
-    // O seu papel é exclusivo de curadoria, orientação e investimento para evitar conflitos de interesse.
-    if (isset($_SESSION['mentorship_status']) && $_SESSION['mentorship_status'] === 'approved') {
-        $msg = "Acesso Restrito: Como Mentor, o teu papel é orientar projectos, não publicá-las diretamente.";
-        if (isset($_POST['json'])) {
-            echo json_encode(['success' => false, 'error' => $msg]);
-            exit();
-        }
-        header("Location: ../../index.php?error=restricted_role&details=" . urlencode($msg));
-        exit();
-    }
-
     /**
      * Validação de Transbordamento (Post Max Size)
      * Se o utilizador tentar enviar um vídeo de 500MB e o servidor só aceitar 100MB, 
@@ -297,7 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Campos da Linha 'Elite' (Informação técnica e estratégica para investidores).
     $execution_time  = filter_var($_POST['execution_time'] ?? '', FILTER_SANITIZE_STRING);
     $team_size       = filter_var($_POST['team_size'] ?? 1, FILTER_SANITIZE_NUMBER_INT);
-    $project_stage   = filter_var($_POST['project_stage'] ?? 'Ideia', FILTER_SANITIZE_STRING);
+    $project_stage   = filter_var($_POST['project_stage'] ?? 'Projecto', FILTER_SANITIZE_STRING);
 
     // Campos de Visão & Estratégia (Essenciais para o algoritmo de análise e filtragem).
     $target_audience = filter_var($_POST['target_audience'] ?? '', FILTER_SANITIZE_STRING);
@@ -335,7 +329,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_POST['project_id']) || empty($_POST['project_id'])) {
         if (!isset($_FILES['project_video']) || $_FILES['project_video']['error'] === UPLOAD_ERR_NO_FILE) {
             $redirect = isset($_POST['redirect']) ? $_POST['redirect'] : '../../index.php';
-            $msg = "O vídeo de pitch é obrigatório para validar a originalidade da ideia.";
+            $msg = "O vídeo de pitch é obrigatório para validar a originalidade do projecto.";
             
             if (isset($_POST['json'])) {
                 echo json_encode(['success' => false, 'error' => $msg]);
@@ -351,23 +345,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $db = $database->getConnection();
     ensure_project_submission_schema($db);
 
-    // REGRA DE NEGOCIO: mentores nao podem publicar projectos.
-    // Consultamos a base de dados para nao depender apenas da sessao.
+    // Consultamos a base de dados para garantir que os dados estão corretos (mentor restriction removed)
     $role_stmt = $db->prepare("SELECT user_type, mentorship_status FROM users WHERE user_id = ?");
     $role_stmt->execute([$owner_id]);
     $owner_role = $role_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    $is_mentor_author = (($owner_role['user_type'] ?? $_SESSION['user_type'] ?? '') === 'mentor')
-        || (($owner_role['mentorship_status'] ?? $_SESSION['mentorship_status'] ?? '') === 'approved');
-
-    if ($is_mentor_author) {
-        $msg = "Acesso restrito: mentores podem orientar e validar projectos, mas nao podem publicar projectos próprios.";
-        if (isset($_POST['json'])) {
-            echo json_encode(['success' => false, 'error' => $msg]);
-            exit();
-        }
-        header("Location: ../../paginas/explorar/my_projects.php?error=restricted_role&details=" . urlencode($msg));
-        exit();
-    }
 
     $image_url = null;
     $video_url = null;
@@ -454,6 +435,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         add_project_insert_field($project_columns, $insert_columns, $value_expressions, $params, 'campaign_end_date', $campaign_end, ':camp_end');
         add_project_insert_field($project_columns, $insert_columns, $value_expressions, $params, 'funding_type', $funding_type, ':fund_type');
         add_project_insert_field($project_columns, $insert_columns, $value_expressions, $params, 'equity_available', $equity_available);
+        
+        $content_hash = hash('sha256', $title . $description . $owner_id . time());
+        add_project_insert_field($project_columns, $insert_columns, $value_expressions, $params, 'content_hash', $content_hash, ':content_hash');
 
         if (isset($project_columns['created_at'])) {
             $insert_columns[] = 'created_at';
@@ -479,7 +463,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $db->prepare($query);
         
         // Fazemos o binding seguro de todos os parâmetros para prevenir SQL Injection de forma absoluta.
-        // Os valores sao passados em lote para acompanhar o INSERT dinamico.
+        // Os valores são passados em lote para acompanhar o INSERT dinamico.
 
         // Executamos a query principal.
         if ($stmt->execute($params)) {
@@ -557,7 +541,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($user_info && $user_info['user_type'] == 'investor') {
                 $notif_title = "🚨 OPORTUNIDADE: Novo Projecto Publicado!";
-                $notif_content = "O investidor " . $user_info['full_name'] . " acabou de publicar uma ideia estratégica: '$title'. Seja o primeiro a conectar-se!";
+                $notif_content = "O investidor " . $user_info['full_name'] . " acabou de publicar um projecto estratégica: '$title'. Seja o primeiro a conectar-se!";
                 $notif_link = "index.php?id=" . $project_id;
 
                 // Broadcast para todos os perfis relevantes (Estudantes e Mentores).
@@ -590,7 +574,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($_POST['json'])) {
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Projecto submetido com sucesso! Ele ficara pendente de aprovacao administrativa antes de aparecer no feed.',
+                    'message' => 'Projecto submetido com sucesso! Ele ficara pendente de aprovação administrativa antes de aparecer no feed.',
                     'redirect_url' => 'paginas/explorar/my_projects.php?success=project_pending'
                 ]);
                 exit();

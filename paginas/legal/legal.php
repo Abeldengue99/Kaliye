@@ -15,11 +15,11 @@ require_once '../../inclusoes/cabecalho.php';
                 <p style="color: #ef4444; font-weight: 700; margin-bottom: 0.5rem;">POLÃTICA DE TOLERÃ‚NCIA ZERO PARA PLÃGIO</p>
                 <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
                     A KALIYE utiliza sistemas avançados de auditoria por Inteligência Artificial para verificar a originalidade de cada projeto. 
-                    Ao publicar uma ideia, o utilizador declara sob as penas da lei que é o autor original da mesma.
+                    Ao publicar um projecto, o utilizador declara sob as penas da lei que é o autor original da mesma.
                 </p>
             </div>
             <p style="color: var(--text-secondary); line-height: 1.6;">
-                Qualquer projeto identificado como plágio, cópia direta de ideias existentes ou conteúdo gerado sem valor acrescentado será:
+                Qualquer projeto identificado como plágio, cópia direta de projectos existentes ou conteúdo gerado sem valor acrescentado será:
                 <ul style="margin-top: 10px; padding-left: 1.5rem;">
                     <li>Removido permanentemente da plataforma sem aviso prévio.</li>
                     <li>O autor terá o seu perfil marcado com um "Alerta de Integridade".</li>
@@ -29,7 +29,7 @@ require_once '../../inclusoes/cabecalho.php';
         </section>
  
         <section style="margin-bottom: 2.5rem;">
-            <h2 style="color: white; font-size: 1.4rem; margin-bottom: 1rem;">2. Proteção de Dados e Ideias</h2>
+            <h2 style="color: white; font-size: 1.4rem; margin-bottom: 1rem;">2. Proteção de Dados e Projectos</h2>
             <p style="color: var(--text-secondary); line-height: 1.6;">
                 A KALIYE compromete-se a proteger as informações estratégicas publicadas. Os investidores registados na plataforma assinam, 
                 ao entrar, um termo de confidencialidade implícito. No entanto, recomendamos que não sejam publicados segredos industriais ou fórmulas 

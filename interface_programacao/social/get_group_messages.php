@@ -27,7 +27,7 @@ try {
     $member_stmt = $db->prepare("SELECT 1 FROM chat_group_members WHERE group_id = ? AND user_id = ? LIMIT 1");
     $member_stmt->execute([(int)$group_id, (int)$_SESSION['user_id']]);
     if (!$member_stmt->fetchColumn()) {
-        echo json_encode(['success' => false, 'error' => 'Sem permissao para ler esta sala.']);
+        echo json_encode(['success' => false, 'error' => 'Sem permissão para ler esta sala.']);
         exit();
     }
 

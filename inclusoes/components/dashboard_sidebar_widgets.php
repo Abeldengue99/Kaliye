@@ -282,12 +282,24 @@ $empty_style = 'text-align: center; padding: 2rem 0; color: var(--surface-15); f
         
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
             <?php
-            $q_links = [
-                ['name' => 'Novo Projeto', 'url' => 'javascript:void(0)', 'icon' => 'fa-plus', 'color' => '#10b981', 'onclick' => 'if(typeof openPostModal === "function") openPostModal();'],
+            $user_types_side = strtolower($_SESSION['user_type'] ?? '');
+            $is_mentor_only_side = (strpos($user_types_side, 'mentor') !== false || strpos($user_types_side, 'especialista') !== false) 
+                              && strpos($user_types_side, 'estudante') === false 
+                              && strpos($user_types_side, 'investidor') === false
+                              && strpos($user_types_side, 'admin') === false;
+
+            $q_links = [];
+            if (!$is_mentor_only_side) {
+                $q_links[] = ['name' => 'Novo Projeto', 'url' => 'javascript:void(0)', 'icon' => 'fa-plus', 'color' => '#10b981', 'onclick' => 'if(typeof openPostModal === "function") openPostModal();'];
+            } else {
+                $q_links[] = ['name' => 'Mentorias', 'url' => $base_url . 'paginas/social/mentorship.php', 'icon' => 'fa-chalkboard-teacher', 'color' => '#10b981', 'onclick' => ''];
+            }
+            
+            $q_links = array_merge($q_links, [
                 ['name' => 'Carteira', 'url' => $base_url . 'paginas/conta/wallet.php', 'icon' => 'fa-wallet', 'color' => '#f7941d', 'onclick' => ''],
                 ['name' => 'Mensagens', 'url' => $base_url . 'paginas/social/messages.php', 'icon' => 'fa-comment-alt', 'color' => '#6366f1', 'onclick' => ''],
                 ['name' => 'Definições', 'url' => $base_url . 'paginas/social/profile.php', 'icon' => 'fa-cog', 'color' => '#94a3b8', 'onclick' => ''],
-            ];
+            ]);
 
             if ($_role === 'investor') {
                 $q_links[0] = ['name' => 'Investir', 'url' => $base_url . 'paginas/explorar/explore_projects.php', 'icon' => 'fa-chart-pie', 'color' => '#10b981', 'onclick' => ''];

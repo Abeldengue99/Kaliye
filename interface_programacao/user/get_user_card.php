@@ -90,6 +90,7 @@ try {
             'id' => (int)$userId,
             'name' => $user['full_name'],
             'role' => strtoupper($user['user_type'] ?? 'Inovador'),
+            'user_type_raw' => $user['user_type'],
             'avatar' => $final_pic,
             'is_verified' => (($user['verification_status'] ?? 'unsubmitted') === 'verified'),
             'email_verified' => in_array($user['is_verified'] ?? false, [true, 1, '1', 't'], true),

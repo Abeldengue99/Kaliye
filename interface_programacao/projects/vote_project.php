@@ -1,7 +1,7 @@
 <?php
 /**
  * vote_project.php - Aksanti
- * Toggle de voto comunitario numa ideia.
+ * Toggle de voto comunitario numa projecto.
  */
 header('Content-Type: application/json; charset=utf-8');
 session_start();
@@ -12,7 +12,7 @@ require_once '../../inclusoes/project_votes_schema.php';
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada. Faz login novamente.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada. Faz login novamente.']);
     exit;
 }
 
@@ -59,12 +59,12 @@ try {
     $project = $project_stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$project) {
-        echo json_encode(['success' => false, 'message' => 'Projecto nao encontrado.']);
+        echo json_encode(['success' => false, 'message' => 'Projecto não encontrado.']);
         exit;
     }
 
     if ((int)$project['owner_id'] === $voter_id) {
-        echo json_encode(['success' => false, 'message' => 'Nao podes votar na tua propria ideia.']);
+        echo json_encode(['success' => false, 'message' => 'Não podes votar na tua propria projecto.']);
         exit;
     }
 
@@ -127,8 +127,8 @@ try {
             $notif->execute([
                 (int)$project['owner_id'],
                 $voter_id,
-                'A sua ideia recebeu um voto',
-                $sender_name . " votou na sua ideia: '" . $project['title'] . "'.",
+                'o seu projecto recebeu um voto',
+                $sender_name . " votou na seu projecto: '" . $project['title'] . "'.",
                 'index.php?project_modal=' . $project_id
             ]);
         } catch (Exception $e) {

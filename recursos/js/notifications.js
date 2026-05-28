@@ -1,4 +1,4 @@
-// Sistema de NotificaÃ§Ãµes em Tempo Real - Aksanti ReferÃªncias
+// Sistema de Notificações em Tempo Real - Aksanti Referências
 class NotificationSystem {
     constructor() {
         this.pollInterval = 30000; // 30 segundos
@@ -28,7 +28,7 @@ class NotificationSystem {
             const data = await response.json();
             this.updateBadge(data.unread_count);
         } catch (error) {
-            console.error('Erro ao buscar notificaÃ§Ãµes:', error);
+            console.error('Erro ao buscar notificações:', error);
         }
     }
 

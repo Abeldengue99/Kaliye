@@ -7,7 +7,7 @@ require_once '../../inclusoes/SimpleMailer.php';
 session_start();
 require_once '../../inclusoes/auth_check.php';
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
     exit;
 }
 
@@ -32,7 +32,7 @@ if (!$request_id || $session_date === '') {
 
 $timestamp = strtotime($session_date);
 if (!$timestamp) {
-    echo json_encode(['success' => false, 'message' => 'Data da sessao invalida.']);
+    echo json_encode(['success' => false, 'message' => 'Data da sessão invalida.']);
     exit;
 }
 
@@ -52,12 +52,12 @@ try {
     $req = $stmt_req->fetch(PDO::FETCH_ASSOC);
 
     if (!$req || (int)$req['selected_mentor_id'] !== $user_id) {
-        echo json_encode(['success' => false, 'message' => 'Apenas o mentor selecionado pode agendar a sessao.']);
+        echo json_encode(['success' => false, 'message' => 'Apenas o mentor selecionado pode agendar a sessão.']);
         exit;
     }
 
     if ($req['status'] !== 'in_progress') {
-        echo json_encode(['success' => false, 'message' => 'Esta mentoria nao esta em progresso.']);
+        echo json_encode(['success' => false, 'message' => 'Esta mentoria não esta em progresso.']);
         exit;
     }
 
@@ -145,13 +145,13 @@ try {
         <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
             <h2 style='color: #f7941d;'>Mentoria Agendada!</h2>
             <p>Ola, <b>$safe_name</b>,</p>
-            <p>A sua sessao de mentoria gratuita para o pedido: <b>$safe_title</b> foi agendada.</p>
+            <p>A sua sessão de mentoria gratuita para o pedido: <b>$safe_title</b> foi agendada.</p>
             <div style='background: #f4f4f4; padding: 15px; border-radius: 8px; margin: 20px 0;'>
                 <p><b>Data e Hora:</b> $formatted_date</p>
                 <p><b>Duracao:</b> $duration minutos</p>
                 <p><b>Link da Reuniao:</b> <a href='$safe_link'>$safe_link</a></p>
             </div>
-            <p>Prepare as suas duvidas e esteja online no horario combinado.</p>
+            <p>Prepare as suas dúvidas e esteja online no horario combinado.</p>
             <p>Equipa KALIYE</p>
         </div>
     ";

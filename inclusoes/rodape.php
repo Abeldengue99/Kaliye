@@ -248,14 +248,8 @@
         if ($current_page_file !== 'investor_dashboard.php') {
             include_once $components_dir . 'project_details_modal.php';
         }
-        // Include investment modal only if payments are enabled
-        $payments_config = require __DIR__ . '/../configuracoes/pagamentos.php';
-        if (isset($payments_config['payments_enabled']) && $payments_config['payments_enabled'] === true) {
-            include_once $components_dir . 'invest_modal.php';
-        } else {
-            // If payments are disabled, hide invest buttons and disable client flows
-            echo "<script>document.addEventListener('DOMContentLoaded', function(){ try{ document.querySelectorAll('.btn-invest-elite').forEach(b=>{ b.style.display='none'; }); window.openInvestmentFlow = function(){ if(typeof Swal !== 'undefined') { Swal.fire({ icon:'info', title:'Investimentos desativados', text:'A funcionalidade de investimento monetário está desativada nesta versão.', background:'#0d1628', color:'#fff' }); } else { alert('Investimentos desativados nesta versão.'); } }; }catch(e){console.error('disable investments script error',e);} });</script>";
-        }
+        // Phase 1: Modal de investimento é uma Candidatura (não requer pagamentos ativos)
+        include_once $components_dir . 'invest_modal.php';
         include_once $components_dir . 'ad_modal.php'; 
         include_once $components_dir . 'user_card_modal.php'; 
         include_once $components_dir . 'profile_edit_modal.php'; 
@@ -273,9 +267,8 @@
     <script> 
         AOS.init({ duration: 800, once: true }); 
 
-        // Auto-trigger do Gate de Verificação para páginas de Acesso Restrito Direto
-        // (No Dashboard, o gatilho é manual via botão, cumprindo a nova regra de UX)
-        <?php if (isset($trigger_kyc_modal) && $trigger_kyc_modal && basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
+        // Auto-trigger do Gate de Verificação
+        <?php if (isset($trigger_kyc_modal) && $trigger_kyc_modal): ?>
         (function autoTriggerKYC() {
             if (typeof window.openKYCModal === 'function') {
                 window.openKYCModal();
@@ -295,6 +288,6 @@
         <?php endif; ?>
     </script>
     <!-- Aksanti Modals V2: Sistema Standalone (override final) -->
-    <script src="<?php echo $base_url; ?>recursos/js/aksanti_modals_v2.js"></script>
+    <script src="<?php echo $base_url; ?>recursos/js/aksanti_modals_v2.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

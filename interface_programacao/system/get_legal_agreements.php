@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../configuracoes/base_dados.php';
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Nao autenticado.', 'agreements' => []]);
+    echo json_encode(['success' => false, 'message' => 'Não autenticado.', 'agreements' => []]);
     exit;
 }
 

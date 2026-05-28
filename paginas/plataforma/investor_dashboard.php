@@ -28,6 +28,7 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
 $search_term = isset($_GET['search']) ? $_GET['search'] : '';
 $budget_min = isset($_GET['budget_min']) ? (int)$_GET['budget_min'] : 0;
 $budget_max = isset($_GET['budget_max']) ? (int)$_GET['budget_max'] : PHP_INT_MAX;
+$view_mode = isset($_GET['view']) ? $_GET['view'] : 'explore';
 
 // â”€â”€â”€ Unread Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $unread_query = "SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = ? AND type = 'investment' AND CAST(is_read AS INTEGER) = 0";
@@ -36,16 +37,28 @@ $unread_stmt->execute([$user_id]);
 $unread_count = $unread_stmt->fetch()['unread_count'];
 
 // â”€â”€â”€ Projects Query â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-$query = "SELECT p.*, u.full_name as owner_name, u.user_type as owner_type, u.is_verified as owner_verified, u.verification_status as owner_verification_status, u.profile_pic,
+$select_fields = "p.*, u.full_name as owner_name, u.user_type as owner_type, u.is_verified as owner_verified, u.verification_status as owner_verification_status, u.profile_pic,
           m.full_name as mentor_name,
           (SELECT COUNT(*) FROM notifications WHERE reference_id = p.project_id AND user_id = ? AND type = 'investment' AND CAST(is_read AS INTEGER) = 0) as is_new,
-          (SELECT COUNT(*) FROM notifications WHERE reference_id = p.project_id AND user_id = ? AND type = 'investment' AND CAST(is_read AS INTEGER) = 1) as is_read
-          FROM projects p
-          JOIN users u ON p.owner_id = u.user_id
-          LEFT JOIN users m ON p.assigned_mentor_id = m.user_id
-          WHERE p.ai_status = 'analyzed' AND p.is_public = true ";
+          (SELECT COUNT(*) FROM notifications WHERE reference_id = p.project_id AND user_id = ? AND type = 'investment' AND CAST(is_read AS INTEGER) = 1) as is_read";
 
-$params = [$user_id, $user_id];
+if ($view_mode === 'my_investments') {
+    $select_fields .= ", pi.status as my_investment_status, pi.created_at as my_investment_date, pi.amount as my_investment_amount";
+    $query = "SELECT $select_fields
+              FROM projects p
+              JOIN users u ON p.owner_id = u.user_id
+              LEFT JOIN users m ON p.assigned_mentor_id = m.user_id
+              JOIN project_investments pi ON p.project_id = pi.project_id
+              WHERE pi.investor_id = ? ";
+    $params = [$user_id, $user_id, $user_id];
+} else {
+    $query = "SELECT $select_fields
+              FROM projects p
+              JOIN users u ON p.owner_id = u.user_id
+              LEFT JOIN users m ON p.assigned_mentor_id = m.user_id
+              WHERE p.status = 'analyzed' AND p.is_public = true ";
+    $params = [$user_id, $user_id];
+}
 
 if (!empty($category_filter)) {
     $query .= " AND p.category = ?";

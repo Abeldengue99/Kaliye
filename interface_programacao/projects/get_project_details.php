@@ -23,6 +23,30 @@ $database = new Database();
 $db = $database->getConnection();
 ensureProjectVotesTable($db);
 
+// ── ENSURE SECURITY TABLES ──
+function ensureSecurityTables($db) {
+    try {
+        $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS content_hash VARCHAR(255) DEFAULT NULL;");
+        $db->exec("CREATE TABLE IF NOT EXISTS project_views_log (
+            view_id SERIAL PRIMARY KEY,
+            project_id INT NOT NULL,
+            viewer_id INT NOT NULL,
+            ip_address VARCHAR(45) NULL,
+            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (project_id, viewer_id)
+        );");
+        $db->exec("CREATE TABLE IF NOT EXISTS project_nda_logs (
+            nda_id SERIAL PRIMARY KEY,
+            project_id INT NOT NULL,
+            user_id INT NOT NULL,
+            ip_address VARCHAR(45) NULL,
+            accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (project_id, user_id)
+        );");
+    } catch (Exception $e) {}
+}
+ensureSecurityTables($db);
+
 try {
     // ── 1. DADOS BASE DO PROJECTO (SELECT * para evitar erros de coluna) ──
     $stmt = $db->prepare(
@@ -73,23 +97,38 @@ try {
             $access_level = 'summary';
         }
     } elseif ($is_investor) {
-        try {
-            $inv_check = $db->prepare("SELECT status FROM project_investments WHERE investor_id = ? ORDER BY created_at DESC LIMIT 1");
-            $inv_check->execute([$viewer_id]);
-            $last_investment = $inv_check->fetch(PDO::FETCH_ASSOC);
-            if (!$last_investment) {
-                $investor_level = 0;
-                $access_level   = 'summary';
-            } elseif (in_array($last_investment['status'], ['accepted', 'paid', 'confirmed'])) {
-                $investor_level = 2;
-                $access_level   = 'full';
-            } else {
-                $investor_level = 1;
-                $access_level   = 'preview';
-            }
-        } catch (Exception $e) {
+        $is_verified = in_array($_SESSION['verification_status'] ?? '', ['verified', 'approved']);
+        if ($is_verified || (isset($_SESSION['is_verified']) && $_SESSION['is_verified'])) {
+            $access_level = 'full';
+            $investor_level = 1; // Default to allow
+        } else {
+            $access_level = 'summary';
             $investor_level = 0;
-            $access_level = 'preview';
+        }
+    }
+
+    // ── 3.5 SMART NDA & REGISTO DE ACESSOS ──
+    $has_accepted_nda = false;
+    if (!$is_owner && !$is_admin && in_array($access_level, ['full', 'preview']) && $viewer_id > 0) {
+        // Verificar se já aceitou o NDA
+        try {
+            $nda_stmt = $db->prepare("SELECT 1 FROM project_nda_logs WHERE project_id = ? AND user_id = ?");
+            $nda_stmt->execute([$project_id, $viewer_id]);
+            if ($nda_stmt->fetchColumn()) {
+                $has_accepted_nda = true;
+            }
+        } catch (Exception $e) {}
+
+        if (!$has_accepted_nda) {
+            // Requer assinatura do NDA antes de prosseguir
+            $access_level = 'nda_required';
+        } else {
+            // Se já aceitou e tem acesso, registar a visualização
+            try {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $db->prepare("INSERT INTO project_views_log (project_id, viewer_id, ip_address) VALUES (?, ?, ?) ON CONFLICT DO NOTHING")
+                   ->execute([$project_id, $viewer_id, $ip]);
+            } catch (Exception $e) {}
         }
     }
 
@@ -129,7 +168,32 @@ try {
         $tags = $tags_stmt->fetchAll(PDO::FETCH_COLUMN);
     } catch (Exception $e) {}
 
-    // ── 7. CONSTRUIR RESPOSTA ──
+    // ── 7. MASK DATA BEFORE RESPONSE (Evitar Roubo de Ideias) ──
+    if ($access_level === 'summary' || $access_level === 'nda_required') {
+        $project['description'] = $access_level === 'nda_required' ? 'Termo de Confidencialidade pendente. Assine o NDA para desbloquear.' : 'Dossier Protegido: Acesso restrito a Mentores Verificados e Investidores.';
+        $project['needs_to_advance'] = 'Conteúdo Protegido';
+        $project['idea_origin'] = 'Conteúdo Protegido';
+        $project['motivation'] = 'Conteúdo Protegido';
+        $project['project_url'] = '';
+        $project['video_url'] = '';
+        $project['pitch_video_url'] = '';
+        $project['budget_needed'] = 0;
+        $project['funding_goal'] = 0;
+        $project['minimum_investment'] = 0;
+        $project['equity_available'] = null;
+        $project['execution_time'] = 'Protegido';
+        $media = []; // Ocultar galeria/videos
+    } elseif ($access_level === 'preview') {
+        // Preview: vê video e descrição, mas esconde dados financeiros e origens
+        $project['needs_to_advance'] = 'Acesso restrito a Investidores ativos.';
+        $project['idea_origin'] = 'Protegido';
+        $project['motivation'] = 'Protegido';
+        $project['budget_needed'] = 0;
+        $project['funding_goal'] = 0;
+        $project['minimum_investment'] = 0;
+        $project['equity_available'] = null;
+    }
+
     // Helper para aceder colunas com segurança (evita undefined index)
     $g = function($key, $default = '') use ($project) {
         return isset($project[$key]) ? $project[$key] : $default;
@@ -166,6 +230,7 @@ try {
         'team_size'         => $g('team_size'),
         'description_short' => (!empty($project['description']) ? substr(implode(' ', array_slice(explode("\n", $project['description']), 0, 2)), 0, 160) . (strlen($project['description']) > 160 ? '…' : '') : ''),
         'market_score'      => $g('market_score', 0),
+        'content_hash'      => $g('content_hash'),
         'project_fields'    => $project,
     ]);
 
@@ -176,6 +241,8 @@ try {
         'investor_level' => $investor_level,
         'can_apply'      => $can_apply,
         'can_vote'       => $can_vote,
+        'is_investor'    => $is_investor,
+        'viewer_name'    => $_SESSION['full_name'] ?? 'Utilizador KALIYE',
     ]);
 
 } catch (PDOException $e) {

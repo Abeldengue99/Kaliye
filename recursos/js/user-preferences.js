@@ -25,7 +25,7 @@
             'Resultados da Busca': 'Search Results', 'Pesquise por projectos ou pessoas...': 'Search projects or people...',
             'Notificações': 'Notifications', 'Notificacoes': 'Notifications', 'Marcar como lidas': 'Mark as read',
             'Sem novas notificações': 'No new notifications', 'Sem novas notificacoes': 'No new notifications',
-            'Dúvidas na Comunidade': 'Community Questions', 'Duvidas na Comunidade': 'Community Questions',
+            'Dúvidas na Comunidade': 'Community Questions', 'Dúvidas na Comunidade': 'Community Questions',
             'A Minha Conta': 'My Account', 'Todos os direitos reservados.': 'All rights reserved.',
             'O teu acelerador de sucesso profissional.': 'Your professional success accelerator.',
             'Recebe novidades e oportunidades sem perder o ritmo.': 'Receive news and opportunities without losing momentum.',
@@ -39,7 +39,7 @@
             'Foto': 'Photo', 'Vídeo': 'Video', 'Video': 'Video', 'Evento': 'Event', 'Editar': 'Edit',
             'Eliminar': 'Delete', 'Mensagem': 'Message', 'Ver todos': 'View all', 'Novo Projecto': 'New Project',
             'Título do Projecto': 'Project Title', 'Titulo do Projecto': 'Project Title', 'Categoria': 'Category',
-            'Descrição Detalhada': 'Detailed Description', 'Descricao Detalhada': 'Detailed Description',
+            'Descrição Detalhada': 'Detailed Description', 'Descrição Detalhada': 'Detailed Description',
             'Investidor': 'Investor', 'Administrador': 'Administrator', 'Ensino Médio': 'High School',
             'Ensino Medio': 'High School', 'Universitário': 'University', 'Universitario': 'University',
             'Membro desde': 'Member since', 'Aplicar Filtros': 'Apply Filters', 'Limpar Filtros': 'Clear Filters',
@@ -105,11 +105,11 @@
     function loadPrefs() {
         try {
             return Object.assign(
-                { lang: root.lang || cookieLang() || 'pt', accent: 'orange', brightness: 'normal', theme: 'auto' },
+                { lang: root.lang || cookieLang() || 'pt', accent: 'orange', brightness: 'normal', theme: 'dark' },
                 JSON.parse(localStorage.getItem(storageKey) || '{}')
             );
         } catch (e) {
-            return { lang: root.lang || cookieLang() || 'pt', accent: 'orange', brightness: 'normal', theme: 'auto' };
+            return { lang: root.lang || cookieLang() || 'pt', accent: 'orange', brightness: 'normal', theme: 'dark' };
         }
     }
 
@@ -328,7 +328,7 @@
                 if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Subscrito!';
             } catch (e) {
                 if (window.Swal) {
-                    Swal.fire({ icon: 'info', title: e.message || 'Nao foi possivel subscrever.', background: '#111827', color: '#fff' });
+                    Swal.fire({ icon: 'info', title: e.message || 'Não foi possível subscrever.', background: '#111827', color: '#fff' });
                 }
                 if (btn) btn.innerHTML = original;
             } finally {

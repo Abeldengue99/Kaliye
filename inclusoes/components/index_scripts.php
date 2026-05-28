@@ -7,7 +7,7 @@
         return false;
     };
 
-    // 1. VariÃ¡veis Globais de Contexto (Definidas no topo para evitar ReferenceErrors)
+    // 1. Variáveis Globais de Contexto (Definidas no topo para evitar ReferenceErrors)
     window.BASE_URL = window.BASE_URL || '<?php echo $base_url; ?>';
     window.AKSANITI_USER = {
         type: '<?php echo isset($_SESSION['user_type']) ? $_SESSION['user_type'] : 'student'; ?>',
@@ -22,7 +22,7 @@
      * index_scripts.php â€” Aksanti Intelligence Core JS (v3.1-Humanized-Fixed)
      * 
      * Motor de interatividade da plataforma KALIYE.
-     * Cuida da seguranÃ§a (KYC), filtragem assÃ­ncrona (AJAX), likes e do Modal Elite.
+     * Cuida da segurança (KYC), filtragem assíncrona (AJAX), likes e do Modal Elite.
      */
     /**
      * ESTILOS CUSTOMIZADOS PARA SWEETALERT (ELITE MODALS)
@@ -46,10 +46,10 @@
             const adId   = slide.getAttribute('data-ad-id');
             const adJson = slide.getAttribute('data-ad-json');
             
-            aksantiLog('[AKSANTI-ADS] Clique detectado no anÃºncio ID:', adId);
+            aksantiLog('[AKSANTI-ADS] Clique detectado no anúncio ID:', adId);
             
             if (!adJson || adJson === 'null' || adJson === '') {
-                console.warn('[AKSANTI-ADS] Aviso: AnÃºncio clicado nÃ£o possui metadados JSON vÃ¡lidos.');
+                console.warn('[AKSANTI-ADS] Aviso: Anúncio clicado não possui metadados JSON válidos.');
                 return;
             }
             
@@ -59,7 +59,7 @@
                 const ad = JSON.parse(adJson);
                 const internalBaseUrl = typeof BASE_URL !== 'undefined' ? BASE_URL : './';
                 
-                // Exibir modal de anÃºncio
+                // Exibir modal de anúncio
                 const modal = document.getElementById('adModal');
                 if (modal) {
                     const titleEl = document.getElementById('adModalTitle');
@@ -68,7 +68,7 @@
                     const btnEl   = document.getElementById('adModalLink');
                     const typeEl  = document.getElementById('adModalType');
 
-                    if (titleEl) titleEl.innerText = ad.title || 'InovaÃ§Ã£o KALIYE';
+                    if (titleEl) titleEl.innerText = ad.title || 'Inovação KALIYE';
                     if (descEl)  descEl.innerText  = ad.description || '';
                     if (typeEl)  typeEl.innerText  = (ad.type || 'ANÃšNCIO').toUpperCase();
 
@@ -106,15 +106,15 @@
         }, true);
     })();
 
-    // 2. UtilitÃ¡rios de UI para Projectos
-    // 2. UtilitÃ¡rios de UI para Navbar & Perfis
+    // 2. Utilitários de UI para Projectos
+    // 2. Utilitários de UI para Navbar & Perfis
     window.toggleProfile = function(e) {
         if(e) e.stopPropagation();
         const dd = document.getElementById('profileDropdown');
         if(dd) dd.classList.toggle('active');
         const container = document.querySelector('.profile-container');
         if(container) container.classList.toggle('active');
-        // Fecha notificaÃ§Ãµes se abertas
+        // Fecha notificações se abertas
         const notif = document.getElementById('notifContent');
         if(notif) notif.classList.remove('active');
     };
@@ -160,7 +160,7 @@
         if(dropdown) dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     };
 
-    // 2b. VerificaÃ§Ã£o de Identidade (KYC) - Motor de SeguranÃ§a Visual
+    // 2b. Verificação de Identidade (KYC) - Motor de Segurança Visual
     window.enforceKYC = function(arg = false) {
         const isEvent = arg && typeof arg === 'object' && typeof arg.preventDefault === 'function';
         const silent = isEvent ? false : !!arg;
@@ -176,7 +176,7 @@
             if (typeof openKYCModal === 'function') {
                 openKYCModal();
             } else {
-                // Fallback de seguranÃ§a caso o modal nÃ£o esteja no DOM (raro)
+                // Fallback de segurança caso o modal não esteja no DOM (raro)
                 window.location.href = `${BASE_URL}paginas/social/profile.php?verify_required=1`;
             }
         }
@@ -185,7 +185,7 @@
 
     /**
      * MOTOR GLOBAL DE KYC (Identidade & Perfil)
-     * Gere a abertura, navegaÃ§Ã£o entre etapas e submissÃ£o asÃ­ncrona.
+     * Gere a abertura, navegação entre etapas e submissão asíncrona.
      */
     window.goKycStep = function(step) {
         document.querySelectorAll('.kyc-wizard-step').forEach(s => s.style.display = 'none');
@@ -201,7 +201,7 @@
                 else dot.classList.remove('active');
             });
 
-            // Dar scroll ao topo caso seja necessÃ¡rio
+            // Dar scroll ao topo caso seja necessário
             const card = document.querySelector('#kycModal .elite-modal-card');
             if (card) card.scrollTop = 0;
         }
@@ -210,13 +210,13 @@
     window.openKYCModal = function() {
         const modal = document.getElementById('kycModal');
         if (modal) {
-            aksantiLog("[AKSANITI] Abrindo Modal de VerificaÃ§Ã£o...");
+            aksantiLog("[AKSANITI] Abrindo Modal de Verificação...");
             modal.style.display = 'flex';
-            modal.style.zIndex = '150000'; // ForÃ§a topo absoluto
+            modal.style.zIndex = '150000'; // Força topo absoluto
             
             window.goKycStep(1); // Reset para o passo 1
             
-            document.body.style.overflow = 'hidden'; // Evita scroll por trÃ¡s
+            document.body.style.overflow = 'hidden'; // Evita scroll por trás
             
             const main = document.querySelector('.main-content-wrapper');
             if (main) {
@@ -227,7 +227,7 @@
             const nav = document.querySelector('.nav-container');
             if (nav) nav.style.filter = 'blur(10px)';
         } else {
-            console.error("[AKSANITI] Erro: Elemento #kycModal nÃ£o encontrado no DOM.");
+            console.error("[AKSANITI] Erro: Elemento #kycModal não encontrado no DOM.");
         }
     };
 
@@ -237,7 +237,7 @@
             modal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restaura scroll
             
-            // LÃ³gica de SeguranÃ§a (Redirecionamento se for pÃ¡gina restrita)
+            // Lógica de Segurança (Redirecionamento se for página restrita)
             const currentPage = window.location.pathname.split('/').pop();
             const restrictedPages = ['messages.php', 'wallet.php', 'doubts.php', 'investor_dashboard.php', 'analytics.php', 'meeting.php', 'projects.php', 'explore_mentors.php', 'explore_students.php', 'mentorship.php'];
             
@@ -257,23 +257,23 @@
         }
     };
 
-    // Handler de SubmissÃ£o do Novo KYC Wizard (AJAX AtÃ³mico)
+    // Handler de Submissão do Novo KYC Wizard (AJAX Atómico)
     document.addEventListener('DOMContentLoaded', () => {
         const kycForm = document.getElementById('kycUploadForm');
         if (kycForm) {
             kycForm.onsubmit = function(e) {
                 e.preventDefault();
 
-                // 1. ValidaÃ§Ã£o Manual (Evita bloqueios de campos ocultos no browser)
+                // 1. Validação Manual (Evita bloqueios de campos ocultos no browser)
                 const fd = new FormData(this);
                 const utype = window.AKSANITI_USER.type;
                 let errors = [];
 
                 if (!fd.get('bi_front') || fd.get('bi_front').size === 0) errors.push("Frente do Documento");
                 if (!fd.get('bi_back') || fd.get('bi_back').size === 0) errors.push("Verso do Documento");
-                if (!fd.get('selfie') || fd.get('selfie').size === 0) errors.push("Selfie ProbatÃ³ria");
+                if (!fd.get('selfie') || fd.get('selfie').size === 0) errors.push("Selfie Probatória");
 
-                // ValidaÃ§Ã£o de Perfil
+                // Validação de Perfil
                 if (utype === 'mentor') {
                     if (!fd.get('cv_file') || fd.get('cv_file').size === 0) errors.push("Curriculum Vitae (PDF)");
                     if (!fd.get('specialty')) errors.push("Especialidade");
@@ -285,7 +285,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Campos em Falta',
-                        html: `<p style="color:rgba(255,255,255,0.6); font-size:0.8rem;">Por favor, preencha os seguintes campos obrigatÃ³rios:</p>
+                        html: `<p style="color:rgba(255,255,255,0.6); font-size:0.8rem;">Por favor, preencha os seguintes campos obrigatórios:</p>
                                <ul style="color:#f7941d; text-align:left; font-size:0.75rem; margin-top:10px;">
                                  ${errors.map(err => `<li>${err}</li>`).join('')}
                                </ul>`,
@@ -312,7 +312,7 @@
                         Swal.fire({ 
                             icon: 'success', 
                             title: 'Candidatura Recebida!', 
-                            text: 'A sua identidade e perfil estÃ£o sob revisÃ£o administrativa.', 
+                            text: 'A sua identidade e perfil estão sob revisão administrativa.', 
                             background: '#0d1628', 
                             color: '#fff', 
                             timer: 4000, 
@@ -321,14 +321,14 @@
                             window.location.href = `${BASE_URL}paginas/social/profile.php`;
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Erro de SubmissÃ£o', text: data.message, background: '#0d1628', color: '#fff' });
+                        Swal.fire({ icon: 'error', title: 'Erro de Submissão', text: data.message, background: '#0d1628', color: '#fff' });
                         btn.innerHTML = originalHtml;
                         btn.disabled = false;
                     }
                 })
                 .catch(err => {
                     console.error('[KYC ATOMIC ERROR]:', err);
-                    Swal.fire({ icon: 'error', title: 'Falha TÃ©cnica', text: 'NÃ£o foi possÃ­vel enviar a sua candidatura completa.', background: '#0d1628', color: '#fff' });
+                    Swal.fire({ icon: 'error', title: 'Falha Técnica', text: 'Não foi possível enviar a sua candidatura completa.', background: '#0d1628', color: '#fff' });
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;
                 });
@@ -337,12 +337,12 @@
     });
 
     /**
-     * FIREWALL GLOBAL AKSANTI: RestriÃ§Ã£o Total para NÃ£o-Verificados
-     * Captura todos os cliques em links e botÃµes para garantir que 
-     * o utilizador nÃ£o interaja com o ecossistema sem BI validado.
-     * REMOVIDO: Este listener estava a bloquear cliques mesmo com as exceÃ§Ãµes
+     * FIREWALL GLOBAL AKSANTI: Restrição Total para Não-Verificados
+     * Captura todos os cliques em links e botões para garantir que 
+     * o utilizador não interaja com o ecossistema sem BI validado.
+     * REMOVIDO: Este listener estava a bloquear cliques mesmo com as exceções
      */
-    // LISTENER REMOVIDO - As proteÃ§Ãµes KYC agora sÃ£o apenas nas funÃ§Ãµes especÃ­ficas (openProjectDetails, toggleLike, etc)
+    // LISTENER REMOVIDO - As proteções KYC agora são apenas nas funções específicas (openProjectDetails, toggleLike, etc)
 
 
     // 3. Motor de Filtragem â€” Feed de Projectos
@@ -463,7 +463,7 @@
 
         zone.innerHTML = '<div class="feed-empty-state">' +
             '<i class="fas fa-exclamation-triangle"></i>' +
-            '<h3>Nao foi possivel actualizar o feed</h3>' +
+            '<h3>Não foi possível actualizar o feed</h3>' +
             '<p>Tente novamente dentro de instantes.</p>' +
             '<button type="button" onclick="window.applyFeedFilters()">Tentar novamente</button>' +
         '</div>';
@@ -522,7 +522,7 @@
                 return res.text();
             })
             .then(function(html) {
-                if (!replaceFeedZone(html)) throw new Error('Zona do feed nao encontrada');
+                if (!replaceFeedZone(html)) throw new Error('Zona do feed não encontrada');
                 setFeedLoading(false);
                 updateFeedQuickTabs();
 
@@ -576,8 +576,24 @@
         window.applyFeedFilters(parseInt(params.get('f_page') || '1', 10), { pushState: false });
     });
 
-    document.addEventListener('DOMContentLoaded', syncFeedFormFromUrl);
+    document.addEventListener('DOMContentLoaded', () => {
+        syncFeedFormFromUrl();
+        
+        // Auto-Open Project Details on Notification click
+        // Todos os formatos de link de notificação abrem o modal de detalhes
+        var params = new URLSearchParams(window.location.search);
+        var autoProjectId = params.get('project_id')
+                         || params.get('comment_project_id')
+                         || params.get('project_modal')
+                         || params.get('id');
 
+        if (autoProjectId && typeof window.openProjectDetails === 'function') {
+            // Aguarda o feed renderizar antes de abrir o modal
+            setTimeout(() => {
+                window.openProjectDetails(parseInt(autoProjectId, 10));
+            }, 800);
+        }
+    });
     document.addEventListener('click', function(event) {
         var link = event.target.closest('#dynamic-feed-zone .feed-pagination a, #dynamic-feed-zone .pagination-btn, #dynamic-feed-zone .pg-item, #dynamic-feed-zone .pg-arrow');
         if (!link || link.classList.contains('pg-disabled')) return;
@@ -614,7 +630,7 @@
         bindFeedFilterAutoSubmit();
     }
 
-    // 4. Motor de Rastreamento de AnÃºncios (Real-Time Metrics) - GLOBALIZADO
+    // 4. Motor de Rastreamento de Anúncios (Real-Time Metrics) - GLOBALIZADO
 
     const trackedAdViews = new Set();
     
@@ -646,7 +662,7 @@
 
     window.trackAdClick = function(adId) {
         if (!adId || adId < 0) return;
-        aksantiLog("[AKSANITI] Registrando clique no anÃºncio:", adId);
+        aksantiLog("[AKSANITI] Registrando clique no anúncio:", adId);
         fetch(BASE_URL + 'interface_programacao/ads/track_ad_metric.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -659,31 +675,31 @@
         const adId = el.getAttribute('data-ad-id');
         const adJson = el.getAttribute('data-ad-json');
         
-        aksantiLog("[AKSANITI] Clique detectado no anÃºncio ID:", adId);
+        aksantiLog("[AKSANITI] Clique detectado no anúncio ID:", adId);
         
         try {
-            if (!adJson) throw new Error("Dados do anÃºncio nÃ£o encontrados.");
+            if (!adJson) throw new Error("Dados do anúncio não encontrados.");
             const ad = JSON.parse(adJson);
             window.openAdModal(ad);
         } catch (err) {
-            console.error("[AKSANITI] Erro ao processar clique no anÃºncio:", err);
+            console.error("[AKSANITI] Erro ao processar clique no anúncio:", err);
         }
     };
 
     window.openAdModal = function(ad) {
         const modal = document.getElementById('adModal');
         if (!modal) {
-            console.error("[AKSANITI] Elemento #adModal nÃ£o encontrado.");
+            console.error("[AKSANITI] Elemento #adModal não encontrado.");
             return;
         }
 
-        // Reset do Modal (Limpa vestÃ­gios anteriores)
+        // Reset do Modal (Limpa vestígios anteriores)
         document.body.style.overflow = 'hidden';
 
         let adImg = ad.image_url || '';
         if(adImg && !adImg.startsWith('http')) adImg = BASE_URL + adImg.replace(/^\//, '');
 
-        // Preenchimento de ConteÃºdo
+        // Preenchimento de Conteúdo
         const titleEl = document.getElementById('adModalTitle');
         const descEl = document.getElementById('adModalDesc');
         const imgEl = document.getElementById('adModalImage');
@@ -692,7 +708,7 @@
 
         if (titleEl) titleEl.innerText = ad.title || 'Oportunidade KALIYE';
         if (descEl) descEl.innerText = ad.description || '';
-        if (typeEl) typeEl.innerText = (ad.type || 'AnÃºncio').toUpperCase();
+        if (typeEl) typeEl.innerText = (ad.type || 'Anúncio').toUpperCase();
         if (imgEl) imgEl.style.backgroundImage = adImg ? `url('${adImg}')` : 'none';
         
         if (btnEl) {
@@ -711,31 +727,38 @@
                 btnEl.innerHTML = '<i class="fab fa-whatsapp"></i> CONTACTAR VIA WHATSAPP';
                 btnEl.onclick = () => window.trackAdClick(ad.ad_id);
             } else {
-                btnEl.style.display = 'none'; // Esconde se nÃ£o houver link
+                btnEl.style.display = 'none'; // Esconde se não houver link
             }
         }
 
-        // ExibiÃ§Ã£o Final
+        // Exibição Final
         modal.style.setProperty('display', 'flex', 'important');
     };
 
-    // Inicializa observador ao carregar e apÃ³s AJAX
+    // Inicializa observador ao carregar e após AJAX
     document.addEventListener('DOMContentLoaded', initAdObserver);
     
-    // ExtensÃ£o para index_scripts (injetar no final do applyFeedFilters se necessÃ¡rio)
+    // Extensão para index_scripts (injetar no final do applyFeedFilters se necessário)
 
-    // 4. GestÃ£o de Projectos (Posting & Modals)
+    // 4. Gestão de Projectos (Posting & Modals)
     window.openPostModal = function() {
-        // RestriÃ§Ã£o para Mentores
-        if (window.IS_MENTOR === true) {
-            Swal.fire({
-                title: 'Acesso Restrito',
-                text: 'Como Mentor, o teu papel Ã© orientar e validar projectos. Mentores nÃ£o podem publicar projectos prÃ³prios para evitar conflitos de interesse.',
-                icon: 'info',
-                confirmButtonText: 'Entendido',
-                background: '#0d1628',
-                color: '#fff'
-            });
+        const uType = (window.AKSANITI_USER && window.AKSANITI_USER.type) ? window.AKSANITI_USER.type.toLowerCase() : '';
+        const isMentorOnly = (uType.includes('mentor') || uType.includes('especialista')) 
+                             && !uType.includes('estudante') 
+                             && !uType.includes('investidor')
+                             && !uType.includes('admin');
+        if (isMentorOnly) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Acesso Restrito',
+                    text: 'Mentores especialistas não podem publicar projectos. Esta funcionalidade é exclusiva para Estudantes, Estudantes-Mentores e Investidores.',
+                    background: '#0d1628',
+                    color: '#fff'
+                });
+            } else {
+                alert('Mentores especialistas não podem publicar projectos.');
+            }
             return;
         }
 
@@ -770,7 +793,7 @@
         if(document.getElementById('projectFileVideo')) document.getElementById('projectFileVideo').value = '';
     };
 
-    // NAVEGAÃ‡ÃƒO MULTI-PASSO (Post Ideia)
+    // NAVEGAÃ‡ÃƒO MULTI-PASSO (Post Projecto)
     window.currentProjectStep = 1;
     window.changeProjectStep = function(n) {
         currentProjectStep += n;
@@ -806,8 +829,8 @@
     window.showVerificationRequired = function() {
         Swal.fire({
             icon: 'warning',
-            title: 'VerificaÃ§Ã£o NecessÃ¡ria',
-            html: `<p style="color: rgba(255,255,255,0.6); font-size:0.9rem;">Para aceder aos detalhes completos deste projecto, a sua conta precisa de estar verificada no Hub de ConfianÃ§a.</p>`,
+            title: 'Verificação Necessária',
+            html: `<p style="color: rgba(255,255,255,0.6); font-size:0.9rem;">Para aceder aos detalhes completos deste projecto, a sua conta precisa de estar verificada no Hub de Confiança.</p>`,
             background: '#0d1628',
             color: '#fff',
             confirmButtonColor: '#f7941d',
@@ -862,7 +885,7 @@
         });
     };
 
-    // 5. InteraÃ§Ãµes Sociais (Likes & Comments)
+    // 5. Interações Sociais (Likes & Comments)
     window.toggleLike = function(btn, projectId) {
 
         const icon = btn.querySelector('i');
@@ -936,7 +959,7 @@
                 } else if (badge) {
                     badge.remove();
                 }
-                // Sincronizar botÃ£o duplicado (ex: detail page)
+                // Sincronizar botão duplicado (ex: detail page)
                 const twin = document.getElementById(`vote-detail-${projectId}`);
                 if (twin && twin !== btn) twin.click && null; // evitar loop
             } else {
@@ -948,17 +971,17 @@
                 if (data.need_project) {
                     Swal.fire({
                         icon: 'info',
-                        title: 'Voto nao registado',
-                        text: data.message || 'Nao foi possivel registar o voto agora.',
+                        title: 'Voto não registado',
+                        text: data.message || 'Não foi possível registar o voto agora.',
                         background: '#0d1628', color: '#fff',
-                        confirmButtonColor: '#f7941d', confirmButtonText: 'Submeter Ideia',
+                        confirmButtonColor: '#f7941d', confirmButtonText: 'Submeter Projecto',
                         showCancelButton: true, cancelButtonText: 'Fechar'
                     }).then(r => { if (r.isConfirmed) window.openPostModal && openPostModal(); });
                 } else {
                     Swal.fire({
                         icon: 'info',
-                        title: data.limit_reached ? 'Limite diario atingido' : 'Voto nao registado',
-                        text: data.message || 'Nao foi possivel registar o voto agora.',
+                        title: data.limit_reached ? 'Limite diario atingido' : 'Voto não registado',
+                        text: data.message || 'Não foi possível registar o voto agora.',
                         background: '#0d1628',
                         color: '#fff',
                         confirmButtonColor: '#f7941d'
@@ -971,7 +994,7 @@
         });
     };
 
-    // â”€â”€ F1: Candidatura de Estudante a Projecto de Investidor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ F1: Candidatura de Estudante o projecto de Investidor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     window.openProjectApplication = function(projectId) {
         Swal.fire({
             title: 'Candidatar-me ao Projecto',
@@ -979,7 +1002,7 @@
                 <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.6;">
                     Apresenta brevemente como podes contribuir para este projecto de investimento.
                 </p>
-                <textarea id="applicationMsg" rows="4" placeholder="Descreve as tuas competÃªncias e motivaÃ§Ã£o..." 
+                <textarea id="applicationMsg" rows="4" placeholder="Descreve as tuas competências e motivação..." 
                     style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; padding:1rem; font-size:0.9rem; resize:none; box-sizing:border-box;"></textarea>
             `,
             background: '#0d1628',
@@ -996,7 +1019,7 @@
             }
         }).then(result => {
             if (result.isConfirmed) {
-                // Usar o sistema de comentÃ¡rios existente como canal de candidatura
+                // Usar o sistema de comentários existente como canal de candidatura
                 const fd = new FormData();
                 fd.append('project_id', projectId);
                 fd.append('content', `ðŸ“‹ CANDIDATURA: ${result.value}`);
@@ -1007,7 +1030,7 @@
                     Swal.fire({
                         icon: data.success ? 'success' : 'error',
                         title: data.success ? 'Candidatura Enviada!' : 'Erro',
-                        text: data.success ? 'O investidor serÃ¡ notificado da tua candidatura.' : (data.message || 'Tenta novamente.'),
+                        text: data.success ? 'O investidor será notificado da tua candidatura.' : (data.message || 'Tenta novamente.'),
                         background: '#0d1628', color: '#fff', confirmButtonColor: '#f7941d'
                     });
                 });
@@ -1015,7 +1038,51 @@
         });
     };
 
-    // â”€â”€ F3: Aviso de Equity em Tempo Real â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── F1b: Candidatura de Mentor a orientar projecto de Estudante ───────────
+    window.applyForMentorship = function(projectId) {
+        if (typeof enforceKYC === 'function' && !enforceKYC()) return;
+
+        Swal.fire({
+            title: 'Candidatar-se como Mentor',
+            html: `
+                <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.6;">
+                    Explique como pode orientar este projecto e qual o valor que trará como Mentor.
+                </p>
+                <textarea id="mentorshipMsg" rows="4" placeholder="Descreva a sua experiência e como pode ajudar este projecto..."
+                    style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; padding:1rem; font-size:0.9rem; resize:none; box-sizing:border-box;"></textarea>
+            `,
+            background: '#0d1628',
+            color: '#fff',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: '<i class="fas fa-chalkboard-teacher"></i> Enviar Candidatura',
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            cancelButtonColor: 'rgba(255,255,255,0.1)',
+            preConfirm: () => {
+                const msg = document.getElementById('mentorshipMsg').value.trim();
+                if (!msg) { Swal.showValidationMessage('Escreva uma mensagem de candidatura.'); return false; }
+                return msg;
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                const fd = new FormData();
+                fd.append('project_id', projectId);
+                fd.append('motivation', result.value);
+                fetch(BASE_URL + 'interface_programacao/mentorship/apply_project_mentorship.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: data.success ? 'success' : 'error',
+                        title: data.success ? 'Candidatura de Mentoria Enviada!' : 'Erro',
+                        text: data.success ? 'A equipa da KALIYE foi notificada e irá rever a sua candidatura.' : (data.message || 'Tente novamente.'),
+                        background: '#0d1628', color: '#fff', confirmButtonColor: '#f7941d'
+                    });
+                });
+            }
+        });
+    };
+
+    // ── F3: Aviso de Equity em Tempo Real ───────────────────────────────────────────
     window._currentProjectEquity = null; // { available, committed, remaining }
 
     window.checkEquityWarning = function(val) {
@@ -1036,6 +1103,21 @@
 
     // â”€â”€ F3 + F1: Abrir Modal de Investimento (com contexto de equity) â”€â”€â”€â”€â”€â”€â”€â”€â”€
     window.openInvestmentFlow = function(projectId) {
+        // 1. Verificação Estrita de Perfil (Investidor Aprovado)
+        const uType = window.AKSANITI_USER ? window.AKSANITI_USER.type : '';
+        const vStatus = window.AKSANITI_USER ? window.AKSANITI_USER.verificationStatus : 'unsubmitted';
+        
+        if (uType !== 'admin') {
+            if (vStatus !== 'verified' || uType !== 'investor') {
+                if (typeof openKYCModal === 'function') {
+                    openKYCModal();
+                } else {
+                    window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '../../') + 'index.php?kyc_required=1';
+                }
+                return; // Bloqueia a abertura do modal
+            }
+        }
+
         // Buscar dados do projecto para popular o contexto de equity
         fetch(`${BASE_URL}interface_programacao/projects/get_project_details.php?id=${projectId}`)
         .then(r => r.json())
@@ -1057,7 +1139,7 @@
             if (titleEl) titleEl.textContent = p.title || '';
             if (idEl)    idEl.value = projectId;
 
-            // Mostrar contexto de equity se disponÃ­vel
+            // Mostrar contexto de equity se disponível
             const ctx      = document.getElementById('equityAvailContext');
             const maxEl    = document.getElementById('equityAvailMax');
             const leftEl   = document.getElementById('equityAvailLeft');
@@ -1113,18 +1195,18 @@
     // 5b. MOTOR DE VISUALIZAÃ‡ÃƒO DE PERFIL (Removido duplicado obsoleto)
 
 
-    // 6. Modal Elite de Detalhes (Viewing System) - VersÃ£o SIMPLIFICADA
+    // 6. Modal Elite de Detalhes (Viewing System) - Versão SIMPLIFICADA
     window.openProjectDetails = function(id, startStep = 1) {
         aksantiLog('[AKSANTI-DEBUG] A abrir detalhes do projecto:', id, 'no passo:', startStep);
         const modal = document.getElementById('detailsModal');
         const content = document.getElementById('detailsContent');
         if(!modal || !content) {
-            console.error('[AKSANTI-DEBUG] ERRO CRÃTICO: Modal elementos nÃ£o encontrados!', { modal: !!modal, content: !!content });
-            alert('Erro: Modal nÃ£o encontrado no DOM');
+            console.error('[AKSANTI-DEBUG] ERRO CRÃTICO: Modal elementos não encontrados!', { modal: !!modal, content: !!content });
+            alert('Erro: Modal não encontrado no DOM');
             return;
         }
 
-        // Mostrar modal com mÃ¡xima simplicidade e prioridade
+        // Mostrar modal com máxima simplicidade e prioridade
         modal.style.display = 'flex';
         modal.style.position = 'fixed';
         modal.style.zIndex = '200000';
@@ -1133,9 +1215,9 @@
         document.body.style.overflow = 'hidden';
         aksantiLog('[AKSANTI-DEBUG] Modal mostrado com sucesso');
         
-        // Reset de scroll e conteÃºdo
+        // Reset de scroll e conteúdo
         modal.scrollTop = 0;
-        content.innerHTML = '<div style="padding: 4rem; text-align: center; color: rgba(255,255,255,0.2);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top:1rem;">A carregar inovaÃ§Ã£o...</p></div>';
+        content.innerHTML = '<div style="padding: 4rem; text-align: center; color: rgba(255,255,255,0.2);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top:1rem;">A carregar inovação...</p></div>';
 
         fetch(`${BASE_URL}interface_programacao/projects/get_project_details.php?id=${id}`)
             .then(res => res.json())
@@ -1160,13 +1242,13 @@
                         return `<img src="${safeSrc}" style="width:120px; height:80px; object-fit:cover; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">`;
                     }).join('') + '</div>' : '';
                     let tagsHtml = tags.length > 0 ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:1rem;">' + tags.map(t => `<span style="background:rgba(247,148,29,0.1); color:#f7941d; padding:4px 8px; border-radius:6px; font-size:0.6rem; font-weight:800; text-transform:uppercase;">${t}</span>`).join('') + '</div>' : '';
-                    window.currentProjectData = { p, mediaHtml, tagsHtml };
+                    window.currentProjectData = { p, mediaHtml, tagsHtml, is_investor: data.is_investor };
                     renderProjectModalStep(startStep);
                 } else {
                     content.innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">${data.message || 'Acesso restrito.'}</p>`;
                 }
             })
-            .catch(() => { content.innerHTML = '<p style="text-align:center; color:#ef4444; padding:2rem;">Erro de ligaÃ§Ã£o ao motor KALIYE.</p>'; });
+            .catch(() => { content.innerHTML = '<p style="text-align:center; color:#ef4444; padding:2rem;">Erro de ligação ao motor KALIYE.</p>'; });
     };
 
     window.renderProjectModalStep = function(step) {
@@ -1182,23 +1264,23 @@
         const dataBox = 'background:rgba(255,255,255,0.02); padding:1rem; border-radius:14px; border:1px solid rgba(255,255,255,0.05);';
         const escProject = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
         const projectLabel = (key) => ({
-            project_id:'ID do projecto', owner_id:'ID do proprietÃ¡rio', title:'TÃ­tulo', description:'DescriÃ§Ã£o',
-            category:'Categoria', budget_needed:'Valor total necessÃ¡rio', image_url:'Imagem de capa',
-            video_url:'VÃ­deo', pitch_video_url:'Pitch em vÃ­deo', execution_time:'Tempo de execuÃ§Ã£o',
-            team_size:'Tamanho da equipa', project_stage:'EstÃ¡gio do projecto', target_audience:'PÃºblico-alvo',
-            needs_to_advance:'O que falta para avanÃ§ar', idea_origin:'Origem da ideia', motivation:'MotivaÃ§Ã£o',
-            project_url:'Website / URL', funding_goal:'Meta de financiamento', minimum_investment:'Investimento mÃ­nimo',
-            maximum_investment:'Investimento mÃ¡ximo', campaign_start_date:'Data inÃ­cio da campanha',
+            project_id:'ID do projecto', owner_id:'ID do proprietário', title:'Título', description:'Descrição',
+            category:'Categoria', budget_needed:'Valor total necessário', image_url:'Imagem de capa',
+            video_url:'Vídeo', pitch_video_url:'Pitch em vídeo', execution_time:'Tempo de execução',
+            team_size:'Tamanho da equipa', project_stage:'Estágio do projecto', target_audience:'Público-alvo',
+            needs_to_advance:'O que falta para avançar', idea_origin:'Origem do projecto', motivation:'Motivação',
+            project_url:'Website / URL', funding_goal:'Meta de financiamento', minimum_investment:'Investimento mínimo',
+            maximum_investment:'Investimento máximo', campaign_start_date:'Data início da campanha',
             campaign_end_date:'Data fim da campanha', funding_type:'Tipo de financiamento',
-            equity_available:'Equity disponÃ­vel', equity_committed:'Equity comprometido',
+            equity_available:'Equity disponível', equity_committed:'Equity comprometido',
             total_invested:'Total investido', total_investors:'Total de investidores',
-            approval_status:'Estado de aprovaÃ§Ã£o', approved_by:'Aprovado por', approved_at:'Aprovado em',
-            is_public:'Projecto pÃºblico', is_featured:'Em destaque', created_at:'Criado em',
-            updated_at:'Actualizado em', market_score:'PontuaÃ§Ã£o de mercado', ai_status:'Estado IA', status:'Estado'
+            approval_status:'Estado de aprovação', approved_by:'Aprovado por', approved_at:'Aprovado em',
+            is_public:'Projecto público', is_featured:'Em destaque', created_at:'Criado em',
+            updated_at:'Actualizado em', market_score:'Pontuação de mercado', ai_status:'Estado IA', status:'Estado'
         }[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
         const projectValue = (key, value) => {
-            if (value === null || value === undefined || value === '') return '<span style="color:rgba(255,255,255,0.32);">NÃ£o informado</span>';
-            if (typeof value === 'boolean') return value ? 'Sim' : 'NÃ£o';
+            if (value === null || value === undefined || value === '') return '<span style="color:rgba(255,255,255,0.32);">Não informado</span>';
+            if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
             const money = ['budget_needed','funding_goal','minimum_investment','maximum_investment','total_invested','escrow_balance'];
             if (money.includes(key) && !isNaN(parseFloat(value))) return new Intl.NumberFormat('pt-AO').format(parseFloat(value)) + ' Kz';
             if (['equity_available','equity_committed','expected_return_rate'].includes(key) && !isNaN(parseFloat(value))) return parseFloat(value).toLocaleString('pt-AO') + '%';
@@ -1227,7 +1309,7 @@
                 out += `<div style="${dataBox}${long ? ' grid-column:1/-1;' : ''}"><div style="${labelStyle}">${escProject(projectLabel(k))}</div><div style="color:rgba(255,255,255,0.82);font-size:0.9rem;line-height:1.55;word-break:break-word;">${projectValue(k, raw)}</div></div>`;
             });
             out += '</div>';
-            if (tagsHtml) out += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Tags TecnolÃ³gicas</div>${tagsHtml}</div>`;
+            if (tagsHtml) out += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Tags Tecnológicas</div>${tagsHtml}</div>`;
             if (mediaHtml) out += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Galeria do Projecto</div>${mediaHtml}</div>`;
             return out;
         };
@@ -1237,46 +1319,46 @@
             nextAction = 'renderProjectModalStep(1)';
             prevAction = 'closeProjectDetailsModal()';
             const fullVideoPath = videoUrl ? (videoUrl.startsWith('http') ? videoUrl : `${BASE_URL}carregamentos/projects/${videoUrl}`) : '';
-            stepContent = `<div style="background:#000; border-radius:24px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">${videoUrl ? `<video src="${fullVideoPath}" controls style="width:100%; height:100%; object-fit:contain;"></video>` : `<p style="opacity:0.2;">Sem Pitch de VÃ­deo</p>`}</div>`;
+            stepContent = `<div style="background:#000; border-radius:24px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">${videoUrl ? `<video src="${fullVideoPath}" controls style="width:100%; height:100%; object-fit:contain;"></video>` : `<p style="opacity:0.2;">Sem Pitch de Vídeo</p>`}</div>`;
         } else if (step === 1) {
-            stepTitle = 'VisÃ£o';
+            stepTitle = 'Visão';
             nextAction = 'renderProjectModalStep(2)';
             prevAction = videoUrl ? 'renderProjectModalStep(0)' : 'closeProjectDetailsModal()';
-            stepContent = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:1rem;"><img src="${BASE_URL}${p.owner_pic || 'recursos/images/default_profile.png'}" style="width:40px; height:40px; border-radius:10px; object-fit:cover;"><div><div style="color:#fff; font-weight:800;">${p.owner_name}</div><div style="color:rgba(255,255,255,0.5); font-size:0.8rem;">${(p.owner_type || p.user_type || 'Membro').toString().toUpperCase()}</div></div></div><p style="color:rgba(255,255,255,0.7); line-height:1.6;">${p.description || 'DescriÃ§Ã£o nÃ£o disponÃ­vel.'}</p><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:1.5rem;"><div style="${dataBox}"><div style="${labelStyle}">Categoria</div><div style="color:#fff; font-weight:900;">${p.category || 'NÃ£o definida'}</div></div><div style="${dataBox}"><div style="${labelStyle}">Status</div><div style="color:#fff; font-weight:900;">${p.approval_status || 'Pendente'}</div></div></div>`;
+            stepContent = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:1rem;"><img src="${BASE_URL}${p.owner_pic || 'recursos/images/default_profile.png'}" style="width:40px; height:40px; border-radius:10px; object-fit:cover;"><div><div style="color:#fff; font-weight:800;">${p.owner_name}</div><div style="color:rgba(255,255,255,0.5); font-size:0.8rem;">${(p.owner_type || p.user_type || 'Membro').toString().toUpperCase()}</div></div></div><p style="color:rgba(255,255,255,0.7); line-height:1.6;">${p.description || 'Descrição não disponível.'}</p><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:1.5rem;"><div style="${dataBox}"><div style="${labelStyle}">Categoria</div><div style="color:#fff; font-weight:900;">${p.category || 'Não definida'}</div></div><div style="${dataBox}"><div style="${labelStyle}">Status</div><div style="color:#fff; font-weight:900;">${p.approval_status || 'Pendente'}</div></div></div>`;
         } else if (step === 2) {
-            stepTitle = 'ExecuÃ§Ã£o';
+            stepTitle = 'Execução';
             nextAction = 'renderProjectModalStep(3)';
             prevAction = 'renderProjectModalStep(1)';
-            stepContent = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem;"><div style="${dataBox}"><div style="${labelStyle}">Equipa</div><div style="color:#fff; font-weight:900;">${p.team_size || '1'}</div></div><div style="${dataBox}"><div style="${labelStyle}">EstÃ¡gio</div><div style="color:#fff; font-weight:900;">${p.project_stage || 'Ideia'}</div></div></div>`;
+            stepContent = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem;"><div style="${dataBox}"><div style="${labelStyle}">Equipa</div><div style="color:#fff; font-weight:900;">${p.team_size || '1'}</div></div><div style="${dataBox}"><div style="${labelStyle}">Estágio</div><div style="color:#fff; font-weight:900;">${p.project_stage || 'Projecto'}</div></div></div>`;
             if (p.execution_time) {
-                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Tempo de ExecuÃ§Ã£o</div><div style="color:#fff; font-weight:700;">${p.execution_time}</div></div>`;
+                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Tempo de Execução</div><div style="color:#fff; font-weight:700;">${p.execution_time}</div></div>`;
             }
             if (p.target_audience) {
-                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">PÃºblico-Alvo</div><div style="color:rgba(255,255,255,0.7);">${p.target_audience}</div></div>`;
+                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Público-Alvo</div><div style="color:rgba(255,255,255,0.7);">${p.target_audience}</div></div>`;
             }
             if (p.idea_origin) {
-                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Origem da Ideia</div><div style="color:rgba(255,255,255,0.7);">${p.idea_origin}</div></div>`;
+                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Origem do projecto</div><div style="color:rgba(255,255,255,0.7);">${p.idea_origin}</div></div>`;
             }
             if (p.motivation) {
-                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">MotivaÃ§Ã£o</div><div style="color:rgba(255,255,255,0.7);">${p.motivation}</div></div>`;
+                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Motivação</div><div style="color:rgba(255,255,255,0.7);">${p.motivation}</div></div>`;
             }
             if (p.needs_to_advance) {
-                stepContent += `<div style="${dataBox} border-left:4px solid #3b82f6;"><div style="${labelStyle}">O Que Falta Para AvanÃ§ar?</div><div style="color:rgba(255,255,255,0.7);">${p.needs_to_advance}</div></div>`;
+                stepContent += `<div style="${dataBox} border-left:4px solid #3b82f6;"><div style="${labelStyle}">O Que Falta Para Avançar?</div><div style="color:rgba(255,255,255,0.7);">${p.needs_to_advance}</div></div>`;
             }
             if (p.project_url) {
                 stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Link Externo</div><div><a href="${p.project_url}" target="_blank" style="color:#3b82f6; text-decoration:none;">${p.project_url}</a></div></div>`;
             }
         } else if (step === 3) {
             stepTitle = 'Financeiro';
-            nextAction = 'renderProjectModalStep(4)';
+            nextAction = 'closeProjectDetailsModal()';
             prevAction = 'renderProjectModalStep(2)';
             const goal = p.funding_goal || p.budget_needed || 0;
             stepContent = `<div style="${dataBox} border-left:4px solid #f7941d;"><div style="${labelStyle}">Meta</div><div style="color:#fff; font-size:1.5rem; font-weight:950;">${new Intl.NumberFormat('pt-AO').format(goal)} Kz</div></div>`;
             if (p.minimum_investment) {
-                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Investimento MÃ­nimo</div><div style="color:#fff; font-weight:900;">${new Intl.NumberFormat('pt-AO').format(p.minimum_investment)} Kz</div></div>`;
+                stepContent += `<div style="${dataBox}"><div style="${labelStyle}">Investimento Mínimo</div><div style="color:#fff; font-weight:900;">${new Intl.NumberFormat('pt-AO').format(p.minimum_investment)} Kz</div></div>`;
             }
             if (p.equity_available) {
-                stepContent += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:1rem;"><div style="${dataBox}"><div style="${labelStyle}">Equity DisponÃ­vel</div><div style="color:#f7941d; font-weight:900;">${p.equity_available}%</div></div><div style="${dataBox}"><div style="${labelStyle}">Equity Comprometido</div><div style="color:#ef4444; font-weight:900;">${p.equity_committed || '0'}%</div></div></div>`;
+                stepContent += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:1rem;"><div style="${dataBox}"><div style="${labelStyle}">Equity Disponível</div><div style="color:#f7941d; font-weight:900;">${p.equity_available}%</div></div><div style="${dataBox}"><div style="${labelStyle}">Equity Comprometido</div><div style="color:#ef4444; font-weight:900;">${p.equity_committed || '0'}%</div></div></div>`;
             }
             if (p.total_invested) {
                 stepContent += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:1rem;"><div style="${dataBox}"><div style="${labelStyle}">Total Investido</div><div style="color:#10b981; font-weight:900;">${new Intl.NumberFormat('pt-AO').format(p.total_invested)} Kz</div></div><div style="${dataBox}"><div style="${labelStyle}">Investidores</div><div style="color:#3b82f6; font-weight:900;">${p.total_investors || 0}</div></div></div>`;
@@ -1288,13 +1370,30 @@
                 stepContent += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Galeria do Projecto</div>${mediaHtml}</div>`;
             }
             if (tagsHtml) {
-                stepContent += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Tags TecnolÃ³gicas</div>${tagsHtml}</div>`;
+                stepContent += `<div style="margin-top:1.5rem;"><div style="${labelStyle} margin-bottom:0.75rem;">Tags Tecnológicas</div>${tagsHtml}</div>`;
             }
-        } else if (step === 4) {
-            stepTitle = 'Dossier completo';
-            nextAction = 'closeProjectDetailsModal()';
-            prevAction = 'renderProjectModalStep(3)';
-            stepContent = renderAllProjectFields();
+        }
+
+        let buttonsHtml = `
+            <div style="display:flex; justify-content:space-between; gap:10px;">
+                <button onclick="${prevAction}" style="flex:1; background:rgba(255,255,255,0.05); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">VOLTAR</button>
+                <button onclick="${nextAction}" style="flex:1.5; background:#f7941d; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:950; cursor:pointer;">${step === 3 ? 'FECHAR' : 'PRÓXIMO'}</button>
+            </div>
+        `;
+        
+        // Se for investidor e estiver no último passo, mostrar botão de Proposta
+        if (step === 3 && window.currentProjectData.is_investor) {
+            buttonsHtml = `
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button onclick="closeProjectDetailsModal(); openInvestmentFlow(${p.project_id});" style="width:100%; background:linear-gradient(135deg, #f7941d, #f59e0b); color:#000; border:none; padding:14px; border-radius:12px; font-weight:950; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fas fa-hand-holding-usd"></i> Lançar Proposta de Investimento
+                    </button>
+                    <div style="display:flex; justify-content:space-between; gap:10px;">
+                        <button onclick="${prevAction}" style="flex:1; background:rgba(255,255,255,0.05); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">VOLTAR</button>
+                        <button onclick="${nextAction}" style="flex:1; background:rgba(255,255,255,0.1); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:950; cursor:pointer;">FECHAR</button>
+                    </div>
+                </div>
+            `;
         }
 
         content.innerHTML = `
@@ -1302,10 +1401,7 @@
                 <h2 style="font-size:1.5rem; font-weight:950; color:#fff; margin-bottom:1.5rem;">${stepTitle}</h2>
                 ${stepContent}
             </div>
-            <div style="display:flex; justify-content:space-between; gap:10px;">
-                <button onclick="${prevAction}" style="flex:1; background:rgba(255,255,255,0.05); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">VOLTAR</button>
-                <button onclick="${nextAction}" style="flex:1.5; background:#f7941d; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:950; cursor:pointer;">${step === 4 ? 'FECHAR' : 'PRÃ“XIMO'}</button>
-            </div>
+            ${buttonsHtml}
         `;
     };
 
@@ -1322,11 +1418,11 @@
         const profileDd = document.getElementById('profileDropdown');
         
         if(!modal || !headerZone || !contentZone) {
-            console.error('[AKSANTI] Erro: Elementos do modal de utilizador nÃ£o encontrados no DOM.');
+            console.error('[AKSANTI] Erro: Elementos do modal de utilizador não encontrados no DOM.');
             return;
         }
 
-        // Limpeza de UI: Fecha dropdowns de navegaÃ§Ã£o
+        // Limpeza de UI: Fecha dropdowns de navegação
         if(profileDd) profileDd.classList.remove('active');
 
         // Reset e Loader Visual
@@ -1335,7 +1431,7 @@
         setTimeout(() => modal.classList.add('active'), 10);
         
         headerZone.innerHTML = '<div style="height:180px; background:rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:center;"><i class="fas fa-spinner fa-spin"></i></div>';
-        contentZone.innerHTML = '<div style="padding: 2rem; text-align: center; color: rgba(255,255,255,0.2);"><p>Sincronizando dossiÃª...</p></div>';
+        contentZone.innerHTML = '<div style="padding: 2rem; text-align: center; color: rgba(255,255,255,0.2);"><p>Sincronizando dossiê...</p></div>';
 
         fetch(`${BASE_URL}interface_programacao/user/get_user_card.php?id=${userId}`)
             .then(res => res.json())
@@ -1357,10 +1453,10 @@
         const contentZone = document.getElementById('userCardContent');
         if(!u || !headerZone || !contentZone) return;
 
-        // FormataÃ§Ã£o de Data de AdesÃ£o
+        // Formatação de Data de Adesão
         const memberSince = new Date(u.created_at).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
         
-        // Estrelas de AvaliaÃ§Ã£o
+        // Estrelas de Avaliação
         const fullStars = Math.floor(u.rating);
         const hasHalfStar = (u.rating % 1) >= 0.5;
         let starsHtml = '';
@@ -1370,8 +1466,8 @@
             else starsHtml += '<i class="far fa-star" style="color:rgba(255,255,255,0.2); font-size:0.75rem;"></i>';
         }
 
-        // LÃ³gica de Mensagem (Exclusividade Aksanti)
-        // Estudantes nÃ£o podem enviar mensagens a Investidores
+        // Lógica de Mensagem (Exclusividade Aksanti)
+        // Estudantes não podem enviar mensagens a Investidores
         const isStudent = window.sessionUserType && window.sessionUserType.toLowerCase().includes('student');
         const isTargetInvestor = u.role.toLowerCase() === 'investor';
         const canMessage = !(isStudent && isTargetInvestor);
@@ -1382,7 +1478,7 @@
             <div style="flex:1; background:rgba(255,255,255,0.02); color:rgba(255,255,255,0.2); padding:15px; border-radius:16px; font-size:0.65rem; font-weight:800; text-align:center; border:1px dashed rgba(255,255,255,0.05);">CANAL PROTEGIDO</div>
         `;
 
-        // LÃ³gica de BotÃ£o de ConexÃ£o (Branding: REFORÃ‡AR REDE)
+        // Lógica de Botão de Conexão (Branding: REFORÃ‡AR REDE)
         let connectBtnHtml = '';
         const connectBtnStyle = `flex:1; background:linear-gradient(45deg, #f7941d, #ffb347); color:#fff; border:none; padding:15px; border-radius:16px; font-weight:900; cursor:pointer; box-shadow: 0 10px 20px rgba(247,148,29,0.2); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);`;
         
@@ -1414,7 +1510,7 @@
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
                             ${starsHtml}
-                            <span style="color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700;">(${u.rating > 0 ? u.rating.toFixed(1) : 'Sem avaliaÃ§Ãµes'})</span>
+                            <span style="color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700;">(${u.rating > 0 ? u.rating.toFixed(1) : 'Sem avaliações'})</span>
                         </div>
                     </div>
                     <p style="color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-top:8px;">
@@ -1490,13 +1586,13 @@
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('active'), 10);
         
-        // Limpar mensagens anteriores e carregar histÃ³rico
+        // Limpar mensagens anteriores e carregar histórico
         const messagesZone = document.getElementById('eliteChatMessages');
         messagesZone.innerHTML = '<div style="margin-top:10rem; text-align:center; color:rgba(255,255,255,0.1);"><i class="fas fa-spinner fa-spin"></i><br>Sincronizando canal...</div>';
         
         fetchEliteMessages(userId);
 
-        // Iniciar Poll SÃ­ncrono
+        // Iniciar Poll Síncrono
         if(eliteChatPoll) clearInterval(eliteChatPoll);
         eliteChatPoll = setInterval(() => { fetchEliteMessages(userId, true); }, 3000);
 
@@ -1636,13 +1732,13 @@
                 if(data.new_status === 'accepted') window.currentUserCardData.user.connections_count++;
                 renderUserModalStep(1);
             } else {
-                Swal.fire('GestÃ£o de Rede', data.message, 'error');
+                Swal.fire('Gestão de Rede', data.message, 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
         })
         .catch(() => {
-            Swal.fire('Erro', 'NÃ£o foi possÃ­vel canalizar o pedido.', 'error');
+            Swal.fire('Erro', 'Não foi possível canalizar o pedido.', 'error');
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         });
@@ -1672,7 +1768,7 @@
                     content.innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">${data.message}</p>`;
                 }
             })
-            .catch(() => { content.innerHTML = '<p style="text-align:center; color:#ef4444; padding:2rem;">Erro de ligaÃ§Ã£o ao motor de dados.</p>'; });
+            .catch(() => { content.innerHTML = '<p style="text-align:center; color:#ef4444; padding:2rem;">Erro de ligação ao motor de dados.</p>'; });
     };
 
     window.renderProfileEditStep = function(step) {
@@ -1695,7 +1791,7 @@
                 approved: ['#10b981', 'rgba(16,185,129,0.1)', 'Identidade Verificada', 'fa-check-circle'],
                 pending: ['#f59e0b', 'rgba(245,158,11,0.1)', 'Em Analise', 'fa-clock'],
                 rejected: ['#ef4444', 'rgba(239,68,68,0.1)', 'Rejeitado', 'fa-times-circle'],
-                unsubmitted: ['#94a3b8', 'rgba(148,163,184,0.1)', 'Nao Verificado', 'fa-shield-alt']
+                unsubmitted: ['#94a3b8', 'rgba(148,163,184,0.1)', 'Não Verificado', 'fa-shield-alt']
             };
             const mentorMap = {
                 approved: ['#f5b105', 'rgba(245,177,5,0.1)', 'Mentor Oficial KALIYE', 'fa-award'],
@@ -1706,7 +1802,7 @@
             const v = verificationMap[d.verification_status] || (d.is_verified ? verificationMap.verified : verificationMap.unsubmitted);
             const m = mentorMap[d.mentorship_status] || mentorMap.unsubmitted;
             const memberYear = d.member_since ? new Date(d.member_since).getFullYear() : new Date().getFullYear();
-            const bio = d.bio ? esc(d.bio) : 'Este utilizador ainda nao adicionou uma biografia a sua jornada na KALIYE.';
+            const bio = d.bio ? esc(d.bio) : 'Este utilizador ainda não adicionou uma biografia a sua jornada na KALIYE.';
             const focusFallback = d.focus_areas ? String(d.focus_areas).split(',').map(s => s.trim()).filter(Boolean).map(s => ({ title: s, area_name: s, description: d.experience_summary || 'Area adicionada ao dossier.' })) : [];
             const displayExpertises = (d.expertises || []).length ? (d.expertises || []) : focusFallback;
             const expertisesHtml = displayExpertises.length ? displayExpertises.map(exp => `
@@ -1719,12 +1815,12 @@
             contentZone.innerHTML = `
                 <div class="user-info-box" style="text-align:center; border:none; background:none; margin-bottom: 1.5rem;">
                     <h2 class="user-card-name" style="font-size: 1.5rem;">Dossier de Elite</h2>
-                    <p style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Resumo da sua presenÃ§a no ecossistema KALIYE.</p>
+                    <p style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Resumo da sua presença no ecossistema KALIYE.</p>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 2rem;">
                     <div style="background:rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
                         <div style="color:#f7941d; font-weight: 950; font-size: 1.2rem;">${d.stats?.connections || 0}</div>
-                        <div style="font-size: 0.55rem; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight:700;">ConexÃµes</div>
+                        <div style="font-size: 0.55rem; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight:700;">Conexões</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
                         <div style="color:#f7941d; font-weight: 950; font-size: 1.2rem;">${d.stats?.projects || 0}</div>
@@ -1740,7 +1836,7 @@
                     </div>
                 </div>
                 <div class="trust-shield-card" style="margin-top: 0; background:rgba(255,255,255,0.02);">
-                    <h4 style="margin-bottom: 0.5rem; font-size:0.75rem;"><i class="fas fa-shield-alt"></i> Hub de ConfianÃ§a</h4>
+                    <h4 style="margin-bottom: 0.5rem; font-size:0.75rem;"><i class="fas fa-shield-alt"></i> Hub de Confiança</h4>
                     <div class="shield-actions-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem; gap:10px;">
                         <button type="button" onclick="openKYCModal()" class="btn-shield ${d.is_verified ? 'verified' : ''}" style="width: 100%; font-size:0.65rem; height:40px;">
                             <i class="fas ${d.is_verified ? 'fa-check-double' : 'fa-id-card'}"></i>
@@ -1791,7 +1887,7 @@
                 <div class="profile-dossier-grid" style="display:grid; grid-template-columns:0.9fr 1.6fr; gap:1rem; align-items:start;">
                     <div style="display:flex; flex-direction:column; gap:1rem;">
                         <div class="trust-shield-card" style="margin-top:0; background:rgba(255,255,255,0.02);">
-                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-address-card"></i> Informacao</h4>
+                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-address-card"></i> Informação</h4>
                             <div style="display:flex; align-items:center; gap:0.75rem; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:0.8rem;">
                                 <span style="width:34px; height:34px; border-radius:10px; background:rgba(247,148,29,0.1); color:#f7941d; display:flex; align-items:center; justify-content:center;"><i class="fas fa-envelope"></i></span>
                                 <span style="color:rgba(255,255,255,0.75); font-size:0.75rem; word-break:break-all;">${esc(d.email || 'Email indisponivel')}</span>
@@ -1885,7 +1981,7 @@
                     <div class="profile-edit-input-group">
                         <label class="profile-edit-label">Genero</label>
                         <select name="gender" class="profile-edit-input" style="height:48px;">
-                            <option value="none" ${d.gender === 'none' ? 'selected' : ''}>Nao especificado</option>
+                            <option value="none" ${d.gender === 'none' ? 'selected' : ''}>Não especificado</option>
                             <option value="masculino" ${d.gender === 'masculino' ? 'selected' : ''}>Masculino</option>
                             <option value="feminino" ${d.gender === 'feminino' ? 'selected' : ''}>Feminino</option>
                             <option value="outro" ${d.gender === 'outro' ? 'selected' : ''}>Outro</option>
@@ -1928,7 +2024,7 @@
             stepHtml = `
                 ${indicator}
                 <div class="user-info-box" style="text-align:center; border:none; background:none;">
-                    <h2 class="user-card-name">Areas, Skills & Experiencia</h2>
+                    <h2 class="user-card-name">Areas, Skills & Experiência</h2>
                 </div>
                 <div class="profile-edit-input-group">
                     <label class="profile-edit-label">Areas de foco *</label>
@@ -2117,7 +2213,7 @@
             }
         })
         .catch(() => {
-            Swal.fire({ title: 'Erro de LigaÃ§Ã£o', text: 'NÃ£o foi possÃ­vel comunicar com o motor KALIYE.', icon: 'error', background: '#0d1628', color: '#fff' });
+            Swal.fire({ title: 'Erro de Ligação', text: 'Não foi possível comunicar com o motor KALIYE.', icon: 'error', background: '#0d1628', color: '#fff' });
             renderProfileEditStep(5);
         });
     };

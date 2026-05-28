@@ -50,6 +50,10 @@
     display: flex !important;
 }
 
+.elite-modal-overlay.active {
+    display: flex !important;
+}
+
 .ad-premium-card {
     background: #0d1628 !important;
     width: 100% !important;

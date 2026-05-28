@@ -265,6 +265,9 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                 <a href="<?= $admin_base ?>users/mentor_applications.php" class="<?= basename($_SERVER['PHP_SELF']) == 'mentor_applications.php' ? 'active-link' : '' ?>">
                     <i class="fas fa-user-graduate"></i> Mentores <?= renderBadge($badge_counts['mentors'], '#f7941d', 'badge-nav-mentors') ?>
                 </a>
+                <a href="<?= $admin_base ?>users/project_mentorship_applications.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_mentorship_applications.php' ? 'active-link' : '' ?>">
+                    <i class="fas fa-chalkboard-teacher"></i> Mentoria a Projectos
+                </a>
                 <a href="<?= $admin_base ?>users/verified_users.php" class="<?= basename($_SERVER['PHP_SELF']) == 'verified_users.php' ? 'active-link' : '' ?>"><i class="fas fa-crown"></i> Comunidade Elite</a>
                 <a href="<?= $admin_base ?>finance/finance_dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'finance_dashboard.php' ? 'active-link' : '' ?>">
                     <i class="fas fa-file-invoice-dollar"></i> Financeiro <?= renderBadge($badge_counts['investments'], '#fbbf24', 'badge-nav-finance') ?>
@@ -283,6 +286,7 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                 <a href="<?= $admin_base ?>system/telemetry.php" class="<?= basename($_SERVER['PHP_SELF']) == 'telemetry.php' ? 'active-link' : '' ?>"><i class="fas fa-satellite-dish"></i> Telemetria</a>
                 <a href="<?= $admin_base ?>system/war_room.php" class="<?= basename($_SERVER['PHP_SELF']) == 'war_room.php' ? 'active-link' : '' ?>"><i class="fas fa-map-marked-alt" style="color: #f7941d;"></i> War Room Real-time</a>
                 <a href="<?= $admin_base ?>system/logs.php" class="<?= basename($_SERVER['PHP_SELF']) == 'logs.php' ? 'active-link' : '' ?>"><i class="fas fa-fingerprint"></i> Auditoria</a>
+                <a href="<?= $admin_base ?>system/security_pi.php" class="<?= basename($_SERVER['PHP_SELF']) == 'security_pi.php' ? 'active-link' : '' ?>"><i class="fas fa-shield-virus" style="color: #ef4444;"></i> Segurança de PI</a>
                 <a href="<?= $admin_base ?>project_analytics.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_analytics.php' ? 'active-link' : '' ?>"><i class="fas fa-chart-line"></i> Inteligência de Projectos</a>
                 <a href="<?= $admin_base ?>moderation/evaluations.php" class="<?= basename($_SERVER['PHP_SELF']) == 'evaluations.php' ? 'active-link' : '' ?>"><i class="fas fa-star"></i> Feedback da Plataforma</a>
                                 <a href="<?= $admin_base ?>system/content_audit.php" class="<?= basename($_SERVER['PHP_SELF']) == 'content_audit.php' ? 'active-link' : '' ?>"><i class="fas fa-language"></i> Auditoria Linguística</a>

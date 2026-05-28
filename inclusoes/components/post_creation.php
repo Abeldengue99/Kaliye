@@ -1,5 +1,5 @@
 <?php
-// Mentores nao podem publicar projectos; devem atuar apenas na orientação e validação.
+// Mentores não podem publicar projectos; devem atuar apenas na orientação e validação.
 $can_post = !in_array($user_data['user_type'], ['mentor', 'investor'])
     && (($user_data['mentorship_status'] ?? 'unsubmitted') !== 'approved');
 if ($can_post): 

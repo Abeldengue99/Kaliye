@@ -22,8 +22,11 @@ try {
             <span>Comunidade</span>
             <h2>KALIYE <strong>★</strong></h2>
         </div>
-        <div class="community-feedback-icon">
-            <i class="fas fa-quote-right"></i>
+        <div class="community-feedback-icon" style="display:flex; gap: 15px; align-items:center;">
+            <button onclick="openEvaluationModal()" style="background: rgba(247, 148, 29, 0.1); color: #f7941d; border: 1px solid rgba(247, 148, 29, 0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 0.85rem;" onmouseover="this.style.background='rgba(247, 148, 29, 0.2)'" onmouseout="this.style.background='rgba(247, 148, 29, 0.1)'">
+                <i class="fas fa-star"></i> Avaliar Plataforma
+            </button>
+            <i class="fas fa-quote-right" style="color: rgba(255,255,255,0.1); font-size: 1.5rem;"></i>
         </div>
     </div>
 

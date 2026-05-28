@@ -257,7 +257,7 @@ function calculateMatch($project, $mentor) {
             body.innerHTML = `
                 <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 300px;">
-                        <span style="background: var(--accent-orange); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-bottom: 1rem;">DETALHES DA IDEIA</span>
+                        <span style="background: var(--accent-orange); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-bottom: 1rem;">DETALHES do projecto</span>
                         <h2 style="margin: 0 0 1rem 0; font-size: 2rem;">${project.title}</h2>
                         
                         <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">

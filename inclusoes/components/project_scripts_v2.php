@@ -39,17 +39,26 @@
 
     // MOTOR DE ABERTURA (Novo Projecto)
     window.openPostModal = function() {
-        if (window.IS_MENTOR === true || window.IS_MENTOR === 'true') {
-            Swal.fire({
-                title: 'Acesso restrito',
-                text: 'Mentores podem orientar e validar projectos, mas nao podem publicar projectos próprios.',
-                icon: 'info',
-                confirmButtonText: 'Entendido',
-                background: '#0d1628',
-                color: '#fff'
-            });
+        const uType = (window.AKSANITI_USER && window.AKSANITI_USER.type) ? window.AKSANITI_USER.type.toLowerCase() : '';
+        const isMentorOnly = (uType.includes('mentor') || uType.includes('especialista')) 
+                             && !uType.includes('estudante') 
+                             && !uType.includes('investidor')
+                             && !uType.includes('admin');
+        if (isMentorOnly) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Acesso Restrito',
+                    text: 'Mentores especialistas não podem publicar projectos. Esta funcionalidade é exclusiva para Estudantes, Estudantes-Mentores e Investidores.',
+                    background: '#0d1628',
+                    color: '#fff'
+                });
+            } else {
+                alert('Mentores especialistas não podem publicar projectos.');
+            }
             return;
         }
+
         if (typeof enforceKYC === 'function' && !enforceKYC()) return;
         const modal = document.getElementById('projectModal');
         const form = document.getElementById('projectForm');
@@ -210,7 +219,7 @@
                 preview.style.display = 'none';
                 if (msg) {
                     msg.innerHTML =
-                        '<span style="color:#f59e0b;">Este video foi seleccionado, mas nao consegue ser reproduzido nesta tela. Pode publicar mesmo assim; se quiser pre-visualizar antes, use MP4/H.264 ou WEBM.</span>';
+                        '<span style="color:#f59e0b;">Este video foi seleccionado, mas não consegue ser reproduzido nesta tela. Pode publicar mesmo assim; se quiser pre-visualizar antes, use MP4/H.264 ou WEBM.</span>';
                 }
             };
 
@@ -220,7 +229,7 @@
                     IS_PITCH_VALID = false;
                     PITCH_HARD_INVALID = false;
                     if (btn) btn.disabled = false;
-                    if (msg) msg.innerHTML = '<span style="color:#f59e0b;">Nao foi possivel confirmar a duracao do video nesta tela. O ficheiro sera enviado para validacao no servidor.</span>';
+                    if (msg) msg.innerHTML = '<span style="color:#f59e0b;">Não foi possível confirmar a duracao do video nesta tela. O ficheiro sera enviado para validação no servidor.</span>';
                 } else if (dur < 10) {
                     IS_PITCH_VALID = false;
                     PITCH_HARD_INVALID = true;
@@ -379,7 +388,7 @@
                             throw new Error(res.error || res.message || 'Verifique o servidor.');
                         }
                     } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Erro de SubmissÃ£o', text: err.message || 'Verifique o servidor.', background: '#0d1628', color: '#fff' });
+                        Swal.fire({ icon: 'error', title: 'Erro de Submissão', text: err.message || 'Verifique o servidor.', background: '#0d1628', color: '#fff' });
                         if (sb) {
                             sb.disabled = false;
                             sb.innerHTML = 'FINALIZAR E PUBLICAR';
@@ -388,7 +397,7 @@
                     }
                 };
                 xhr.onerror = function() {
-                    Swal.fire({ icon: 'error', title: 'Falha de rede', text: 'NÃ£o foi possÃ­vel enviar o projecto. Verifique a ligaÃ§Ã£o e tente novamente.', background: '#0d1628', color: '#fff' });
+                    Swal.fire({ icon: 'error', title: 'Falha de rede', text: 'Não foi possível enviar o projecto. Verifique a ligação e tente novamente.', background: '#0d1628', color: '#fff' });
                     if (sb) {
                         sb.disabled = false;
                         sb.innerHTML = 'FINALIZAR E PUBLICAR';
@@ -417,8 +426,8 @@
             if (!IS_PITCH_VALID && !hasSelectedPitch) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Pitch em vÃ­deo obrigatÃ³rio',
-                    text: 'Por favor, carregue um pitch em vÃ­deo antes de publicar a ideia.',
+                    title: 'Pitch em vídeo obrigatório',
+                    text: 'Por favor, carregue um pitch em vídeo antes de publicar o projecto.',
                     background: '#0d1628',
                     color: '#fff',
                     confirmButtonColor: '#f7941d'
@@ -477,7 +486,7 @@
                 };
 
                 xhr.onerror = function() {
-                    Swal.fire({ icon: 'error', title: 'Falha de rede', text: 'Nao foi possivel enviar o projecto. Verifique a ligacao e tente novamente.', background: '#0d1628', color: '#fff' });
+                    Swal.fire({ icon: 'error', title: 'Falha de rede', text: 'Não foi possível enviar o projecto. Verifique a ligacao e tente novamente.', background: '#0d1628', color: '#fff' });
                     sb.disabled = false;
                     sb.innerHTML = 'FINALIZAR E PUBLICAR';
                     if (progContainer) progContainer.style.display = 'none';

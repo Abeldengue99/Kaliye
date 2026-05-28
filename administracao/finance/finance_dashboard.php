@@ -19,27 +19,70 @@ $database = new Database();
 $db = $database->getConnection();
 
 // 1. Get Financial Overview
-$financial_stats = $db->query("
-    SELECT 
-        SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_disbursed,
-        SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as total_held,
-        SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as potential_pipeline,
-        currency
-    FROM project_investments
-    GROUP BY currency
-")->fetchAll();
+try {
+    $financial_stats = $db->query("
+        SELECT 
+            SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_disbursed,
+            SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as total_held,
+            SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as potential_pipeline,
+            currency
+        FROM project_investments
+        GROUP BY currency
+    ")->fetchAll();
+} catch (PDOException $e) {
+    error_log("Admin finance_dashboard stats query ERROR: " . $e->getMessage());
+    try {
+        $financial_stats = $db->query("
+            SELECT 
+                SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_disbursed,
+                SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as total_held,
+                SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as potential_pipeline,
+                'AOA' as currency
+            FROM project_investments
+        ")->fetchAll();
+    } catch (PDOException $e2) {
+        $financial_stats = [];
+    }
+}
 
-// 2. Get Investment List
-$investments = $db->query("
-    SELECT 
-        pi.*, p.title as project_title, p.owner_id, 
-        i.full_name as investor_name, o.full_name as owner_name
-    FROM project_investments pi
-    JOIN projects p ON pi.project_id = p.project_id
-    JOIN users i ON pi.investor_id = i.user_id
-    JOIN users o ON p.owner_id = o.user_id
-    ORDER BY pi.created_at DESC
-")->fetchAll();
+// 2. Get Investment List (com campos de candidatura)
+$investments_error = '';
+try {
+    $investments = $db->query("
+        SELECT 
+            pi.investment_id, pi.project_id, pi.investor_id, pi.amount, pi.status, pi.created_at,
+            pi.currency, pi.investment_type, pi.investor_motivation, pi.investor_experience, pi.investor_linkedin,
+            p.title as project_title, p.owner_id, 
+            i.full_name as investor_name, o.full_name as owner_name
+        FROM project_investments pi
+        JOIN projects p ON pi.project_id = p.project_id
+        JOIN users i ON pi.investor_id = i.user_id
+        JOIN users o ON p.owner_id = o.user_id
+        ORDER BY 
+            CASE WHEN pi.status = 'pending' THEN 0 ELSE 1 END,
+            pi.created_at DESC
+    ")->fetchAll();
+} catch (PDOException $e) {
+    error_log("Admin finance_dashboard investments query ERROR: " . $e->getMessage());
+    $investments_error = $e->getMessage();
+    // Fallback: tentar query mais simples sem colunas opcionais
+    try {
+        $investments = $db->query("
+            SELECT 
+                pi.investment_id, pi.project_id, pi.investor_id, pi.amount, pi.status, pi.created_at,
+                p.title as project_title, p.owner_id,
+                i.full_name as investor_name, o.full_name as owner_name
+            FROM project_investments pi
+            JOIN projects p ON pi.project_id = p.project_id
+            JOIN users i ON pi.investor_id = i.user_id
+            JOIN users o ON p.owner_id = o.user_id
+            ORDER BY pi.created_at DESC
+        ")->fetchAll();
+    } catch (PDOException $e2) {
+        error_log("Admin finance fallback query ERROR: " . $e2->getMessage());
+        $investments = [];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt">

@@ -89,7 +89,7 @@ $admins = $db->query("SELECT * FROM users WHERE user_type = 'admin'")->fetchAll(
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro',
-                                text: data.message || 'Nao foi possivel criar o administrador.',
+                                text: data.message || 'Não foi possível criar o administrador.',
                                 background: '#0f172a',
                                 color: '#fff',
                                 confirmButtonColor: '#f7941d'
@@ -99,7 +99,7 @@ $admins = $db->query("SELECT * FROM users WHERE user_type = 'admin'")->fetchAll(
                         Swal.fire({
                             icon: 'error',
                             title: 'Falha de comunicacao',
-                            text: 'O servidor nao devolveu uma resposta valida.',
+                            text: 'O servidor não devolveu uma resposta valida.',
                             background: '#0f172a',
                             color: '#fff',
                             confirmButtonColor: '#f7941d'

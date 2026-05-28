@@ -1,10 +1,10 @@
 <?php
 /**
- * verificar_email.php - P·gina de VerificaÁ„o de E-mail (OTP)
+ * verificar_email.php - P√°gina de Verifica√ß√£o de E-mail (OTP)
  * KALIYE 
  * 
- * Exibe campos para inserir o cÛdigo OTP de 6 dÌgitos enviado por email.
- * Processa a verificaÁ„o contra a tabela otp_codes.
+ * Exibe campos para inserir o c√≥digo OTP de 6 d√≠gitos enviado por email.
+ * Processa a verifica√ß√£o contra a tabela otp_codes.
  */
 session_start();
 require_once __DIR__ . '/../configuracoes/base_dados.php';
@@ -18,13 +18,13 @@ $email = $_GET['email'] ?? $_SESSION['pending_email_verification']['email'] ?? '
 $error = '';
 $success = '';
 
-// --- Processar verificaÁ„o do OTP ---
+// --- Processar verifica√ß√£o do OTP ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
     $submitted_otp = trim($_POST['otp']);
     $verify_email = $_POST['email'] ?? $email;
 
     if (empty($submitted_otp) || strlen($submitted_otp) !== 6) {
-        $error = 'Por favor, insira o cÛdigo completo de 6 dÌgitos.';
+        $error = 'Por favor, insira o c√≥digo completo de 6 d√≠gitos.';
     } else {
         try {
             // Buscar o utilizador
@@ -33,27 +33,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
             $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user) {
-                $error = 'Utilizador n„o encontrado. Tente registar-se novamente.';
+                $error = 'Utilizador n√£o encontrado. Tente registar-se novamente.';
             } else {
-                // Buscar OTP v·lido (n„o expirado) ó usa SELECT * para compatibilidade
+                // Buscar OTP v√°lido (n√£o expirado) ¬ó usa SELECT * para compatibilidade
                 $otp_stmt = $db->prepare("SELECT code_hash, expires_at FROM otp_codes WHERE user_id = ? AND purpose = 'email_verify' ORDER BY expires_at DESC LIMIT 1");
                 $otp_stmt->execute([$user['user_id']]);
                 $otp_record = $otp_stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$otp_record) {
-                    $error = 'Nenhum cÛdigo de verificaÁ„o encontrado. Solicite um novo cÛdigo.';
+                    $error = 'Nenhum c√≥digo de verifica√ß√£o encontrado. Solicite um novo c√≥digo.';
                 } elseif (strtotime($otp_record['expires_at']) < time()) {
-                    $error = 'O cÛdigo expirou. Solicite um novo cÛdigo.';
+                    $error = 'O c√≥digo expirou. Solicite um novo c√≥digo.';
                 } elseif (!password_verify($submitted_otp, $otp_record['code_hash'])) {
-                    $error = 'CÛdigo de verificaÁ„o incorreto. Verifique e tente novamente.';
+                    $error = 'C√≥digo de verifica√ß√£o incorreto. Verifique e tente novamente.';
                 } else {
-                    // ? OTP Correto ó Verificar a conta
+                    // ? OTP Correto ¬ó Verificar a conta
                     $db->prepare("UPDATE users SET is_verified = true WHERE user_id = ?")->execute([$user['user_id']]);
                     
                     // Limpar OTPs usados
                     $db->prepare("DELETE FROM otp_codes WHERE user_id = ? AND purpose = 'email_verify'")->execute([$user['user_id']]);
                     
-                    // Criar sess„o completa
+                    // Criar sess√£o completa
                     $_SESSION['user_id'] = $user['user_id'];
                     $_SESSION['user_name'] = $user['full_name'];
                     $_SESSION['user_type'] = $user['user_type'];
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
                 }
             }
         } catch (PDOException $e) {
-            error_log("Erro VerificaÁ„o OTP: " . $e->getMessage() . " | SQL State: " . $e->getCode());
+            error_log("Erro Verifica√ß√£o OTP: " . $e->getMessage() . " | SQL State: " . $e->getCode());
             $error = 'Erro interno do servidor. Detalhe: ' . $e->getMessage();
         }
     }
@@ -91,7 +91,7 @@ if ($email) {
     $parts = explode('@', $email);
     if (count($parts) === 2) {
         $name = $parts[0];
-        $masked_name = substr($name, 0, 2) . str_repeat('ï', max(0, strlen($name) - 4)) . substr($name, -2);
+        $masked_name = substr($name, 0, 2) . str_repeat('¬ï', max(0, strlen($name) - 4)) . substr($name, -2);
         $masked_email = $masked_name . '@' . $parts[1];
     }
 }
@@ -102,7 +102,7 @@ if ($email) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificar E-mail | KALIYE</title>
-    <meta name="description" content="Insira o cÛdigo de verificaÁ„o enviado para o seu e-mail para ativar a sua conta KALIYE.">
+    <meta name="description" content="Insira o c√≥digo de verifica√ß√£o enviado para o seu e-mail para ativar a sua conta KALIYE.">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
@@ -184,15 +184,15 @@ if ($email) {
             50% { transform: translateY(-20px) scale(1.05); }
         }
 
-        /* ===== CART√O PRINCIPAL ===== */
+        /* ===== CART√ÉO PRINCIPAL ===== */
         .verify-card {
             position: relative; z-index: 1;
-            width: 100%; max-width: 480px;
-            padding: 3rem;
+            width: 100%; max-width: 400px;
+            padding: 2.5rem;
             background: var(--cor-fundo-cartao);
             border: 1px solid var(--cor-bordas-vidro);
-            border-radius: 32px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            border-radius: 28px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
             margin: 1rem;
         }
 
@@ -221,7 +221,7 @@ if ($email) {
             font-weight: 500; margin-top: 2px;
         }
 
-        /* ===== ÕCONE DE VERIFICA«√O ===== */
+        /* ===== √çCONE DE VERIFICA√á√ÉO ===== */
         .verify-icon-wrap {
             width: 90px; height: 90px;
             background: linear-gradient(135deg, rgba(247,148,29,0.1), rgba(251,191,36,0.05));
@@ -303,7 +303,7 @@ if ($email) {
             80% { transform: translateX(3px); }
         }
 
-        /* ===== BOT√O PRINCIPAL ===== */
+        /* ===== BOT√ÉO PRINCIPAL ===== */
         .btn-verify {
             width: 100%;
             height: 60px;
@@ -330,7 +330,7 @@ if ($email) {
             transform: none;
         }
 
-        /* ===== REENVIAR C”DIGO ===== */
+        /* ===== REENVIAR C√ìDIGO ===== */
         .resend-section {
             text-align: center;
             margin-top: 2rem;
@@ -395,7 +395,7 @@ if ($email) {
             margin-top: 0.8rem;
         }
 
-        /* ===== INFORMATIVO DE SEGURAN«A ===== */
+        /* ===== INFORMATIVO DE SEGURAN√áA ===== */
         .security-note {
             display: flex; gap: 10px; align-items: flex-start;
             margin-top: 2rem;
@@ -440,25 +440,20 @@ if ($email) {
     <div class="orb orb-2"></div>
 </div>
 
-<!-- Cart„o de VerificaÁ„o -->
+<!-- Cart√£o de Verifica√ß√£o -->
 <div class="verify-card">
 
-    <!-- Logo -->
-    <a href="../paginas/guest/landing.php" class="logo-auth" aria-label="KALIYE">
-        <div class="logo-icon">
-            <img src="../recursos/images/marca/YALIYE.png" alt="KALIYE">
-        </div>
-    </a>
+    <!-- Sem Logo -->
 
-    <!-- Õcone Central -->
+    <!-- √çcone Central -->
     <div class="verify-icon-wrap">
         <i class="fas fa-envelope-open-text"></i>
     </div>
 
-    <!-- TÌtulo -->
-    <h1 class="verify-title">VerificaÁ„o de E-mail</h1>
+    <!-- T√≠tulo -->
+    <h1 class="verify-title">Verifica√ß√£o de E-mail</h1>
     <p class="verify-subtitle">
-        Envi·mos um cÛdigo de 6 dÌgitos para<br>
+        Envi√°mos um c√≥digo de 6 d√≠gitos para<br>
         <strong><?php echo htmlspecialchars($masked_email ?: $email); ?></strong>
     </p>
 
@@ -470,7 +465,7 @@ if ($email) {
         </div>
     <?php endif; ?>
 
-    <!-- Formul·rio OTP -->
+    <!-- Formul√°rio OTP -->
     <form id="otpForm" method="POST" action="">
         <input type="hidden" name="email" value="<?php echo htmlspecialchars($email); ?>">
         <input type="hidden" name="otp" id="otpHidden" value="">
@@ -490,11 +485,11 @@ if ($email) {
         </button>
     </form>
 
-    <!-- Reenviar CÛdigo -->
+    <!-- Reenviar C√≥digo -->
     <div class="resend-section">
-        <p class="resend-text">N„o recebeu o cÛdigo?</p>
+        <p class="resend-text">N√£o recebeu o c√≥digo?</p>
         <button class="btn-resend" id="btnResend" onclick="resendOTP()">
-            <i class="fas fa-redo"></i> Reenviar CÛdigo
+            <i class="fas fa-redo"></i> Reenviar C√≥digo
         </button>
         <div class="timer-badge" id="timerBadge" style="display: none;">
             <i class="fas fa-clock"></i>
@@ -502,14 +497,14 @@ if ($email) {
         </div>
     </div>
 
-    <!-- Nota de seguranÁa -->
+    <!-- Nota de seguran√ßa -->
     <div class="security-note">
         <i class="fas fa-lock"></i>
-        <p>O cÛdigo expira em 30 minutos. Se n„o encontrar o e-mail, verifique a sua pasta de spam ou lixo eletrÛnico.</p>
+        <p>O c√≥digo expira em 30 minutos. Se n√£o encontrar o e-mail, verifique a sua pasta de spam ou lixo eletr√≥nico.</p>
     </div>
 
     <?php
-    // Mostrar OTP para debug em ambiente local (REMOVER EM PRODU«√O)
+    // Mostrar OTP para debug em ambiente local (REMOVER EM PRODU√á√ÉO)
     if (isset($_SESSION['debug_last_otp']) && in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', 'localhost:8080'])):
     ?>
     <div class="debug-otp">
@@ -519,7 +514,7 @@ if ($email) {
 </div>
 
 <script>
-// ===== L”GICA DOS CAMPOS OTP =====
+// ===== L√ìGICA DOS CAMPOS OTP =====
 const inputs = document.querySelectorAll('.otp-input');
 const hiddenInput = document.getElementById('otpHidden');
 const btnVerify = document.getElementById('btnVerify');
@@ -532,7 +527,7 @@ inputs.forEach((input, index) => {
     input.addEventListener('input', (e) => {
         const val = e.target.value;
         
-        // Aceitar apenas n˙meros
+        // Aceitar apenas n√∫meros
         if (!/^\d$/.test(val)) {
             e.target.value = '';
             return;
@@ -541,7 +536,7 @@ inputs.forEach((input, index) => {
         e.target.classList.add('filled');
         e.target.classList.remove('error-state');
 
-        // AvanÁar para o prÛximo campo
+        // Avan√ßar para o pr√≥ximo campo
         if (val && index < inputs.length - 1) {
             inputs[index + 1].focus();
         }
@@ -563,7 +558,7 @@ inputs.forEach((input, index) => {
         }
     });
 
-    // Tratar Paste (colar cÛdigo completo)
+    // Tratar Paste (colar c√≥digo completo)
     input.addEventListener('paste', (e) => {
         e.preventDefault();
         const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
@@ -586,7 +581,7 @@ function updateOTP() {
     btnVerify.disabled = code.length !== 6;
 }
 
-// ===== REENVIAR C”DIGO =====
+// ===== REENVIAR C√ìDIGO =====
 function resendOTP() {
     const btn = document.getElementById('btnResend');
     const timer = document.getElementById('timerBadge');
@@ -607,8 +602,8 @@ function resendOTP() {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'CÛdigo Reenviado!',
-                text: 'Verifique o seu e-mail para o novo cÛdigo.',
+                title: 'C√≥digo Reenviado!',
+                text: 'Verifique o seu e-mail para o novo c√≥digo.',
                 background: '#0f172a',
                 color: '#fff',
                 confirmButtonColor: '#f7941d',
@@ -630,36 +625,36 @@ function resendOTP() {
                     timer.style.display = 'none';
                     btn.style.display = 'inline-flex';
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar CÛdigo';
+                    btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar C√≥digo';
                 }
             }, 1000);
         } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Erro',
-                text: data.message || 'N„o foi possÌvel reenviar o cÛdigo.',
+                text: data.message || 'N√£o foi poss√≠vel reenviar o c√≥digo.',
                 background: '#0f172a',
                 color: '#fff',
                 confirmButtonColor: '#f7941d'
             });
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar CÛdigo';
+            btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar C√≥digo';
         }
     })
     .catch(() => {
         Swal.fire({
             icon: 'error',
-            title: 'Erro de Conex„o',
-            text: 'N„o foi possÌvel conectar ao servidor.',
+            title: 'Erro de Conex√£o',
+            text: 'N√£o foi poss√≠vel conectar ao servidor.',
             background: '#0f172a',
             color: '#fff'
         });
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar CÛdigo';
+        btn.innerHTML = '<i class="fas fa-redo"></i> Reenviar C√≥digo';
     });
 }
 
-// ===== VALIDA«√O NO SUBMIT =====
+// ===== VALIDA√á√ÉO NO SUBMIT =====
 document.getElementById('otpForm').addEventListener('submit', function(e) {
     const code = hiddenInput.value;
     if (code.length !== 6) {
@@ -668,7 +663,7 @@ document.getElementById('otpForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // Desabilitar bot„o para evitar duplo clique
+    // Desabilitar bot√£o para evitar duplo clique
     btnVerify.disabled = true;
     btnVerify.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFICANDO...';
 });

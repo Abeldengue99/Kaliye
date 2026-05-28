@@ -7,7 +7,7 @@ function openInvestorProjectDetails(id) {
     const modal = document.getElementById('detailsModal');
     const content = document.getElementById('detailsContent');
     modal.style.display = 'flex';
-    content.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 5rem;"><i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-gold);"></i><p style="margin-top: 1rem;">Preparando dossiÃª estratÃ©gico...</p></div>';
+    content.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 5rem;"><i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-gold);"></i><p style="margin-top: 1rem;">Preparando dossiê estratégico...</p></div>';
 
     fetch(`../../interface_programacao/projects/get_project_details.php?id=${id}&project_id=${id}`)
         .then(res => res.json())
@@ -44,7 +44,7 @@ function openInvestorProjectDetails(id) {
                 let tagsHtml = '';
                 if (tags && tags.length > 0) {
                     tagsHtml = '<div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">';
-                    tagsHtml += '<h4 style="margin: 0 0 1rem 0; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;"><i class="fas fa-microchip"></i> Ecossistema TecnolÃ³gico</h4>';
+                    tagsHtml += '<h4 style="margin: 0 0 1rem 0; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;"><i class="fas fa-microchip"></i> Ecossistema Tecnológico</h4>';
                     tagsHtml += '<div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">';
                     tags.forEach(t => {
                         tagsHtml += `<span style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 6px 16px; border-radius: 10px; font-size: 0.85rem; color: var(--accent-gold); font-weight: 600;">${t}</span>`;
@@ -71,7 +71,7 @@ function openInvestorProjectDetails(id) {
 
                 let msHtml = '';
                 if (data.milestones && data.milestones.length > 0) {
-                    msHtml = '<div style="margin-top: 2.5rem;"><h4 style="margin: 0 0 1.5rem 0; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;"><i class="fas fa-map-marked-alt"></i> Roadmap de ExecuÃ§Ã£o</h4>';
+                    msHtml = '<div style="margin-top: 2.5rem;"><h4 style="margin: 0 0 1.5rem 0; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;"><i class="fas fa-map-marked-alt"></i> Roadmap de Execução</h4>';
                     data.milestones.forEach(ms => {
                         let statusColor = '#94a3b8';
                         let statusIcon = 'fa-circle';
@@ -149,8 +149,8 @@ function openInvestorProjectDetails(id) {
                                 <span style="font-weight: 800; color: white; font-size: 1.1rem;"><i class="fas fa-users-cog" style="color: var(--accent-gold);"></i> ${p.team_size || 1} Especialistas</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">NÃ­vel de Maturidade</small>
-                                <span style="font-weight: 800; color: white; font-size: 1.1rem;"><i class="fas fa-rocket" style="color: var(--accent-gold);"></i> ${p.project_stage || 'Ideia'}</span>
+                                <small style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Nível de Maturidade</small>
+                                <span style="font-weight: 800; color: white; font-size: 1.1rem;"><i class="fas fa-rocket" style="color: var(--accent-gold);"></i> ${p.project_stage || 'Projecto'}</span>
                             </div>
                         </div>
 
@@ -161,7 +161,7 @@ function openInvestorProjectDetails(id) {
 
                         ${p.target_audience ? `
                         <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(59, 130, 246, 0.08); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2);">
-                            <h4 style="margin: 0 0 0.8rem 0; font-size: 0.95rem; color: #60a5fa; font-weight: 800;"><i class="fas fa-bullseye"></i> Market Fit / PÃºblico-Alvo</h4>
+                            <h4 style="margin: 0 0 0.8rem 0; font-size: 0.95rem; color: #60a5fa; font-weight: 800;"><i class="fas fa-bullseye"></i> Market Fit / Público-Alvo</h4>
                             <p style="margin: 0; font-size: 1rem; color: #94a3b8;">${p.target_audience}</p>
                         </div>` : ''}
                     </div>
@@ -171,12 +171,12 @@ function openInvestorProjectDetails(id) {
                     ${invHtml}
 
                     <button onclick="document.getElementById('detailsModal').style.display='none'; openInvestModal(${p.project_id}, '${p.title.replace(/'/g, "\\'")}')" class="btn-primary" style="display: block; width: 100%; text-align: center; margin-top: 2rem; background: var(--accent-gold); color: #000; padding: 1.2rem; border-radius: 16px; cursor: pointer; font-size: 1.1rem; font-weight: 900; border: none; box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);">
-                        <i class="fas fa-hand-holding-usd"></i> INVESTIR NESTA IDEIA / PROJECTO
+                        <i class="fas fa-hand-holding-usd"></i> CANDIDATAR-SE A INVESTIR
                     </button>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
                         <a href="../social/messages.php?start=${p.owner_id}" class="btn-primary" style="text-decoration: none; text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); color: white; font-weight: 700; font-size: 0.9rem; border-radius: 12px; border: 1px solid var(--glass-border);">
-                            <i class="fas fa-comments"></i> Iniciar ConexÃ£o
+                            <i class="fas fa-comments"></i> Iniciar Conexão
                         </a>
                         <a href="../social/profile.php?user_id=${p.owner_id}" class="btn-primary" style="text-decoration: none; text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); color: white; font-weight: 700; font-size: 0.9rem; border-radius: 12px; border: 1px solid var(--glass-border);">
                             <i class="fas fa-user-circle"></i> Ver Perfil
@@ -189,7 +189,7 @@ function openInvestorProjectDetails(id) {
         })
         .catch(err => {
             console.error(err);
-            content.innerHTML = '<p style="color: var(--danger); text-align: center;">Erro de conexÃ£o estratÃ©gica.</p>';
+            content.innerHTML = '<p style="color: var(--danger); text-align: center;">Erro de conexão estratégica.</p>';
         });
 }
 
@@ -240,7 +240,7 @@ function markAsRead(projectId) {
                     archiveBtn.style.opacity = '1';
                     archiveBtn.innerHTML = '<i class="fas fa-archive"></i> Arquivar';
                 }
-                Swal.fire('Erro', 'NÃ£o foi possÃ­vel marcar como lido.', 'error');
+                Swal.fire('Erro', 'Não foi possível marcar como lido.', 'error');
             }
         });
 }
@@ -261,12 +261,12 @@ function checkInvestorLegal() {
                                 <i class="fas fa-file-signature" style="font-size: 1.2rem; color: #000;"></i>
                             </div>
                             <div>
-                                <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">PendÃªncias JurÃ­dicas (${pending.length})</h4>
-                                <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Existem acordos de investimento ou termos de plataforma aguardando sua assinatura para validaÃ§Ã£o legal.</p>
+                                <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">Pendências Jurídicas (${pending.length})</h4>
+                                <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Existem acordos de investimento ou termos de plataforma aguardando sua assinatura para validação legal.</p>
                             </div>
                         </div>
                         <button onclick="viewAndSignLegal(${JSON.stringify(pending[0])})" class="btn-primary" style="background: var(--accent-orange); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; flex-shrink: 0;">
-                            Resolver PendÃªncia <i class="fas fa-arrow-right"></i>
+                            Resolver Pendência <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 `;
@@ -279,7 +279,7 @@ async function viewAndSignLegal(la) {
         title: 'Assinatura Profissional de Acordo',
         html: `
             <div style="text-align: left; max-height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid var(--glass-border); line-height: 1.6; font-size: 0.9rem; color: #cbd5e1; white-space: pre-line;">
-                <h4 style="color: var(--accent-gold); margin-top: 0; font-size: 1rem;"><i class="fas fa-gavel"></i> Termos e ClÃ¡usulas</h4>
+                <h4 style="color: var(--accent-gold); margin-top: 0; font-size: 1rem;"><i class="fas fa-gavel"></i> Termos e Cláusulas</h4>
                 ${la.contract_terms}
             </div>
 
@@ -287,17 +287,17 @@ async function viewAndSignLegal(la) {
                 <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: space-between;">
                     <div>
                         <div style="font-size: 0.8rem; font-weight: 800; color: #10b981; text-transform: uppercase;">Contrato Validado</div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary);">A Aksanti jÃ¡ assinou este documento.</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">A Aksanti já assinou este documento.</div>
                     </div>
                     <a href="../../${la.admin_signed_file}" target="_blank" style="background: #10b981; color: white; padding: 6px 15px; border-radius: 8px; text-decoration: none; font-size: 0.75rem; font-weight: 700;">Original <i class="fas fa-external-link-alt"></i></a>
                 </div>
             ` : ''}
 
             <div style="text-align: left;">
-                <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.8rem; font-weight: 600;">MÃ©todo de ValidaÃ§Ã£o Legal:</label>
+                <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.8rem; font-weight: 600;">Método de Validação Legal:</label>
                 <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
                     <button type="button" id="btn-dig" onclick="setSignType('digital')" style="flex: 1; padding: 0.8rem; border-radius: 10px; border: 2px solid var(--accent-orange); background: rgba(247,148,29,0.1); color: #fff; font-weight: 700; cursor: pointer;">Assinatura Digital</button>
-                    <button type="button" id="btn-phy" onclick="setSignType('physical')" style="flex: 1; padding: 0.8rem; border-radius: 10px; border: 2px solid #334155; background: transparent; color: #94a3b8; font-weight: 700; cursor: pointer;">Upload FÃ­sico</button>
+                    <button type="button" id="btn-phy" onclick="setSignType('physical')" style="flex: 1; padding: 0.8rem; border-radius: 10px; border: 2px solid #334155; background: transparent; color: #94a3b8; font-weight: 700; cursor: pointer;">Upload Físico</button>
                 </div>
 
                 <div id="cont-dig">
@@ -377,25 +377,42 @@ window.setSignType = function (type) {
 }
 
 document.addEventListener('DOMContentLoaded', checkInvestorLegal);
-
 // Investment Modal Functions
 function openInvestModal(id, title) {
+    // 1. Verificação Estrita de Perfil (Investidor Aprovado)
+    const uType = window.AKSANITI_USER ? window.AKSANITI_USER.type : '';
+    const vStatus = window.AKSANITI_USER ? window.AKSANITI_USER.verificationStatus : 'unsubmitted';
+    
+    if (uType !== 'admin') {
+        if (vStatus !== 'verified' || uType !== 'investor') {
+            if (typeof openKYCModal === 'function') {
+                openKYCModal();
+            } else {
+                window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '../../') + 'index.php?kyc_required=1';
+            }
+            return; // Bloqueia a abertura do modal
+        }
+    }
+
     const modal = document.getElementById('investModal');
     if (!modal) {
         Swal.fire('Indisponivel', 'A funcionalidade de investimentos esta desativada nesta versao.', 'info');
         return;
     }
-    // Bloqueio de Segurança: Requer verificação documental (KYC) para investir
-    if (typeof enforceKYC === 'function') {
-        if (!enforceKYC()) return;
-    }
+
+    // Reset wizard steps se existirem
+    const step1 = document.getElementById('investStep1');
+    const step2 = document.getElementById('investStep2');
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
+    
+    const ind1 = document.getElementById('investStepIndicator1');
+    const ind2 = document.getElementById('investStepIndicator2');
+    if (ind1) ind1.style.background = 'var(--accent-orange)';
+    if (ind2) ind2.style.background = 'var(--surface-8)';
 
     document.getElementById('investProjectId').value = id;
     document.getElementById('investProjectTitle').innerText = title;
-    document.getElementById('investStep1').style.display = 'block';
-    document.getElementById('investStep2').style.display = 'none';
-    document.getElementById('step1Circle').style.background = 'var(--accent-gold)';
-    document.getElementById('step2Circle').style.background = 'var(--glass-border)';
     modal.style.display = 'flex';
 }
 
@@ -413,7 +430,7 @@ if (generateRefForm) generateRefForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando ReferÃªncia...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar proposta...';
     btn.disabled = true;
 
     const fd = new FormData(this);
@@ -421,17 +438,30 @@ if (generateRefForm) generateRefForm.addEventListener('submit', function (e) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                const formattedRef = String(data.reference || data.investment_id || '').match(/.{1,3}/g).join(' ');
-                document.getElementById('paymentRef').innerText = formattedRef;
-                document.getElementById('paymentAmountText').innerText = data.formatted_amount;
-                document.getElementById('proofInvestmentId').value = data.investment_id;
-                document.getElementById('investStep1').style.display = 'none';
-                document.getElementById('investStep2').style.display = 'block';
-                document.getElementById('step2Circle').style.background = 'var(--accent-gold)';
-                document.getElementById('step2Circle').style.color = 'black';
+                closeInvestModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Proposta Enviada!',
+                    html: `
+                        <div style="text-align: left; padding: 0.5rem;">
+                            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                                ${data.message}
+                            </p>
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(16,185,129,0.08); border-radius: 12px; border: 1px solid rgba(16,185,129,0.2);">
+                                <p style="margin: 0; font-size: 0.8rem; color: #10b981; font-weight: 700;">
+                                    <i class="fas fa-check-circle"></i> A equipa KALIYE irá avaliar a sua candidatura e entrar em contacto consigo para formalizar o investimento presencialmente.
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    background: '#0d1628',
+                    color: '#fff',
+                    confirmButtonColor: '#f7941d',
+                    confirmButtonText: 'Entendido'
+                });
             } else {
                 Swal.fire({
-                    title: 'AtenÃ§Ã£o',
+                    title: 'Atenção',
                     text: data.message,
                     icon: 'warning',
                     background: '#1e293b',
@@ -445,19 +475,4 @@ if (generateRefForm) generateRefForm.addEventListener('submit', function (e) {
         });
 });
 
-const submitProofForm = document.getElementById('submitProofForm');
-if (submitProofForm) submitProofForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const fd = new FormData(this);
-    fetch('../../interface_programacao/projects/upload_investment_proof.php', { method: 'POST', body: fd })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire('Sucesso!', 'A sua proposta foi enviada. O administrador irÃ¡ validar o pagamento.', 'success')
-                    .then(() => location.reload());
-            } else {
-                Swal.fire('Erro', data.message, 'error');
-            }
-        });
-});
 

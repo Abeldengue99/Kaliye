@@ -64,10 +64,9 @@ if ($is_owner || $is_admin || $is_mentor) {
         }
     }
     $investor_level = (int)$_SESSION['investor_access_level'];
-    if ($investor_level >= 2) {
+    // NOVO FLUXO: Se o investidor estiver verificado, ele pode ver o Dossier (sujeito ao NDA)
+    if ($is_verified) {
         $access_level = 'full';
-    } elseif ($investor_level >= 1) {
-        $access_level = 'preview';
     } else {
         $access_level = 'summary';
     }
@@ -76,7 +75,7 @@ if ($is_owner || $is_admin || $is_mentor) {
 // Compatibilidade com código legado
 $has_full_access = ($access_level === 'full');
 
-// Votacao comunitaria: qualquer utilizador autenticado pode votar em ideias de outros autores.
+// Votacao comunitaria: qualquer utilizador autenticado pode votar em projectos de outros autores.
 $can_vote = ($viewer_id > 0 && !$is_owner);
 $user_voted = (bool)($project['user_voted'] ?? false);
 $vote_count = (int)($project['vote_count'] ?? 0);
@@ -156,7 +155,7 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
 
         <div class="category-badge-img">
             <i class="fas fa-microchip" style="font-size: 0.6rem; margin-right: 5px;"></i>
-            <?php echo htmlspecialchars($project['category'] ?: 'Ideia'); ?>
+            <?php echo htmlspecialchars($project['category'] ?: 'Projecto'); ?>
         </div>
 
         <?php if ($vote_count > 0): ?>
@@ -217,7 +216,7 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
         <div class="project-signal-row">
             <span>
                 <i class="fas fa-layer-group"></i>
-                <?php echo htmlspecialchars($project['project_stage'] ?: 'Ideia'); ?>
+                <?php echo htmlspecialchars($project['project_stage'] ?: 'Projecto'); ?>
             </span>
             <span>
                 <i class="fas fa-coins"></i>
@@ -242,6 +241,31 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
                 <?php echo $access_level === 'full' ? 'Ver Dossier' : 'Ver Preview'; ?>
             </a>
 
+            <?php 
+            $already_applied = false;
+            $applied_status = '';
+            global $db;
+            if (isset($db) && $viewer_id > 0) {
+                if ($is_investor) {
+                    $chk = $db->prepare("SELECT status FROM project_investments WHERE project_id = ? AND investor_id = ? ORDER BY created_at DESC LIMIT 1");
+                    $chk->execute([$project['project_id'], $viewer_id]);
+                    $st = $chk->fetchColumn();
+                    if ($st) {
+                        $already_applied = true;
+                        $applied_status = ($st === 'pending') ? 'Em Análise' : ($st === 'approved' ? 'Aprovado' : 'Enviada');
+                    }
+                } elseif ($is_mentor) {
+                    $chk = $db->prepare("SELECT status FROM project_mentorship_applications WHERE project_id = ? AND mentor_id = ? ORDER BY created_at DESC LIMIT 1");
+                    $chk->execute([$project['project_id'], $viewer_id]);
+                    $st = $chk->fetchColumn();
+                    if ($st) {
+                        $already_applied = true;
+                        $applied_status = ($st === 'pending') ? 'Em Análise' : 'Enviada';
+                    }
+                }
+            }
+            ?>
+
             <?php if ($can_apply): ?>
                 <!-- Estudante em projecto de investidor → Candidatar-se -->
                 <a href="javascript:void(0)" 
@@ -250,28 +274,35 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
                    style="flex: 1.2; text-align: center; background: linear-gradient(135deg, #10b981, #059669); color: #fff; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.7rem; text-decoration: none; gap: 5px;">
                     <i class="fas fa-paper-plane" style="font-size: 0.7rem;"></i> Candidatar
                 </a>
-            <?php elseif ($is_investor && $access_level === 'full'): ?>
-                <a href="javascript:void(0)" 
-                   onclick="openInvestmentFlow(<?php echo $project['project_id']; ?>)" 
-                   class="btn-view-details shine-on-hover" 
-                   style="flex: 1.2; text-align: center; background: #fff; color: #000; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.75rem; text-decoration: none;">
-                    <i class="fas fa-hand-holding-usd"></i>
-                </a>
-            <?php elseif ($is_investor && $access_level === 'preview'): ?>
-                <!-- Investidor L1: incentivo a fazer proposta -->
-                <a href="javascript:void(0)" 
-                   onclick="openInvestmentFlow(<?php echo $project['project_id']; ?>)" 
-                   class="btn-view-details shine-on-hover" 
-                   style="flex: 1.2; text-align: center; background: linear-gradient(135deg, #f7941d, #f59e0b); color: #000; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.65rem; text-decoration: none; gap: 4px;">
-                    <i class="fas fa-lock-open" style="font-size: 0.65rem;"></i> Propor
-                </a>
+
+            <?php elseif ($is_investor): ?>
+                <?php if ($already_applied): ?>
+                    <div style="flex: 1.2; text-align: center; background: rgba(255,255,255,0.05); color: #94a3b8; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 800; font-size: 0.65rem; border: 1px dashed rgba(255,255,255,0.1); cursor: not-allowed;" title="Já enviou uma proposta">
+                        <i class="fas fa-clock" style="margin-right: 4px;"></i> <?php echo $applied_status; ?>
+                    </div>
+                <?php else: ?>
+                    <a href="javascript:void(0)" 
+                       onclick="openInvestmentFlow(<?php echo $project['project_id']; ?>)" 
+                       class="btn-view-details shine-on-hover" 
+                       title="Lançar Proposta de Investimento"
+                       style="flex: 1.2; text-align: center; background: linear-gradient(135deg, #f7941d, #f59e0b); color: #fff; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.85rem; text-decoration: none; box-shadow: 0 4px 10px rgba(247, 148, 29, 0.3);">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </a>
+                <?php endif; ?>
+
             <?php elseif ($is_mentor): ?>
-                <a href="javascript:void(0)" 
-                   onclick="applyForMentorship(<?php echo $project['project_id']; ?>)" 
-                   class="btn-view-details shine-on-hover" 
-                   style="flex: 1.2; text-align: center; background: #3b82f6; color: #fff; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.75rem; text-decoration: none;">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                </a>
+                <?php if ($already_applied): ?>
+                    <div style="flex: 1.2; text-align: center; background: rgba(255,255,255,0.05); color: #94a3b8; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 800; font-size: 0.65rem; border: 1px dashed rgba(255,255,255,0.1); cursor: not-allowed;" title="Já se candidatou">
+                        <i class="fas fa-clock" style="margin-right: 4px;"></i> <?php echo $applied_status; ?>
+                    </div>
+                <?php else: ?>
+                    <a href="javascript:void(0)" 
+                       onclick="applyForMentorship(<?php echo $project['project_id']; ?>)" 
+                       class="btn-view-details shine-on-hover" 
+                       style="flex: 1.2; text-align: center; background: #3b82f6; color: #fff; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 900; font-size: 0.75rem; text-decoration: none;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
 
             <!-- Like -->
@@ -287,7 +318,7 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
             <button type="button" 
                     id="vote-btn-<?php echo $project['project_id']; ?>"
                     onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)"
-                    title="Votar nesta ideia"
+                    title="Votar neste projecto"
                     style="background: <?php echo $user_voted ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.05)'; ?>; border: 1px solid <?php echo $user_voted ? 'rgba(234,179,8,0.4)' : 'rgba(255,255,255,0.1)'; ?>; color: <?php echo $user_voted ? '#facc15' : 'rgba(255,255,255,0.3)'; ?>; width: 42px; height: 42px; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; position: relative;">
                 <i class="<?php echo $user_voted ? 'fas' : 'far'; ?> fa-star" style="font-size: 0.85rem;"></i>
                 <?php if ($vote_count > 0): ?>
@@ -315,7 +346,7 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
                 <button type="button" 
                         id="vote-btn-<?php echo $project['project_id']; ?>"
                         onclick="event.stopPropagation(); toggleProjectVote(this, <?php echo $project['project_id']; ?>)"
-                        title="Votar nesta ideia"
+                        title="Votar neste projecto"
                         style="background: <?php echo $user_voted ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.05)'; ?>; border: 1px solid <?php echo $user_voted ? 'rgba(234,179,8,0.4)' : 'rgba(255,255,255,0.1)'; ?>; color: <?php echo $user_voted ? '#facc15' : 'rgba(255,255,255,0.3)'; ?>; width: 42px; height: 42px; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; position: relative; flex: 0 0 42px;">
                     <i class="<?php echo $user_voted ? 'fas' : 'far'; ?> fa-star" style="font-size: 0.85rem;"></i>
                     <?php if ($vote_count > 0): ?>

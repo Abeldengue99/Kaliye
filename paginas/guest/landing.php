@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // paginas/guest/landing.php - Página principal pública da plataforma KALIYE
 session_start();
 $base_url = '../../';
@@ -21,7 +21,7 @@ try {
     }
 } catch (Throwable $e) { /* Silenciar erro */ }
 
-// Fallback: se nao houver anuncios na DB
+// Fallback: se não houver anuncios na DB
 if (empty($anuncios)) {
     $anuncios = [
         [
@@ -85,7 +85,7 @@ $v = (string)max(
     <script src="https://cdn.jsdelivr.net/npm/swiper@11.1.0/swiper-bundle.min.js"></script>
     <script src="../../recursos/js/user-preferences.js?v=<?php echo $v; ?>" defer></script>
     <script>
-        // Ponto Central de VariÃ¡veis JS para a Landing Page
+        // Ponto Central de Variáveis JS para a Landing Page
         window.BASE_URL = (function() {
             const link = document.createElement('a');
             link.href = '<?php echo $base_url; ?>';
@@ -93,39 +93,51 @@ $v = (string)max(
         })();
     </script>
     <style>
-        /* CRITICAL PRELOADER CSS */
+        /* CRITICAL PRELOADER CSS (MODERNO E RÁPIDO) */
         #kaliye-preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #06090f; z-index: 999999;
+            background: #030712; z-index: 999999;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
         }
-        .preloader-content { text-align: center; width: 100%; max-width: 300px; padding: 20px; }
+        .preloader-content { 
+            text-align: center; width: 100%; max-width: 240px; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center;
+        }
         .preloader-counter { 
-            font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 900; 
-            color: #fff; margin-bottom: 15px; letter-spacing: -1px;
+            font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 900; 
+            color: #fff; margin-bottom: 15px; letter-spacing: -0.5px;
         }
         .preloader-counter span { color: #f7941d; }
-        .preloader-bar { width: 100%; height: 2px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #f7941d, #ffb347); transition: width 0.3s ease; }
-        body.loaded #kaliye-preloader { opacity: 0; visibility: hidden; pointer-events: none; }
-        .landing-content-fade { opacity: 0; transform: translateY(20px); transition: all 1s ease-out; }
+        .preloader-bar { 
+            width: 100%; height: 3px; background: rgba(255,255,255,0.05); 
+            border-radius: 10px; overflow: hidden; position: relative;
+        }
+        .bar-fill { 
+            width: 0%; height: 100%; 
+            background: linear-gradient(90deg, #f7941d, #ffb347); 
+            transition: width 0.1s ease-out; 
+            box-shadow: 0 0 10px rgba(247,148,29,0.5);
+        }
+        body.loaded #kaliye-preloader { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.05); }
+        .landing-content-fade { opacity: 0; transform: translateY(15px); transition: all 0.6s ease-out; }
         body.loaded .landing-content-fade { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="no-js">
-    <!-- PRELOADER KALIYE -->
     <div id="kaliye-preloader">
         <div class="preloader-content">
-            <div class="preloader-counter">
-                <span id="load-count">0</span>%
-            </div>
-            <div class="preloader-bar">
+            <div class="preloader-bar" style="margin-top: 15px;">
                 <div id="load-bar-fill" class="bar-fill"></div>
             </div>
-            <p style="color: rgba(255,255,255,0.3); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-top: 20px; font-weight: 800;">
-                Sincronizando Ecossistema...
-            </p>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px; align-items: center;">
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin: 0; font-weight: 800;">
+                    A INICIAR...
+                </p>
+                <div class="preloader-counter" style="margin: 0; font-size: 0.8rem;">
+                    <span id="load-count">0</span>%
+                </div>
+            </div>
         </div>
     </div>
 
@@ -153,32 +165,32 @@ $v = (string)max(
     <script>
         /**
          * AKSANTI ELITE PRELOADER ENGINE
-         * Gerencia a contagem e a revelaÃ§Ã£o do ecossistema.
+         * Gerencia a contagem e a revelação do ecossistema.
          */
         document.addEventListener('DOMContentLoaded', () => {
             const countEl = document.getElementById('load-count');
             const barEl = document.getElementById('load-bar-fill');
             let count = 0;
             
-            // Velocidade da contagem (mais lenta no inÃ­cio, rÃ¡pida no fim)
+            // Velocidade da contagem (Ultra-rápida e moderna)
             const interval = setInterval(() => {
-                count += Math.floor(Math.random() * 5) + 2;
+                count += Math.floor(Math.random() * 12) + 5;
                 
                 if (count >= 100) {
                     count = 100;
                     clearInterval(interval);
                     
-                    // Pequeno atraso para o utilizador ver o 100%
+                    // Pequeno atraso ultra-rápido para o utilizador ver o 100%
                     setTimeout(() => {
                         document.body.classList.add('loaded');
-                        // Remove a classe no-js para ativar outras interaÃ§Ãµes
+                        // Remove a classe no-js para ativar outras interações
                         document.body.classList.remove('no-js');
-                    }, 500);
+                    }, 200);
                 }
                 
                 countEl.innerText = count;
                 barEl.style.width = count + '%';
-            }, 80);
+            }, 30);
         });
 
         // Fail-safe: Se a DOM demorar muito, revela o site aos 5 segundos

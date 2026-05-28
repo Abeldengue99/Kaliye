@@ -299,7 +299,7 @@ class ChatSecurity {
         if (in_array('dangerous_download_link', $signals, true) || in_array('social_engineering', $signals, true)) {
             return [
                 'allowed' => false,
-                'reason' => 'Mensagem bloqueada por seguranca: detectamos possivel golpe, phishing ou ficheiro perigoso.',
+                'reason' => 'Mensagem bloqueada por segurança: detectamos possível golpe, phishing ou ficheiro perigoso.',
                 'signals' => $signals,
             ];
         }
@@ -369,11 +369,11 @@ class ChatSecurity {
         $sender = self::getUser($db, $senderId);
         $receiver = self::getUser($db, $receiverId);
         if (!$sender || !$receiver) {
-            return ['allowed' => false, 'reason' => 'Utilizador nao encontrado.'];
+            return ['allowed' => false, 'reason' => 'Utilizador não encontrado.'];
         }
 
         if (self::hasBlockBetween($db, $senderId, $receiverId)) {
-            return ['allowed' => false, 'reason' => 'Esta conversa esta bloqueada por seguranca ou preferencia de utilizador.'];
+            return ['allowed' => false, 'reason' => 'Esta conversa esta bloqueada por segurança ou preferencia de utilizador.'];
         }
 
         $senderType = strtolower((string)$sender['user_type']);

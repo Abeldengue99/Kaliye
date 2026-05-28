@@ -110,7 +110,7 @@ $final_room_name = $authorized ? $clean_room_param : '';
             </div>
             <div class="access-state-copy">
                 <span class="meeting-eyebrow danger">Sala indisponivel</span>
-                <h3>Acesso nao autorizado</h3>
+                <h3>Acesso não autorizado</h3>
                 <p><?php echo htmlspecialchars($error_msg); ?></p>
             </div>
             <div class="access-actions">

@@ -123,7 +123,8 @@ $type_labels = [
                             if (!$dashboard_identity_verified) echo "Verifica a tua conta para ganhares confiança de investidores.";
                             elseif ($_SESSION['user_type'] === 'admin') echo "Existem projectos a aguardar a tua revisão de segurança.";
                             elseif ($_SESSION['user_type'] === 'mentor') echo "O teu perfil verificado está visível para estudantes.";
-                            else echo "Partilha a tua ideia hoje e recebe feedback da comunidade.";
+                            elseif ($_SESSION['user_type'] === 'investor') echo "Explore projectos curados e submeta propostas de investimento.";
+                            else echo "Partilha o teu projecto hoje e recebe feedback da comunidade.";
                         ?>
                     </span>
                 </div>

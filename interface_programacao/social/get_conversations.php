@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../inclusoes/ChatSecurity.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Nao autenticado']);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
     exit();
 }
 

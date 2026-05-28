@@ -64,8 +64,8 @@ try {
 
         // Mapeamento de texto direto (Double/Triple Mixed patterns)
         $text_map = [
-            'â”œœÃº' => 'ã',
-            'â”œÃº'  => 'ã',
+            'â”œœú' => 'ã',
+            'â”œú'  => 'ã',
             'â”œÂº'  => 'ç',
         ];
         $str = str_replace(array_keys($text_map), array_values($text_map), $str);
@@ -80,7 +80,7 @@ try {
         if (!empty($n['sender_id']) && $n['sender_id'] > 0 && !empty($n['sender_name'])) {
             $sender_name = $n['sender_name'];
             
-            // Regra de Discrição: Ocultar dados de grandes Investidores
+        // Regra de Discrição: Ocultar dados de grandes Investidores
             if (isset($n['sender_role']) && $n['sender_role'] === 'investor') {
                 $sender_name = 'Um Investidor';
                 $n['sender_pic'] = 'default_profile.png';
@@ -99,6 +99,23 @@ try {
                 if (strpos($n['content'], 'Alguém') !== false || strpos($n['content'], 'quer conectar-se') !== false) {
                     $n['content'] = $sender_name . ' reagiu de forma muito positiva a uma das suas inovações.';
                 }
+            }
+        }
+
+        // Lógica Global de Redirecionamento — FORÇA reescrita de link para notificações de projecto
+        // Tipos reais na BD: 'comment', 'comment_reply', 'project_like', 'project_vote'
+        if (!empty($n['reference_id'])) {
+            $type = strtolower($n['type'] ?? '');
+            $title = strtolower($n['title'] ?? '');
+            
+            if ($type === 'comment' || $type === 'comment_reply' || $type === 'project_comment' 
+                || strpos($title, 'comentário') !== false || strpos($title, 'comment') !== false
+                || strpos($title, 'responderam') !== false) {
+                $n['link'] = 'index.php?project_id=' . $n['reference_id'];
+            } elseif ($type === 'project_like' || $type === 'project_vote' 
+                || strpos($title, 'projecto') !== false || strpos($title, 'voto') !== false 
+                || strpos($title, 'adorou') !== false) {
+                $n['link'] = 'index.php?project_id=' . $n['reference_id'];
             }
         }
 

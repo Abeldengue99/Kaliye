@@ -55,7 +55,7 @@ class Database {
              * 1. ATTR_ERRMODE: Definido para lançar Exceções (PDOException). Isto permite que o nosso analista
              * veja erros SQL detalhados durante o desenvolvimento e que o nosso catch() capture problemas em produção.
              * 2. ATTR_DEFAULT_FETCH_MODE: Usamos FETCH_ASSOC para que os resultados venham como arrays associativos 
-             * (ex: ['title' => 'Minha Ideia']), o que torna o código muito mais legível.
+             * (ex: ['title' => 'meu projecto']), o que torna o código muito mais legível.
              */
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

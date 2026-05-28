@@ -39,7 +39,7 @@ try {
     ");
     $access->execute([':gid' => $group_id, ':uid' => $uid]);
     if (!$access->fetchColumn()) {
-        throw new Exception('Sem permissao para ler esta sala de mentoria.');
+        throw new Exception('Sem permissão para ler esta sala de mentoria.');
     }
 
     $query = "

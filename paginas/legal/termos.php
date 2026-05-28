@@ -22,7 +22,7 @@ require_once '../../inclusoes/cabecalho.php';
             <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
                 <p style="color: #ef4444; font-weight: 700; margin-bottom: 0.5rem;">PLÃGIO ZERO</p>
                 <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
-                    A KALIYE utiliza auditoria por IA. O plágio resultará em suspensão imediata. O utilizador mantém a propriedade intelectual das suas ideias, 
+                    A KALIYE utiliza auditoria por IA. O plágio resultará em suspensão imediata. O utilizador mantém a propriedade intelectual das seus projectos, 
                     mas concede à KALIYE o direito de as exibir para mentores e investidores conforme as definições de privacidade escolhidas.
                 </p>
             </div>

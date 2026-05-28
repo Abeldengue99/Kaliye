@@ -52,7 +52,7 @@ try {
     ];
 
     if (!isset($allowed_transitions[$current_status]) || !in_array($new_status, $allowed_transitions[$current_status], true)) {
-        throw new Exception("Transicao invalida: investimento em estado '{$current_status}' nao pode ir para '{$new_status}'.");
+        throw new Exception("Transicao invalida: investimento em estado '{$current_status}' não pode ir para '{$new_status}'.");
     }
     // 1. Atualizar o status do investimento
     $db->prepare("UPDATE project_investments SET status = ?, updated_at = NOW() WHERE investment_id = ?")

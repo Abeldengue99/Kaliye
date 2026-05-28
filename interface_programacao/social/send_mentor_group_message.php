@@ -49,7 +49,7 @@ try {
     $access->execute([':gid' => $group_id, ':uid' => $sender_id]);
     $group_mentor_id = (int)$access->fetchColumn();
     if (!$group_mentor_id) {
-        throw new Exception('Sem permissao para publicar nesta sala de mentoria.');
+        throw new Exception('Sem permissão para publicar nesta sala de mentoria.');
     }
 
     $file_url = null;
@@ -70,7 +70,7 @@ try {
             throw new Exception('Apenas o mentor responsavel pode iniciar videochamadas nesta sala.');
         }
 
-        $title = ChatSecurity::normalizeText($_POST['meeting_title'] ?? 'Sessao de Mentoria Privada');
+        $title = ChatSecurity::normalizeText($_POST['meeting_title'] ?? 'Sessão de Mentoria Privada');
         $scheduled_at = $_POST['scheduled_at'] ?? date('Y-m-d H:i:s');
         if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $scheduled_at)) {
             $scheduled_at = date('Y-m-d H:i:s');
