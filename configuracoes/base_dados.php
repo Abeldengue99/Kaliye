@@ -20,7 +20,7 @@ class Database {
     // Parâmetros de Endereçamento do Servidor SQL.
     private string $host     = "127.0.0.1";
     private string $port     = "5432"; // Porta padrão do PostgreSQL.
-    private string $db_name  = "Aksanti Referências"; // Nome exato do banco existente no PostgreSQL.
+    private string $db_name  = "kaliye"; // Nome exato do banco existente no PostgreSQL.
     private string $username = "postgres";
     private string $password = "5850"; // Segredo de acesso (Deve ser guardado em .env em produção).
 
