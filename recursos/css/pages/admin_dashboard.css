@@ -295,6 +295,10 @@ h1, h2, h3, h4, .outfit {
     animation: modalFadeIn 0.3s ease;
 }
 
+.admin-modal-overlay[style*="display: flex"] {
+    display: flex !important;
+}
+
 .admin-modal,
 .modal-overlay {
     z-index: 1000000 !important;

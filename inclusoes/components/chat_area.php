@@ -88,7 +88,7 @@
 
 </section>
 
-<div id="chatSafetyModal" class="chat-safety-modal" style="display:none;">
+<div id="chatSafetyModal" class="chat-safety-modal" style="display: none !important;">
     <div class="chat-safety-panel">
         <button type="button" class="chat-safety-close" onclick="closeChatSafetyModal()" aria-label="Fechar">
             <i class="fas fa-times"></i>
@@ -147,12 +147,12 @@
     .chat-safety-modal {
         position: fixed;
         inset: 0;
-        z-index: 10001;
-        background: rgba(3, 7, 18, 0.72);
+        z-index: 999999 !important;
+        background: rgba(3, 7, 18, 0.92) !important;
         backdrop-filter: blur(12px);
+        padding: 1.25rem;
         align-items: center;
         justify-content: center;
-        padding: 1.25rem;
     }
     .chat-safety-panel {
         position: relative;

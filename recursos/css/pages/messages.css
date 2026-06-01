@@ -3,7 +3,11 @@
  * Premium chat workspace.
  */
 
-/* Modal de Gerir Membros - Estilos Críticos */
+/* ============================================ */
+/* MODAL UNIVERSAL - PADRÃO CENTRALIZADO E POR CIMA */
+/* ============================================ */
+
+/* Base para membersModal especificamente */
 #membersModal {
     position: fixed !important;
     top: 0 !important;
@@ -12,17 +16,56 @@
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: 9999 !important;
+    z-index: 10000 !important;
     background: rgba(0, 0, 0, 0.85) !important;
     padding: 1rem !important;
-    overflow: hidden !important;
-}
-
-#membersModal[style*="display: flex"] {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-direction: column !important;
+}
+
+/* Garantir que o membersModal fica oculto por padrão */
+#membersModal[style*="display: none"] {
+    display: none !important;
+}
+
+/* Quando o membersModal abre (display: flex) */
+#membersModal[style*="display: flex"] {
+    display: flex !important;
+    animation: slideInModalOverlay 0.3s ease-out;
+}
+
+/* Animação de entrada */
+@keyframes slideInModalOverlay {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Conteúdo do modal - sempre centralizado */
+.glass,
+[class*="modal-content"],
+#membersModal > div,
+[id*="Modal"] > div {
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    padding: 2rem !important;
+    position: relative !important;
+    border-radius: 20px !important;
+    background: rgba(15, 25, 44, 0.95) !important;
+    box-shadow: 0 25px 100px rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+    margin: auto !important;
 }
 
 :root {

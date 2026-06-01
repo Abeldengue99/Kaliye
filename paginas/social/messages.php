@@ -109,6 +109,72 @@ if (isset($_GET['start'])) {
 </div>
 </div>
 
+<!-- Edit Group Name Modal -->
+<div id="editGroupNameModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999997; align-items: center; justify-content: center; padding: 1rem; display: none;">
+    <div class="glass" style="width: 100%; max-width: 500px; padding: 2rem; position: relative; border-radius: 20px; box-shadow: 0 25px 100px rgba(0,0,0,0.8); border: 1px solid rgba(59,130,246,0.3);">
+        <button onclick="document.getElementById('editGroupNameModal').style.display = 'none';" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem; z-index: 10000;"><i class="fas fa-times"></i></button>
+        
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(59,130,246,0.2); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 1.5rem;">
+                <i class="fas fa-pen"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; color: white; font-size: 1.1rem;">Editar Nome da Sala</h3>
+                <p style="margin: 0.25rem 0 0; color: #3b82f6; font-size: 0.85rem; font-weight: 600;">Acção do chat</p>
+            </div>
+        </div>
+        
+        <p style="color: #cbd5e1; margin: 1rem 0; line-height: 1.5; font-size: 0.9rem;">
+            Digite o novo nome para a sala VIP de mentoria.
+        </p>
+        
+        <form onsubmit="submitEditGroupName(event)">
+            <label style="display: block; font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: #3b82f6; margin-bottom: 0.5rem;">Novo Nome</label>
+            <input type="text" id="editGroupNameInput" placeholder="Ex: Turma Advanced React" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 0.95rem; margin-bottom: 1.5rem;" autocomplete="off" />
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('editGroupNameModal').style.display = 'none';" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;">
+                    Cancelar
+                </button>
+                <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;">
+                    <i class="fas fa-check"></i> Atualizar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Group Confirmation Modal -->
+<div id="deleteGroupModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999998; align-items: center; justify-content: center; padding: 1rem; display: none;">
+    <div class="glass" style="width: 100%; max-width: 450px; padding: 2rem; position: relative; border-radius: 20px; box-shadow: 0 25px 100px rgba(0,0,0,0.8); border: 1px solid rgba(239,68,68,0.3);">
+        <button onclick="document.getElementById('deleteGroupModal').style.display = 'none';" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem; z-index: 10000;"><i class="fas fa-times"></i></button>
+        
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(239,68,68,0.2); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1.5rem;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; color: white; font-size: 1.1rem;">Eliminar Grupo?</h3>
+                <p style="margin: 0.25rem 0 0; color: #ef4444; font-size: 0.85rem; font-weight: 600;">Esta ação não pode ser desfeita</p>
+            </div>
+        </div>
+        
+        <p style="color: #cbd5e1; margin: 1rem 0; line-height: 1.5; font-size: 0.9rem;">
+            Tem a certeza que deseja <strong>ELIMINAR PERMANENTEMENTE</strong> esta sala?<br><br>
+            Todos os membros e mensagens serão removidos.
+        </p>
+        
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem;">
+            <button onclick="document.getElementById('deleteGroupModal').style.display = 'none';" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;">
+                Cancelar
+            </button>
+            <button onclick="confirmDeleteGroup()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Member Management Modal -->
 <div id="membersModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; display: none;">
     <div class="glass" style="width: 100%; max-width: 650px; max-height: 85vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: 20px; box-shadow: 0 25px 100px rgba(0,0,0,0.8);">
@@ -119,9 +185,6 @@ if (isset($_GET['start'])) {
         <div style="display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap;">
             <button onclick="editGroupName()" style="background: rgba(59,130,246,0.2); color: #3b82f6; border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
                 <i class="fas fa-edit"></i> Editar Nome
-            </button>
-            <button onclick="changeGroupImage()" style="background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid #a855f7; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
-                <i class="fas fa-image"></i> Trocar Imagem
             </button>
             <button onclick="deleteGroup()" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
                 <i class="fas fa-trash"></i> Excluir Grupo

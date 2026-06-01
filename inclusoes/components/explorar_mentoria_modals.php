@@ -587,8 +587,8 @@
 }
 
 .command-modal-card {
-    width: min(960px, calc(100vw - 48px));
-    max-width: 960px;
+    width: min(1280px, calc(100vw - 48px));
+    max-width: 1280px;
     padding: 1.45rem !important;
     background:
         linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 16, 31, 0.92)),
@@ -849,55 +849,55 @@
 }
 
 .command-modal-card .elite-center-modal-grid {
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .command-modal-card .modal-grid-col {
-    gap: 0.8rem;
+    gap: 1rem;
 }
 
 .command-modal-card .col-title-box {
-    gap: 0.6rem;
-    padding-bottom: 0.4rem;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
 }
 
 .command-modal-card .col-title-box i {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
 }
 
 .command-modal-card .col-title-box h3 {
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
 .command-modal-card .col-links-list {
-    gap: 0.55rem;
+    gap: 0.65rem;
 }
 
 .command-modal-card .modal-link-card {
-    gap: 0.75rem;
-    min-height: 76px;
-    padding: 0.75rem 0.85rem;
+    gap: 0.85rem;
+    min-height: 80px;
+    padding: 0.85rem 0.95rem;
     border-radius: 14px;
 }
 
 .command-modal-card .link-card-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-    font-size: 0.95rem;
-    flex: 0 0 36px;
+    font-size: 1rem;
+    flex: 0 0 40px;
 }
 
 .command-modal-card .link-card-body strong {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
 }
 
 .command-modal-card .link-card-body span {
-    font-size: 0.66rem;
+    font-size: 0.7rem;
 }
 
 .command-modal-card .arrow-indicator {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
 }
 
 .command-modal-card .elite-center-modal-close {
@@ -1094,20 +1094,32 @@
    ========================================================================== */
 
 /* Tablets / Medium Screens */
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
     .elite-center-modal-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.2rem;
     }
     .elite-center-modal-card {
-        padding: 2.2rem;
-        max-width: 800px;
+        padding: 2rem;
+        max-width: 95vw;
         max-height: 85vh;
         overflow-y: auto;
     }
 }
 
 /* Mobile Devices / Small Screens */
+@media (max-width: 1024px) {
+    .elite-center-modal-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.2rem;
+    }
+    .elite-center-modal-card {
+        padding: 1.8rem;
+        max-width: 90vw;
+        max-height: 85vh;
+    }
+}
+
 @media (max-width: 768px) {
     .elite-center-modal-grid {
         grid-template-columns: 1fr;

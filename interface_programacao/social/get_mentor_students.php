@@ -28,12 +28,14 @@ try {
         throw new Exception('Apenas mentores podem usar esta funcionalidade.');
     }
     
-    // Buscar mentorados (estudantes da plataforma que podem ser adicionados ao grupo)
+    // Buscar mentorados (estudantes com contrato de mentoria ativo com o mentor)
     $query = "
         SELECT DISTINCT u.user_id, u.full_name, u.email, u.profile_pic
         FROM users u
-        WHERE u.user_type IN ('univ_student', 'high_student')
-        AND u.user_id != ?
+        INNER JOIN mentorship_contracts mc ON u.user_id = mc.student_id
+        WHERE mc.mentor_id = ?
+        AND mc.status = 'active'
+        AND u.user_type IN ('univ_student', 'high_student')
     ";
     
     $params = [$mentor_id];

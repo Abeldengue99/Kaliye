@@ -486,15 +486,35 @@ let audioChunks = [];
 async function startRecording() {
     if(chatType !== 'mentor_group') return; // Bloqueio se não for grupo VIP
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: { 
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true 
+            } 
+        });
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
         mediaRecorder.start();
         
         let btn = document.getElementById('audioRecordBtn');
         btn.style.color = '#ef4444'; // Pisca vermelho indicando gravação em curso!
+        btn.title = 'Gravando... Clique para parar';
     } catch (err) {
-        showChatToast('Permissão de microfone negada. Necessario para enviar notas de voz.');
+        let mensagem = 'Erro ao aceder ao microfone.';
+        
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            mensagem = '❌ Permissão negada. Clique na câmara do navegador e permita o microfone.';
+        } else if (err.name === 'NotFoundError') {
+            mensagem = '❌ Nenhum microfone encontrado. Verifique se tem um dispositivo de áudio.';
+        } else if (err.name === 'NotReadableError') {
+            mensagem = '❌ Microfone em uso por outro programa. Feche outras aplicações.';
+        } else if (err.name === 'SecurityError') {
+            mensagem = '❌ Segurança: Precisa de HTTPS para usar o microfone.';
+        }
+        
+        showChatToast(mensagem);
+        console.error('Erro MediaDevices:', err.name, err.message);
     }
 }
 
@@ -505,10 +525,17 @@ function stopRecording() {
         
         let btn = document.getElementById('audioRecordBtn');
         btn.style.color = 'var(--text-primary)';
+        btn.title = 'Clique para gravar nota de voz';
 
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             audioChunks = []; // Drena o Buffer
+            
+            // Validação: áudio deve ter pelo menos 0.5 segundos
+            if (audioBlob.size < 5000) {
+                showChatToast('⚠️ Nota de voz muito curta. Mínimo 0.5 segundos.');
+                return;
+            }
             
             // Construção do pacote Ajax (Multi Part File Data)
             const formData = new FormData();
@@ -516,10 +543,21 @@ function stopRecording() {
             formData.append('message_type', 'audio');
             formData.append('audio_file', audioBlob, 'voicenote.webm');
             
+            showChatToast('⏳ Enviando áudio...');
+            
             fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`, {
-                method: 'POST', body: formData
+                method: 'POST', 
+                body: formData
             }).then(r => r.json()).then(data => {
-                if(data.success) fetchMentorGroupMessages(); // Refresh rápido do Chat VIP
+                if(data.success) {
+                    showChatToast('✅ Nota de voz enviada!');
+                    fetchMentorGroupMessages(); // Refresh rápido do Chat VIP
+                } else {
+                    showChatToast('❌ Erro: ' + (data.error || 'Falha ao enviar áudio'));
+                }
+            }).catch(err => {
+                showChatToast('❌ Erro de rede ao enviar áudio.');
+                console.error('Fetch error:', err);
             });
         };
     }
@@ -884,48 +922,51 @@ function editGroupName() {
         return;
     }
     
-    openChatTextModal({
-        title: 'Editar Nome da Sala',
-        text: 'Digite o novo nome para a sala VIP de mentoria.',
-        label: 'Novo Nome',
-        placeholder: 'Ex: Turma Advanced React',
-        submitText: 'Atualizar',
-        icon: 'fas fa-edit',
-        onSubmit: (newName) => {
-            if (!newName.trim()) {
-                showChatToast('❌ Nome não pode estar vazio.');
-                return;
-            }
-            
-            // Mostrar loading
-            showChatToast('⏳ A atualizar nome da sala...');
-            
-            const formData = new FormData();
-            formData.append('group_id', currentGroup);
-            formData.append('group_name', newName.trim());
-            
-            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/update_mentor_group.php`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    showChatToast('✅ Nome atualizado com sucesso!');
-                    // Atualizar header imediatamente
-                    document.querySelector('#chatHeader h4').textContent = chatEsc(newName.trim());
-                    // Recarregar lista de grupos após 500ms
-                    setTimeout(() => loadMentorGroups(), 500);
-                } else {
-                    const errorMsg = data.error || 'Erro ao atualizar sala.';
-                    showChatToast('❌ ' + errorMsg);
-                }
-            })
-            .catch(e => {
-                console.error(e);
-                showChatToast('❌ Erro de conexão. Verifique sua internet.');
-            });
+    // Abrir modal de edição
+    document.getElementById('editGroupNameInput').value = '';
+    document.getElementById('editGroupNameInput').focus();
+    document.getElementById('editGroupNameModal').style.display = 'flex';
+}
+
+function submitEditGroupName(e) {
+    e.preventDefault();
+    const newName = document.getElementById('editGroupNameInput').value.trim();
+    
+    if (!newName) {
+        showChatToast('❌ Nome não pode estar vazio.');
+        return;
+    }
+    
+    // Fechar modal de edição
+    document.getElementById('editGroupNameModal').style.display = 'none';
+    
+    // Mostrar loading
+    showChatToast('⏳ A atualizar nome da sala...');
+    
+    const formData = new FormData();
+    formData.append('group_id', currentGroup);
+    formData.append('group_name', newName);
+    
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/update_mentor_group.php`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showChatToast('✅ Nome atualizado com sucesso!');
+            // Atualizar header imediatamente
+            document.querySelector('#chatHeader h4').textContent = chatEsc(newName);
+            // Recarregar lista de grupos após 500ms
+            setTimeout(() => loadMentorGroups(), 500);
+        } else {
+            const errorMsg = data.error || 'Erro ao atualizar sala.';
+            showChatToast('❌ ' + errorMsg);
         }
+    })
+    .catch(e => {
+        console.error(e);
+        showChatToast('❌ Erro de conexão. Verifique sua internet.');
     });
 }
 
@@ -994,10 +1035,18 @@ function deleteGroup() {
         return;
     }
     
-    // Confirmação com alert nativo
-    if (!confirm('⚠️ Tem a certeza que deseja ELIMINAR esta sala?\n\nEsta ação não pode ser desfeita. Todos os membros e mensagens serão removidos permanentemente.')) {
+    // Abrir modal de confirmação
+    document.getElementById('deleteGroupModal').style.display = 'flex';
+}
+
+function confirmDeleteGroup() {
+    if (!currentGroup) {
+        showChatToast('Selecione uma sala primeiro.');
         return;
     }
+    
+    // Fechar modal de confirmação
+    document.getElementById('deleteGroupModal').style.display = 'none';
     
     // Confirmar eliminação
     const formData = new FormData();
