@@ -13,7 +13,8 @@
         border: 1px solid rgba(255,255,255,0.07);
         border-radius: 28px; position: relative;
         box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-        animation: dqModalIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;">
+        animation: dqModalFade 0.3s ease-out both;
+        contain: layout style paint;">
 
         <!-- Close -->
         <button onclick="closeDoubtDetailModal()" style="
@@ -28,8 +29,12 @@
         </button>
 
         <!-- Content injected by JS -->
-        <div id="doubtDetailContent" style="padding: 2.5rem; overflow-y: auto; max-height: 88vh;">
-            <div style="display: flex; flex-direction: column; align-items: center; padding: 4rem; gap: 1rem; color: var(--surface-20);">
+        <div id="doubtDetailContent" style="
+            padding: 2.5rem; overflow-y: auto; max-height: 88vh;
+            contain: layout style paint;
+            overflow-wrap: break-word;
+            word-wrap: break-word;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem; gap: 1rem; color: var(--surface-20); min-height: 300px;">
                 <div style="width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(247,148,29,0.2); border-top-color: #f7941d; animation: dqSpin 0.75s linear infinite;"></div>
                 <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0;">A carregar...</p>
             </div>
@@ -37,10 +42,30 @@
     </div>
 </div>
 
+<script>
+// Prevenir que cliques no backdrop fechem o modal enquanto estamos no formulário
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('doubtDetailModal');
+    const content = document.getElementById('doubtDetailContent');
+    
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            // Se o clique foi no backdrop (fora do conteúdo), não fazer nada
+            // Para prevenir fechos acidentais
+            if (e.target === modal) {
+                console.log('🚫 Clique no backdrop detectado - ignorando para proteger formulário');
+                e.stopPropagation();
+                return false;
+            }
+        });
+    }
+});
+</script>
+
 <style>
-@keyframes dqModalIn {
-    from { opacity: 0; transform: scale(0.93) translateY(20px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes dqModalFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 @keyframes dqSpin { to { transform: rotate(360deg); } }
 
@@ -109,9 +134,9 @@
     background: var(--elite-orange, #f7941d); color: #fff; border: none;
     padding: 0.75rem 2rem; border-radius: 12px;
     font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
-    cursor: pointer; transition: 0.3s;
+    cursor: pointer;
 }
-.dq-reply-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(247,148,29,0.3); }
+.dq-reply-submit:hover { box-shadow: 0 8px 20px rgba(247,148,29,0.3); }
 .dq-action-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
 .dq-action-btn-sm {
     padding: 0.55rem 1.25rem; border-radius: 10px; border: 1px solid var(--surface-10);

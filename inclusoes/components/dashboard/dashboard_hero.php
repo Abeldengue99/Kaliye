@@ -2,6 +2,11 @@
 /**
  * inclusoes/components/dashboard/dashboard_hero.php
  * Hero Greeting + Stats + Motivational Ticker por Perfil & Dia da Semana
+ * 
+ * CORREÇÃO (1 Junho 2026): 
+ * - Preload das imagens para evitar flash inicial
+ * - Animation-fill-mode para suavidade
+ * - Estado inicial correto da animação
  */
 global $base_url, $greeting_word, $first_name, $user_role, $stat_v1, $stat_l1, $stat_v2, $stat_l2, $stat_v3, $stat_l3;
 
@@ -52,15 +57,36 @@ $profile_key = in_array($user_role, ['investor', 'mentor', 'student']) ? $user_r
 [$msg_line1, $msg_line2] = $motivational[$profile_key][$day];
 
 $hero_carousel_images = [
-    'recursos/images/mentorship_dashboard_bg.png',
-    'recursos/images/slide1.png',
-    'recursos/images/slide2.png',
-    'recursos/images/slide3.png',
-    'recursos/images/slide4.jpg',
-    'recursos/images/slide5.jpg',
-    'recursos/images/slide6.jpg',
+    'recursos/images/dashboard/hero_team_discussion.jpg',
+    'recursos/images/dashboard/hero_business_presentation.jpg',
+    'recursos/images/dashboard/hero_workplace_collaboration.jpg',
+    'recursos/images/dashboard/hero_team_handshake.jpg',
+    'recursos/images/dashboard/hero_women_working.jpg',
+    'recursos/images/dashboard/hero_team_meeting.jpg',
+    'recursos/images/dashboard/hero_startup_office.jpg',
 ];
 $hero_base_url = $base_url ?? './';
+
+// ✅ CORREÇÃO: Injetar preload de imagens diretamente
+if (!isset($GLOBALS['hero_preloads_injected'])) {
+    $GLOBALS['hero_preloads_injected'] = true;
+    echo '<script>';
+    echo "if (document.readyState === 'loading') {";
+    echo "const preloadImages = () => {";
+    foreach ($hero_carousel_images as $img) {
+        $img_url = htmlspecialchars($hero_base_url . $img, ENT_QUOTES, 'UTF-8');
+        echo "const link = document.createElement('link');";
+        echo "link.rel = 'preload';";
+        echo "link.as = 'image';";
+        echo "link.href = '" . $img_url . "';";
+        echo "document.head.appendChild(link);";
+    }
+    echo "};";
+    echo "if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', preloadImages); }";
+    echo "else { preloadImages(); }";
+    echo "}";
+    echo '</script>';
+}
 ?>
 
 <div style="margin-bottom: 4rem;" class="dashboard-hero-section" data-aos="fade-down">
@@ -200,7 +226,12 @@ $hero_base_url = $base_url ?? './';
     filter: saturate(0.78) contrast(1.04) brightness(0.56);
     transform: translate3d(0, 0, 0);
     animation: heroBgTrack 54s linear infinite;
+    animation-play-state: running;
+    animation-fill-mode: forwards;
     will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .dashboard-hero-bg-carousel::before,
@@ -233,6 +264,7 @@ $hero_base_url = $base_url ?? './';
     margin: 0;
     transform: skewX(-6deg);
     overflow: hidden;
+    background: #1a1a2e;
 }
 
 .dashboard-hero-bg-slide img {
@@ -242,6 +274,12 @@ $hero_base_url = $base_url ?? './';
     object-position: center;
     transform: translateX(-7%) skewX(6deg) scale(1.04);
     opacity: 0.95;
+    display: block;
+    will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    image-rendering: auto;
+    image-rendering: -webkit-optimize-contrast;
+    backface-visibility: hidden;
 }
 
 .dashboard-hero-container {
@@ -333,8 +371,18 @@ $hero_base_url = $base_url ?? './';
 }
 
 @keyframes heroBgTrack {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-50%, 0, 0); }
+    0% { 
+        transform: translate3d(0, 0, 0);
+        opacity: 0.22;
+    }
+    50% { 
+        transform: translate3d(-25%, 0, 0);
+        opacity: 0.22;
+    }
+    100% { 
+        transform: translate3d(-50%, 0, 0);
+        opacity: 0.22;
+    }
 }
 
 @keyframes heroRingBreath {

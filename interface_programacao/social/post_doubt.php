@@ -11,8 +11,17 @@ if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Não autenticado']);
     exit();
 }
-requireValidCSRFTokenJson();
 
+// Validate CSRF token
+$token = getRequestCSRFToken();
+if (!verifyCSRFToken($token)) {
+    error_log('post_doubt: CSRF validation failed');
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Pedido bloqueado por segurança. Atualize a página e tente novamente.']);
+    exit();
+}
+
+error_log('post_doubt: Dúvida sendo publicada por usuário ' . $_SESSION['user_id']);
 $user_id = $_SESSION['user_id'];
 $title = $_POST['title'] ?? '';
 $description = $_POST['description'] ?? '';

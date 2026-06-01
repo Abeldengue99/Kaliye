@@ -1,25 +1,42 @@
 <script>
+console.log('🚀 DOUBTS_SCRIPTS.PHP CARREGADO - VERSION 3.0 - TIMESTAMP:' + new Date().getTime());
+console.log('✅ NOVO CÓDIGO COM STEP VALIDATION');
+
+// Flag para rastrear se estamos a processar um comentário
+let isSubmittingComment = false;
+let currentDoubtId = null; // Guardar o ID da dúvida aberta
+let currentTab = 'open'; // Aba ativa: 'open' ou 'resolved'
+
 let allDoubts = [];
 let doubtsSeenMarked = false;
 
 async function loadDoubts() {
     try {
-        const container = document.getElementById('doubts-container');
-        if (!container) return;
+        console.log('🔍 INICIANDO loadDoubts...');
         
+        console.log('📡 Fetching get_doubts.php...');
         const response = await fetch('../../interface_programacao/social/get_doubts.php');
+        console.log('📊 Response status:', response.status);
+        
         const data = await response.json();
+        console.log('✅ JSON parsed:', data);
         
         if (data.success) {
+            console.log('✅ Sucesso! Dúvidas:', data.doubts.length);
             allDoubts = data.doubts;
             renderDoubts(allDoubts);
             updateStatsBar(allDoubts);
             await markDoubtsSeen();
         } else {
-            container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-secondary);"><i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i><p>${data.message || 'Erro ao carregar dúvidas'}</p></div>`;
+            console.error('❌ Erro na resposta:', data.message);
+            const openContainer = document.getElementById('doubts-container-open');
+            if (openContainer) {
+                openContainer.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-secondary);"><i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i><p>${data.message || 'Erro ao carregar dúvidas'}</p></div>`;
+            }
         }
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('❌ ERRO CRÍTICO:', error);
+        console.error('Stack:', error.stack);
     }
 }
 
@@ -58,52 +75,80 @@ function updateStatsBar(doubts) {
     if (!bar) return;
     const total    = doubts.length;
     const open     = doubts.filter(d => d.status === 'open').length;
-    const resolved = doubts.filter(d => d.status === 'resolved').length;
+    const resolved = doubts.filter(d => d.status === 'answered' || d.status === 'mentorship_requested').length;
     const elTotal    = document.getElementById('stat-total');
     const elOpen     = document.getElementById('stat-open');
     const elResolved = document.getElementById('stat-resolved');
     if (elTotal)    elTotal.textContent    = total;
     if (elOpen)     elOpen.textContent     = open;
     if (elResolved) elResolved.textContent = resolved;
-    bar.style.opacity = '1';
 }
 
 function renderDoubts(doubts) {
-    const container = document.getElementById('doubts-container');
+    // Separar dúvidas por status
+    const openDoubts = doubts.filter(d => d.status === 'open');
+    const resolvedDoubts = doubts.filter(d => d.status === 'answered' || d.status === 'mentorship_requested' || d.status === 'closed');
+    
+    renderOpenDoubts(openDoubts);
+    renderResolvedDoubts(resolvedDoubts);
+}
+
+function renderOpenDoubts(doubts) {
+    const container = document.getElementById('doubts-container-open');
     if (!container) return;
     
     if (doubts.length === 0) {
         container.innerHTML = `
         <div class="dq-empty">
             <i class="fas fa-comments"></i>
-            <p>Nenhuma dúvida encontrada</p>
+            <p>Nenhuma dúvida aberta</p>
             <button onclick="openDoubtModal()" class="dq-new-btn" style="margin: 1.5rem auto 0; font-size: 0.65rem;">
-                <i class="fas fa-plus"></i> Publicar a Primeira Dúvida
+                <i class="fas fa-plus"></i> Publicar uma Dúvida
             </button>
         </div>`;
         return;
     }
     
+    container.innerHTML = renderDoubtsList(doubts);
+}
+
+function renderResolvedDoubts(doubts) {
+    const container = document.getElementById('doubts-container-resolved');
+    if (!container) return;
+    
+    if (doubts.length === 0) {
+        container.innerHTML = `
+        <div class="dq-empty">
+            <i class="fas fa-check-circle"></i>
+            <p>Nenhuma dúvida resolvida</p>
+        </div>`;
+        return;
+    }
+    
+    container.innerHTML = renderDoubtsList(doubts);
+}
+
+function renderDoubtsList(doubts) {
     const badgeMap = {
         'mentor': 'mentor', 'admin': 'admin',
         'univ_student': 'student', 'high_student': 'student', 'student': 'student'
     };
 
-    container.innerHTML = doubts.map((doubt, index) => {
+    return doubts.map((doubt, index) => {
         const isOwner = AKSANTI_CONFIG.userId == doubt.user_id;
         const isAdmin = AKSANTI_CONFIG.userType === 'admin';
         const badgeClass = badgeMap[doubt.user_type] || '';
-        const statusLabel = doubt.status === 'open' ? 'Aberta' : doubt.status === 'resolved' ? 'Resolvida' : 'Fechada';
+        const statusLabel = doubt.status === 'open' ? 'Aberta' : doubt.status === 'answered' ? 'Respondida' : doubt.status === 'mentorship_requested' ? 'Mentoria' : 'Fechada';
         const timeAgo = timeElapsed(doubt.created_at);
-        const picRaw = String(doubt.profile_pic || '').trim(); // Conversão defensiva para string — protege contra valores nulos da base de dados.
-        const pic = picRaw && picRaw !== 'default_profile.png' // Verificamos se existe uma foto real personalizada definida para este utilizador.
-            ? (picRaw.startsWith('http') ? picRaw // URL externo (ex: Google, Facebook) — usamos directamente.
-                : picRaw.startsWith('carregamentos/') ? AKSANTI_CONFIG.baseUrl + picRaw // Caminho relativo completo já guardado na BD — adicionamos apenas o baseUrl.
-                : AKSANTI_CONFIG.baseUrl + 'carregamentos/profiles/' + picRaw) // Só o nome do ficheiro — construímos o caminho completo para a pasta de perfis.
-            : AKSANTI_CONFIG.baseUrl + 'recursos/images/default_profile.png'; // Fallback para o avatar padrão do sistema.
+        const picRaw = String(doubt.profile_pic || '').trim();
+        const pic = picRaw && picRaw !== 'default_profile.png'
+            ? (picRaw.startsWith('http') ? picRaw
+                : picRaw.startsWith('carregamentos/') ? AKSANTI_CONFIG.baseUrl + picRaw
+                : AKSANTI_CONFIG.baseUrl + 'carregamentos/profiles/' + picRaw)
+            : AKSANTI_CONFIG.baseUrl + 'recursos/images/default_profile.png';
 
         return `
-        <div class="dq-card" style="animation-delay: ${index * 0.05}s;" onclick="openDoubtDetail(${doubt.doubt_id})">
+        <div class="dq-card" onclick="openDoubtDetail(${doubt.doubt_id})">
             <div class="dq-card-top">
                 <div class="dq-card-author">
                     <img src="${pic}" alt="${doubt.full_name}" class="dq-card-avatar">
@@ -120,7 +165,7 @@ function renderDoubts(doubts) {
                     <span class="dq-tag ${doubt.status}">${statusLabel}</span>
                     ${(isOwner || isAdmin) ? `
                     <button onclick="event.stopPropagation(); deleteDoubt(${doubt.doubt_id})"
-                        style="background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s; flex-shrink: 0;"
+                        style="background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
                         onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'"
                         title="Eliminar">
                         <i class="fas fa-trash-alt" style="font-size: 0.7rem;"></i>
@@ -137,7 +182,7 @@ function renderDoubts(doubts) {
                     ${doubt.view_count ? `<span class="dq-counter"><i class="fas fa-eye"></i> ${doubt.view_count}</span>` : ''}
                 </div>
                 <a class="dq-see-link" onclick="event.stopPropagation(); openDoubtDetail(${doubt.doubt_id})" style="cursor:pointer;">
-                    ${doubt.status === 'resolved' ? 'Ver solução' : 'Ver discussão'} <i class="fas fa-arrow-right"></i>
+                    ${doubt.status === 'answered' || doubt.status === 'mentorship_requested' ? 'Ver solução' : 'Ver discussão'} <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>`;
@@ -153,16 +198,40 @@ function timeElapsed(dateStr) {
     return new Date(dateStr).toLocaleDateString('pt-PT');
 }
 
+function switchTab(tab) {
+    currentTab = tab;
+    
+    // Atualizar botões
+    const tabOpen = document.getElementById('tab-open');
+    const tabResolved = document.getElementById('tab-resolved');
+    
+    if (tab === 'open') {
+        tabOpen.style.color = '#f7941d';
+        tabOpen.style.borderBottom = '2px solid #f7941d';
+        tabResolved.style.color = 'var(--surface-30)';
+        tabResolved.style.borderBottom = 'none';
+        
+        document.getElementById('doubts-container-open').style.display = 'block';
+        document.getElementById('doubts-container-resolved').style.display = 'none';
+    } else {
+        tabResolved.style.color = '#f7941d';
+        tabResolved.style.borderBottom = '2px solid #f7941d';
+        tabOpen.style.color = 'var(--surface-30)';
+        tabOpen.style.borderBottom = 'none';
+        
+        document.getElementById('doubts-container-open').style.display = 'none';
+        document.getElementById('doubts-container-resolved').style.display = 'block';
+    }
+}
+
 function filterDoubts() {
     const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
     const category = document.getElementById('categoryFilter')?.value || '';
-    const status = document.getElementById('statusFilter')?.value || '';
     
     const filtered = allDoubts.filter(doubt => {
         const matchSearch = doubt.title.toLowerCase().includes(searchTerm) || doubt.description.toLowerCase().includes(searchTerm);
         const matchCategory = !category || doubt.category === category;
-        const matchStatus = !status || doubt.status === status;
-        return matchSearch && matchCategory && matchStatus;
+        return matchSearch && matchCategory;
     });
     renderDoubts(filtered);
 }
@@ -173,6 +242,10 @@ function closeDoubtModal() { document.getElementById('doubtModal').style.display
 async function submitDoubt(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+    // Adicionar token CSRF (em caso do formulário não ter)
+    if (window.CSRF_TOKEN && !formData.get('csrf_token')) {
+        formData.append('csrf_token', window.CSRF_TOKEN);
+    }
     try {
         const res = await fetch('../../interface_programacao/social/post_doubt.php', { method: 'POST', body: formData });
         const data = await res.json();
@@ -187,35 +260,54 @@ async function submitDoubt(e) {
 }
 
 async function openDoubtDetail(id) {
+    console.log('🔓 openDoubtDetail chamado para id:', id);
     const modal = document.getElementById('doubtDetailModal');
     const content = document.getElementById('doubtDetailContent');
+    
+    if (!modal) {
+        console.error('❌ Modal não encontrado no DOM!');
+        return;
+    }
+    
+    console.log('📺 Modal encontrado, mostrando...');
     modal.style.display = 'flex';
+    
+    // Mostrar loader com espaçamento fixo para evitar layout shift
     content.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:1rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:1rem;min-height:400px;">
             <div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(247,148,29,0.2);border-top-color:#f7941d;animation:dqSpin 0.75s linear infinite;"></div>
-            <p style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--surface-20);margin:0;">A carregar...</p>
+            <p style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--surface-20);margin:0;">A carregar detalhes...</p>
         </div>`;
 
     try {
         // Caminho unificado para evitar bugs de resolução.
         const url = '../../interface_programacao/social/get_doubt_detail.php?doubt_id=' + id;
         
-        console.log('Fetching doubt detail from:', url); // Log técnico para rastreamento.
+        console.log('🌐 Carregando: ' + url);
         
-        const res = await fetch(url); // Pedido assíncrono à nossa API otimizada.
-        if (!res.ok) throw new Error('Caminho não encontrado (404/500)'); // Gestão de erros de ligação ao servidor.
+        const res = await fetch(url);
+        console.log('📡 Resposta recebida:', res.status);
         
-        const data = await res.json(); // Processamento da resposta JSON do PHP.
+        if (!res.ok) throw new Error('Caminho não encontrado (404/500)');
+        
+        const data = await res.json();
+        console.log('✅ Dados carregados:', data);
+        
         if (data.success) {
+            console.log('🎯 Renderizando detalhes...');
             renderDoubtDetail(data.doubt, data.comments);
+            console.log('✅ Detalhes renderizados com sucesso');
         } else {
+            console.error('❌ Resposta não bem-sucedida:', data.message);
             content.innerHTML = `<div style="text-align:center;padding:4rem;color:var(--surface-20);">
                 <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;display:block;margin-bottom:1rem;color:rgba(239,68,68,0.4);"></i>
                 <p style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0;">${data.message || 'Erro ao carregar a dúvida'}</p>
             </div>`;
         }
     } catch (err) {
-        // MODO DE DIAGNÓSTICO: Exibimos o erro real no modal para identificar a causa exacta da falha.
+        console.error('💥 ERRO em openDoubtDetail:', err.message);
+        console.error('Stack:', err.stack);
+        
         content.innerHTML = `<div style="text-align:center;padding:3rem 2rem;color:var(--surface-20);">
             <i class="fas fa-bug" style="font-size:2rem;display:block;margin-bottom:1rem;color:rgba(239,68,68,0.6);"></i>
             <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 1rem;">ERRO DETECTADO:</p>
@@ -226,7 +318,14 @@ async function openDoubtDetail(id) {
     }
 }
 
-function closeDoubtDetailModal() { document.getElementById('doubtDetailModal').style.display = 'none'; }
+function closeDoubtDetailModal() { 
+    if (isSubmittingComment) {
+        console.warn('⚠️ Tentativa de fechar modal enquanto submete comentário - BLOQUEADO');
+        return false;
+    }
+    console.log('🔓 Fechando modal normalmente');
+    document.getElementById('doubtDetailModal').style.display = 'none'; 
+}
 
 function previewImage(input) {
     const preview = document.getElementById('imagePreview');
@@ -261,13 +360,17 @@ function buildCommentTree(comments) {
 }
 
 function renderDoubtDetail(doubt, comments) {
+    currentDoubtId = doubt.doubt_id; // Guardar ID da dúvida aberta
+    console.log('📌 Dúvida aberta - ID armazenado:', currentDoubtId);
+    
     const isOwner = AKSANTI_CONFIG.userId == doubt.user_id;
     const canConvert = isOwner && doubt.status === 'open' && !doubt.is_converted_to_request;
     
     const statusMap = {
         'open':     { label: 'Aberta',    color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',   border: 'rgba(245,158,11,0.25)',   icon: 'fa-circle-notch' },
-        'resolved': { label: 'Resolvida', color: '#10b981', bg: 'rgba(16,185,129,0.1)',   border: 'rgba(16,185,129,0.25)',   icon: 'fa-check-circle' },
+        'answered': { label: 'Respondida', color: '#10b981', bg: 'rgba(16,185,129,0.1)',   border: 'rgba(16,185,129,0.25)',   icon: 'fa-check-circle' },
         'closed':   { label: 'Fechada',   color: '#64748b', bg: 'rgba(100,116,139,0.1)',  border: 'rgba(100,116,139,0.25)',  icon: 'fa-lock' },
+        'mentorship_requested': { label: 'Mentoria', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.25)', icon: 'fa-handshake' },
     };
     const st = statusMap[doubt.status] || statusMap['open'];
     const commentTree = buildCommentTree(comments);
@@ -301,14 +404,14 @@ function renderDoubtDetail(doubt, comments) {
 
         <!-- BODY -->
         <div class="dq-detail-body">${doubt.description}</div>
-        ${doubt.image_path ? `<div style="margin-bottom: 2rem;"><img src="${AKSANTI_CONFIG.baseUrl + doubt.image_path}" style="max-width: 100%; border-radius: 16px; cursor: zoom-in;" onclick="window.open(this.src,'_blank')"></div>` : ''}
+        ${doubt.media_url ? `<div style="margin-bottom: 2rem;"><img src="${AKSANTI_CONFIG.baseUrl + doubt.media_url}" style="max-width: 100%; border-radius: 16px; cursor: zoom-in;" onclick="window.open(this.src,'_blank')"></div>` : ''}
 
         <!-- ACTIONS -->
         ${(isOwner || canConvert) ? `
         <div class="dq-action-btns">
             ${isOwner && doubt.status === 'open' ? `
             <button onclick="resolveDoubt(${doubt.doubt_id})" class="dq-action-btn-sm" style="background: rgba(16,185,129,0.08); color: #10b981; border-color: rgba(16,185,129,0.2);">
-                <i class="fas fa-check-double"></i> Marcar como Resolvida
+                <i class="fas fa-check-double"></i> Marcar como Respondida
             </button>` : ''}
             ${canConvert ? `
             <button onclick="convertToRequest(${doubt.doubt_id})" class="dq-action-btn-sm" style="background: rgba(247,148,29,0.08); color: #f7941d; border-color: rgba(247,148,29,0.2);">
@@ -331,7 +434,7 @@ function renderDoubtDetail(doubt, comments) {
         ${doubt.status === 'open' ? `
         <div class="dq-reply-form" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--surface-5);">
             <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--surface-25); margin-bottom: 1rem;">A tua resposta</div>
-            <form id="commentForm" onsubmit="submitComment(event, ${doubt.doubt_id})">
+            <form id="commentForm">
                 <input type="hidden" name="parent_id" id="replyParentId" value="">
                 <textarea name="content" id="commentContent" required rows="4" placeholder="Partilha o teu conhecimento ou experiência..."></textarea>
                 <button type="submit" class="dq-reply-submit"><i class="fas fa-paper-plane" style="margin-right:8px;"></i>Responder</button>
@@ -339,9 +442,44 @@ function renderDoubtDetail(doubt, comments) {
             </form>
         </div>` : `
         <div style="text-align:center; margin-top:2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 14px; font-size: 0.75rem; color: var(--surface-20); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;">
-            <i class="fas fa-lock" style="margin-right: 8px;"></i> Esta dúvida está fechada
+            <i class="fas fa-lock" style="margin-right: 8px;"></i> Esta dúvida está ${doubt.status === 'answered' ? 'respondida' : 'fechada'}
         </div>`}
     `;
+    
+    // Adicionar listener ao formulário após renderizar
+    setTimeout(() => {
+        const form = document.getElementById('commentForm');
+        if (form) {
+            console.log('✅ Formulário encontrado no DOM');
+            
+            // Remover qualquer listener anterior
+            form.removeEventListener('submit', submitCommentHandler);
+            
+            // Adicionar novo listener correto
+            form.addEventListener('submit', submitCommentHandler);
+            console.log('✅ Listener submit adicionado ao formulário');
+        } else {
+            console.warn('⚠️ Formulário NÃO encontrado no DOM');
+        }
+    }, 50);
+}
+
+// Handler separado para submit - não dependendo de e.target
+function submitCommentHandler(e) {
+    console.log('📝 SUBMIT HANDLER CHAMADO');
+    e.preventDefault();
+    
+    const form = e.currentTarget;
+    const doubtId = currentDoubtId;
+    
+    console.log('📝 Form OK:', !!form, 'Doubt ID:', doubtId);
+    
+    if (!form || !doubtId) {
+        alert('Erro: Formulário ou dúvida não encontrados');
+        return;
+    }
+    
+    submitComment(form, doubtId);
 }
 
 function renderRecursiveComments(comments, doubtId, isDoubtOwner, level = 0) {
@@ -390,41 +528,153 @@ function replyToComment(id, name) {
     txt.focus();
 }
 
-async function submitComment(e, id) {
-    e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    const txt = document.getElementById('commentContent');
-    const original = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>A enviar...';
-
-    const formData = new FormData(e.target);
-    formData.append('doubt_id', id);
+async function submitComment(form, doubtId) {
+    console.log('🚀 START submitComment');
+    
     try {
-        const res = await fetch('../../interface_programacao/social/post_doubt_comment.php', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.success) {
-            e.target.reset();
-            document.getElementById('replyParentId').value = '';
-            if (txt) txt.placeholder = 'Partilha o teu conhecimento ou experiência...';
-            // Feedback visual rápido
-            btn.innerHTML = '<i class="fas fa-check" style="margin-right:8px;"></i>Enviado!';
-            btn.style.background = '#10b981';
-            setTimeout(() => {
-                btn.innerHTML = original;
-                btn.style.background = '';
-                btn.disabled = false;
-                openDoubtDetail(id); // recarrega comentários
-            }, 900);
+        // STEP 1: Validar inputs
+        if (!form) {
+            console.error('❌ Form é null');
+            alert('Erro: Formulário inválido');
+            return;
+        }
+        if (!doubtId) {
+            console.error('❌ DoubtId é null');
+            alert('Erro: Dúvida inválida');
+            return;
+        }
+        console.log('✓ Inputs validados');
+
+        // STEP 2: Obter textarea manualmente
+        const textareas = form.getElementsByTagName('textarea');
+        if (!textareas || textareas.length === 0) {
+            console.error('❌ Nenhum textarea encontrado');
+            alert('Erro: Textarea não encontrado');
+            return;
+        }
+        const textarea = textareas[0];
+        const content = textarea.value ? textarea.value.trim() : '';
+        console.log('✓ Content length:', content.length);
+
+        // STEP 3: Validar conteúdo
+        if (!content || content.length === 0) {
+            alert('Escreve um comentário!');
+            return;
+        }
+        console.log('✓ Content válido:', content.substring(0, 30));
+
+        // STEP 4: Obter botão manualmente
+        const buttons = form.getElementsByTagName('button');
+        let btn = null;
+        if (buttons && buttons.length > 0) {
+            btn = buttons[0];
+        }
+        console.log('✓ Botão encontrado:', !!btn);
+
+        // STEP 5: Desabilitar botão
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar...';
+        }
+        console.log('✓ Botão desabilitado');
+
+        // STEP 6: Preparar FormData
+        const formData = new FormData();
+        formData.append('doubt_id', String(doubtId));
+        formData.append('content', content);
+        
+        // Adicionar CSRF se disponível
+        if (window.CSRF_TOKEN) {
+            formData.append('csrf_token', window.CSRF_TOKEN);
+            console.log('✓ CSRF token adicionado');
         } else {
-            btn.innerHTML = original;
-            btn.disabled = false;
-            alert(data.message || 'Erro ao enviar resposta.');
+            console.warn('⚠️ CSRF token não disponível');
+        }
+
+        // STEP 7: Fazer fetch
+        const url = '../../interface_programacao/social/post_doubt_comment.php';
+        console.log('📡 Enviando para:', url);
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        console.log('📡 Response status:', response.status);
+
+        // STEP 8: Parse response
+        let result;
+        try {
+            result = await response.json();
+            console.log('✓ JSON parsed:', result);
+        } catch (e) {
+            console.error('❌ Erro ao fazer parse do JSON:', e);
+            alert('Erro: Resposta inválida do servidor');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+            }
+            return;
+        }
+
+        // STEP 9: Verificar sucesso
+        if (result && result.success === true) {
+            console.log('🎉 SUCESSO CONFIRMADO!');
+            
+            // Limpar formulário
+            textarea.value = '';
+            console.log('✓ Formulário limpo');
+            
+            // Mostrar sucesso visual
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Enviado!';
+                btn.style.background = '#10b981';
+                btn.style.color = '#fff';
+            }
+            console.log('✓ UI atualizada');
+
+            // Aguardar 1 segundo e recarregar
+            setTimeout(() => {
+                console.log('🔄 Recarregando dúvida...');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }
+                openDoubtDetail(doubtId);
+            }, 1000);
+        } else {
+            // Erro na resposta
+            const errorMsg = (result && result.message) ? result.message : 'Erro desconhecido';
+            console.error('❌ Erro na resposta:', errorMsg);
+            alert('Erro: ' + errorMsg);
+            
+            // Restaurar botão
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+                btn.style.background = '';
+                btn.style.color = '';
+            }
         }
     } catch (err) {
-        console.error(err);
-        btn.innerHTML = original;
-        btn.disabled = false;
+        console.error('💥 ERRO CRÍTICO:', err.message);
+        console.error('Stack:', err.stack);
+        alert('ERRO: ' + err.message);
+        
+        // Tentar restaurar botão mesmo em erro
+        try {
+            const buttons = form.getElementsByTagName('button');
+            if (buttons && buttons[0]) {
+                buttons[0].disabled = false;
+                buttons[0].innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+                buttons[0].style.background = '';
+                buttons[0].style.color = '';
+            }
+        } catch (e) {
+            console.error('⚠️ Erro ao restaurar botão:', e);
+        }
     }
 }
 
@@ -452,6 +702,10 @@ async function voteComment(commentId) {
     try {
         const fd = new FormData();
         fd.append('comment_id', commentId);
+        // Adicionar token CSRF
+        if (window.CSRF_TOKEN) {
+            fd.append('csrf_token', window.CSRF_TOKEN);
+        }
         const res = await fetch('../../interface_programacao/social/vote_doubt_comment.php', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.success && countEl) {
@@ -465,7 +719,12 @@ async function voteComment(commentId) {
 async function deleteDoubt(id) {
     const res = await Swal.fire({ title: 'Eliminar?', icon: 'warning', showCancelButton: true, background: '#1e293b', color: '#fff' });
     if (res.isConfirmed) {
-        const fd = new FormData(); fd.append('doubt_id', id);
+        const fd = new FormData(); 
+        fd.append('doubt_id', id);
+        // Adicionar token CSRF
+        if (window.CSRF_TOKEN) {
+            fd.append('csrf_token', window.CSRF_TOKEN);
+        }
         try {
             const r = await fetch('../../interface_programacao/social/delete_doubt.php', { method: 'POST', body: fd });
             const d = await r.json();
@@ -479,6 +738,10 @@ async function markAsHelpful(doubtId, commentId) {
         const fd = new FormData();
         fd.append('doubt_id', doubtId);
         fd.append('comment_id', commentId);
+        // Adicionar token CSRF
+        if (window.CSRF_TOKEN) {
+            fd.append('csrf_token', window.CSRF_TOKEN);
+        }
         
         const res = await fetch('../../interface_programacao/social/mark_comment_helpful.php', {
             method: 'POST',
@@ -487,7 +750,15 @@ async function markAsHelpful(doubtId, commentId) {
         const data = await res.json();
         
         if (data.success) {
-            Swal.fire({ icon: 'success', title: 'Excelente!', text: 'Dúvida resolvida com sucesso.', background: '#1e293b', color: '#fff', timer: 2000 });
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Excelente!', 
+                text: data.message || 'Dúvida resolvida com sucesso.',
+                background: '#1e293b', 
+                color: '#fff', 
+                timer: 2500,
+                confirmButtonColor: '#10b981'
+            });
             openDoubtDetail(doubtId);
             loadDoubts();
         } else {
@@ -498,11 +769,11 @@ async function markAsHelpful(doubtId, commentId) {
 
 async function resolveDoubt(id) {
     const res = await Swal.fire({
-        title: 'Marcar como Solucionada?',
-        text: 'Isso indicará que o problema foi resolvido.',
+        title: 'Marcar como Respondida?',
+        text: 'Isso indicará que o problema foi respondido.',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Sim, Resolvido!',
+        confirmButtonText: 'Sim, Respondida!',
         cancelButtonText: 'Ainda não',
         background: '#1e293b',
         color: '#fff',
@@ -513,23 +784,121 @@ async function resolveDoubt(id) {
         try {
             const fd = new FormData();
             fd.append('doubt_id', id);
-            fd.append('status', 'resolved');
+            fd.append('status', 'answered');
+            // Adicionar token CSRF
+            if (window.CSRF_TOKEN) {
+                fd.append('csrf_token', window.CSRF_TOKEN);
+            }
             
-            // Re-using a generic update doubt endpoint if exists, or adding one
             const r = await fetch('../../interface_programacao/social/edit_doubt.php', { method: 'POST', body: fd });
             const d = await r.json();
             
             if (d.success) {
-                Swal.fire({ icon: 'success', title: 'Parabéns!', text: 'Dúvida marcada como resolvida.', background: '#1e293b', color: '#fff', timer: 2000 });
+                Swal.fire({ icon: 'success', title: 'Parabéns!', text: 'Dúvida marcada como respondida.', background: '#1e293b', color: '#fff', timer: 2000 });
                 openDoubtDetail(id);
                 loadDoubts();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Erro', text: d.message || 'Erro ao atualizar', background: '#1e293b', color: '#fff' });
             }
         } catch (err) { console.error(err); }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // FORÇA NOVA VERSÃO - SOBREESCREVE QUALQUER CACHE
+    window.submitComment = async function(form, doubtId) {
+        try {
+            if (!form || !doubtId) {
+                alert('Erro: Form ou doubtId inválido');
+                return;
+            }
+            
+            const textareas = form.getElementsByTagName('textarea');
+            if (!textareas || textareas.length === 0) {
+                alert('Erro: Textarea não encontrado');
+                return;
+            }
+            
+            const textarea = textareas[0];
+            const content = (textarea.value || '').trim();
+            
+            if (!content) {
+                alert('Escreve um comentário!');
+                return;
+            }
+            
+            const buttons = form.getElementsByTagName('button');
+            let btn = buttons && buttons.length > 0 ? buttons[0] : null;
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar...';
+            }
+            
+            const formData = new FormData();
+            formData.append('doubt_id', String(doubtId));
+            formData.append('content', content);
+            if (window.CSRF_TOKEN) {
+                formData.append('csrf_token', window.CSRF_TOKEN);
+            }
+            
+            const response = await fetch('../../interface_programacao/social/post_doubt_comment.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result && result.success) {
+                console.log('🎉 SUCESSO!');
+                textarea.value = '';
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Enviado!';
+                    btn.style.background = '#10b981';
+                }
+                setTimeout(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+                        btn.style.background = '';
+                    }
+                    openDoubtDetail(doubtId);
+                }, 1000);
+            } else {
+                alert('Erro: ' + (result?.message || 'Desconhecido'));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+                }
+            }
+        } catch (err) {
+            alert('ERRO: ' + err.message);
+            const buttons = form.getElementsByTagName('button');
+            if (buttons && buttons[0]) {
+                buttons[0].disabled = false;
+                buttons[0].innerHTML = '<i class="fas fa-paper-plane"></i> Responder';
+            }
+        }
+    };
+    
+    console.log('✅ NOVA submitComment FORÇADA');
+    
+    // AUTO-OPEN DOUBT FROM URL PARAMETER
+    function autoOpenDoubtFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const doubtId = params.get('doubt_id');
+        
+        if (doubtId) {
+            console.log('🔗 Parâmetro doubt_id detectado na URL:', doubtId);
+            // Aguardar um pouco para garantir que o modal está no DOM
+            setTimeout(() => {
+                openDoubtDetail(parseInt(doubtId, 10));
+            }, 300);
+        }
+    }
+    
     loadDoubts();
+    autoOpenDoubtFromUrl();
     document.getElementById('searchInput')?.addEventListener('input', filterDoubts);
     setInterval(() => {
         doubtsSeenMarked = false;

@@ -11,6 +11,10 @@ let lastMsgId = 0;
 let emojiInitialized = false;
 let chatSafetyCustomHandler = null;
 
+// 🔔 Sistema de Notificações - Contagem de Mensagens Não Lidas
+let unreadMessages = {}; // { groupId: count }
+let lastMessageTimestamp = {}; // { groupId: timestamp } para detectar novas mensagens
+
 function chatEsc(value) {
     return String(value ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;',
@@ -223,8 +227,42 @@ function fetchMentorGroupMessages() {
         .then(res => res.json())
         .then(data => {
             // Utilizamos a engine de renderização avançada com tags específicas de mentoria
-            if (data.success) renderMentorMessages(data.messages);
+            if (data.success) {
+                // 🔔 Se não estamos a ver este grupo, contar mensagens não lidas
+                if (chatType === 'mentor_group' && currentGroup) {
+                    // Marcar como lido quando vê o grupo
+                    unreadMessages[currentGroup] = 0;
+                }
+                renderMentorMessages(data.messages);
+            }
         });
+}
+
+// 🔔 Atualizar badges de contagem nos grupos no sidebar
+function updateMentorGroupBadges() {
+    document.querySelectorAll('.mentor-group').forEach(item => {
+        const groupButton = item.getAttribute('onclick');
+        const match = groupButton.match(/loadMentorGroupChat\((\d+)/);
+        if (match) {
+            const gId = parseInt(match[1]);
+            let badge = item.querySelector('.unread-badge');
+            const count = unreadMessages[gId] || 0;
+            
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'unread-badge';
+                    badge.style.cssText = 'position: absolute; top: -5px; right: -5px; background: #f7941d; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; box-shadow: 0 2px 8px rgba(247,148,29,0.5);';
+                    item.style.position = 'relative';
+                    item.appendChild(badge);
+                }
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    });
 }
 
 function renderMessages(data) {
@@ -479,6 +517,7 @@ function renderMentorMessages(data) {
         container.appendChild(div);
     });
     container.scrollTop = container.scrollHeight;
+    updateMentorGroupBadges();
 }
 
 
@@ -700,7 +739,50 @@ setInterval(() => {
     if (chatType === 'group' && currentGroup) fetchGroupMessages();
     else if (chatType === 'mentor_group' && currentGroup) fetchMentorGroupMessages();
     else if (chatType === 'direct' && currentReceiver) fetchMessages();
+    
+    // 🔔 Verificar notificações de todos os grupos mentor (mesmo quando não está a ver)
+    checkMentorGroupNotifications();
 }, 4000);
+
+// 🔔 Verificar notificações em todos os grupos mentor
+function checkMentorGroupNotifications() {
+    // Obter lista de grupos do utilizador
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/get_mentor_groups.php`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.groups) {
+                data.groups.forEach(group => {
+                    // Verificar cada grupo para ver se há mensagens novas
+                    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/get_mentor_group_messages.php?group_id=${group.id}`)
+                        .then(r => r.json())
+                        .then(msgData => {
+                            if (msgData.success && msgData.messages && msgData.messages.length > 0) {
+                                const lastMsg = msgData.messages[msgData.messages.length - 1];
+                                const newTimestamp = new Date(lastMsg.timestamp).getTime();
+                                const lastTimestamp = lastMessageTimestamp[group.id] || 0;
+                                
+                                // Se há mensagem nova E não é a própria mensagem
+                                if (newTimestamp > lastTimestamp && lastMsg.sender_id != AKSANTI_CONFIG.userId) {
+                                    // Incrementar contador
+                                    unreadMessages[group.id] = (unreadMessages[group.id] || 0) + 1;
+                                    lastMessageTimestamp[group.id] = newTimestamp;
+                                    
+                                    // Mostrar notificação se não está a ver este grupo
+                                    if (currentGroup !== group.id) {
+                                        showChatToast(`🔔 Mensagem nova em "${lastMsg.sender_name}": ${lastMsg.message ? lastMsg.message.substring(0, 40) + '...' : 'Ficheiro'}`);
+                                    }
+                                    
+                                    // Atualizar badges
+                                    updateMentorGroupBadges();
+                                }
+                            }
+                        })
+                        .catch(() => {});
+                });
+            }
+        })
+        .catch(() => {});
+}
 
 // FUNCIONALIDADE: Enviar Recurso/Material para a Sala VIP
 function sendMentorGroupResource() {

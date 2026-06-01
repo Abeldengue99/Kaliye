@@ -73,4 +73,10 @@ class Database {
         return $this->conn;
     }
 }
+
+// ✅ VALIDAÇÃO AUTOMÁTICA: Carregar validador de notificações
+if (file_exists(__DIR__ . '/notifications_validator.php')) {
+    require_once __DIR__ . '/notifications_validator.php';
+}
+
 ?>

@@ -63,10 +63,9 @@ $current_user_type = $_SESSION['user_type'];
     align-items: center;
     gap: 10px;
     box-shadow: 0 8px 24px rgba(247,148,29,0.25);
-    transition: transform 0.3s, box-shadow 0.3s;
     white-space: nowrap;
 }
-.dq-new-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(247,148,29,0.35); }
+.dq-new-btn:hover { box-shadow: 0 12px 32px rgba(247,148,29,0.35); }
 
 /* ── STATS BAR ── */
 .dq-stats {
@@ -81,9 +80,8 @@ $current_user_type = $_SESSION['user_type'];
     border-radius: 20px;
     padding: 1.5rem 1.75rem;
     backdrop-filter: blur(12px);
-    transition: transform 0.3s;
 }
-.dq-stat-card:hover { transform: translateY(-3px); }
+.dq-stat-card:hover { }
 .dq-stat-label {
     font-size: 0.6rem;
     font-weight: 900;
@@ -190,16 +188,12 @@ $current_user_type = $_SESSION['user_type'];
     padding: 2rem;
     margin-bottom: 1.25rem;
     backdrop-filter: blur(10px);
-    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
-    animation: dqFadeUp 0.4s ease both;
 }
 .dq-card:hover {
     border-color: rgba(247,148,29,0.2);
-    transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0,0,0,0.3);
 }
-@keyframes dqFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 .dq-card-top {
     display: flex;
@@ -313,9 +307,9 @@ $current_user_type = $_SESSION['user_type'];
     align-items: center;
     gap: 6px;
     opacity: 0.7;
-    transition: opacity 0.25s, gap 0.25s;
+    transition: opacity 0.25s;
 }
-.dq-see-link:hover { opacity: 1; gap: 10px; }
+.dq-see-link:hover { opacity: 1; }
 
 /* ── LOADING ── */
 .dq-loading {
@@ -371,6 +365,14 @@ $current_user_type = $_SESSION['user_type'];
     color: #f7941d;
 }
 
+/* ── TABS ── */
+#tab-open, #tab-resolved {
+    transition: color 0.25s, border-color 0.25s;
+}
+#tab-open:hover, #tab-resolved:hover {
+    opacity: 0.8;
+}
+
 @media (max-width: 640px) {
     .dq-stats { grid-template-columns: 1fr; }
     .dq-hero { flex-direction: column; align-items: flex-start; }
@@ -378,7 +380,7 @@ $current_user_type = $_SESSION['user_type'];
 }
 </style>
 
-<div class="doubts-page" data-aos="fade">
+<div class="doubts-page">
 
     <!-- ── BOTÃO VOLTAR ── -->
     <button onclick="window.history.back()" style="
@@ -387,14 +389,14 @@ $current_user_type = $_SESSION['user_type'];
         border: 1px solid var(--surface-8); color: var(--surface-50);
         width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
-        font-size: 0.9rem; transition: all 0.3s;"
-        onmouseover="this.style.color='#fff'; this.style.borderColor='var(--surface-25)'; this.style.transform='scale(1.08)'"
-        onmouseout="this.style.color='var(--surface-50)'; this.style.borderColor='var(--surface-8)'; this.style.transform='scale(1)'">
+        font-size: 0.9rem; transition: color 0.25s, border-color 0.25s;"
+        onmouseover="this.style.color='#fff'; this.style.borderColor='var(--surface-25)'"
+        onmouseout="this.style.color='var(--surface-50)'; this.style.borderColor='var(--surface-8)'">
         <i class="fas fa-arrow-left"></i>
     </button>
 
     <!-- ── HERO ── -->
-    <div class="dq-hero" data-aos="fade-down">
+    <div class="dq-hero">
         <div>
             <h1 class="dq-hero-title">Dúvidas da Comunidade</h1>
             <p class="dq-hero-sub">Partilhe as suas dúvidas e ajude outros membros da comunidade a crescer no ecossistema de referências.</p>
@@ -405,7 +407,7 @@ $current_user_type = $_SESSION['user_type'];
     </div>
 
     <!-- ── STATS BAR ── -->
-    <div class="dq-stats" id="doubts-stats-bar" style="opacity:0; transition: opacity 0.5s;" data-aos="fade-up">
+    <div class="dq-stats" id="doubts-stats-bar">
         <div class="dq-stat-card total">
             <div class="dq-stat-label"><i class="fas fa-layer-group"></i> Total</div>
             <div class="dq-stat-value" id="stat-total">—</div>
@@ -421,7 +423,7 @@ $current_user_type = $_SESSION['user_type'];
     </div>
 
     <!-- ── FILTER BAR ── -->
-    <div class="dq-filter-bar" data-aos="fade-up">
+    <div class="dq-filter-bar">
         <div class="dq-search-wrap">
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="O que você está procurando?" oninput="filterDoubts()">
@@ -439,21 +441,28 @@ $current_user_type = $_SESSION['user_type'];
             <option value="design">Design</option>
             <option value="other">Outro</option>
         </select>
-        <select id="statusFilter" onchange="filterDoubts()" class="dq-select">
-            <option value="">Status: Todos</option>
-            <option value="open">Abertas</option>
-            <option value="resolved">Resolvidas</option>
-            <option value="closed">Fechadas</option>
-        </select>
+    </div>
+
+    <!-- ── STATUS TABS ── -->
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1rem;">
+        <button id="tab-open" onclick="switchTab('open')" style="
+            background: none; border: none; color: #f7941d; font-size: 0.8rem;
+            font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 0.75rem 1.5rem; cursor: pointer; position: relative;
+            border-bottom: 2px solid #f7941d;">
+            <i class="fas fa-circle-notch" style="margin-right: 8px;"></i>Abertas
+        </button>
+        <button id="tab-resolved" onclick="switchTab('resolved')" style="
+            background: none; border: none; color: var(--surface-30); font-size: 0.8rem;
+            font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 0.75rem 1.5rem; cursor: pointer;">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Resolvidas
+        </button>
     </div>
 
     <!-- ── DOUBTS LIST (populated by JS) ── -->
-    <div id="doubts-container">
-        <div class="dq-loading">
-            <div class="dq-spinner"></div>
-            <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0;">A carregar dúvidas...</p>
-        </div>
-    </div>
+    <div id="doubts-container-open"></div>
+    <div id="doubts-container-resolved" style="display: none;"></div>
 
     <!-- ── PAGINATION ── -->
     <div class="dq-pagination" id="doubts-pagination" style="display:none;"></div>
@@ -473,7 +482,6 @@ $current_user_type = $_SESSION['user_type'];
     };
 </script>
 
-<!-- Scripts -->
 <?php include '../../inclusoes/components/doubts_scripts.php'; ?>
 
 <?php require_once '../../inclusoes/rodape.php'; ?>

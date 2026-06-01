@@ -109,6 +109,13 @@ try {
             }
         }
 
+        // FIX AUTOMÁTICO: Corrigir links antigos de notificações de dúvida
+        // Problema: Notificações antigas apontavam para paginas/social/duvidas.php (não existe)
+        // Solução: Converter para paginas/explorar/doubts.php
+        if (!empty($n['link']) && strpos($n['link'], 'paginas/social/duvidas.php') !== false) {
+            $n['link'] = str_replace('paginas/social/duvidas.php', 'paginas/explorar/doubts.php', $n['link']);
+        }
+
         // Lógica Global de Redirecionamento — FORÇA reescrita de link para notificações de projecto
         // Tipos reais na BD: 'comment', 'comment_reply', 'project_like', 'project_vote'
         if (!empty($n['reference_id'])) {

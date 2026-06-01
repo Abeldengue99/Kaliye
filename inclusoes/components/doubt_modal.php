@@ -14,6 +14,8 @@
         </h2>
         
         <form id="doubtForm" onsubmit="submitDoubt(event)">
+            <?= getCSRFHiddenInput() ?>
+            
             <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Título da Dúvida*</label>
                 <input type="text" name="title" required maxlength="255"

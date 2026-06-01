@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Abas de Dúvidas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1728;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-weight: 950;
+        }
+
+        /* ── TABS ── */
+        .tabs-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 1rem;
+        }
+
+        #tab-open, #tab-resolved {
+            background: none;
+            border: none;
+            color: var(--surface-30, #888);
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.25s, border-color 0.25s;
+        }
+
+        #tab-open:hover, #tab-resolved:hover {
+            opacity: 0.8;
+        }
+
+        #tab-open {
+            color: #f7941d;
+            border-bottom: 2px solid #f7941d;
+        }
+
+        #tab-resolved {
+            color: var(--surface-30, #888);
+            border-bottom: none;
+        }
+
+        .dq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .dq-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .dq-card:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(247,148,29,0.2);
+        }
+
+        .dq-card-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .dq-card-excerpt {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 0.75rem;
+        }
+
+        .dq-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .dq-tag.open {
+            background: rgba(247,148,29,0.1);
+            color: #f7941d;
+            border: 1px solid rgba(247,148,29,0.2);
+        }
+
+        .dq-tag.answered {
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+
+        .dq-empty {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .dq-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        #doubts-container-open {
+            display: block;
+        }
+
+        #doubts-container-resolved {
+            display: none;
+        }
+
+        .info-box {
+            background: rgba(247,148,29,0.1);
+            border-left: 4px solid #f7941d;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            color: #f7941d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Teste de Sistema de Abas para Dúvidas</h1>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i> 
+            Este é um teste de demonstração do sistema de abas. Clique nos botões "Abertas" e "Resolvidas" para ver o funcionamento.
+        </div>
+
+        <!-- ── TABS ── -->
+        <div class="tabs-container">
+            <button id="tab-open" onclick="switchTab('open')" style="color: #f7941d; border-bottom: 2px solid #f7941d;">
+                <i class="fas fa-circle-notch" style="margin-right: 8px;"></i>Abertas
+            </button>
+            <button id="tab-resolved" onclick="switchTab('resolved')">
+                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Resolvidas
+            </button>
+        </div>
+
+        <!-- ── DÚVIDAS ABERTAS ── -->
+        <div id="doubts-container-open">
+            <div class="dq-container">
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Como funciona o sistema de mentoria?</h3>
+                    <p class="dq-card-excerpt">Sou novo na plataforma e gostaria de entender melhor como funciona o sistema de mentoria...</p>
+                    <span class="dq-tag open">Aberta</span>
+                    <span class="dq-tag">Tecnologia</span>
+                </div>
+
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Qual é o melhor horário para agendar sessões?</h3>
+                    <p class="dq-card-excerpt">Preciso de ajuda para determinar qual é o melhor horário para agendar as minha sessões de mentoria...</p>
+                    <span class="dq-tag open">Aberta</span>
+                    <span class="dq-tag">Negócios</span>
+                </div>
+
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Como apresentar um projeto para investidores?</h3>
+                    <p class="dq-card-excerpt">Tenho uma startup e gostaria de aprender a apresentar melhor o meu projeto para potenciais investidores...</p>
+                    <span class="dq-tag open">Aberta</span>
+                    <span class="dq-tag">Finanças</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── DÚVIDAS RESOLVIDAS ── -->
+        <div id="doubts-container-resolved">
+            <div class="dq-container">
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Como configurar autenticação OAuth com Google?</h3>
+                    <p class="dq-card-excerpt">Consegui configurar a autenticação Google na minha aplicação. A resposta foi muito clara e útil...</p>
+                    <span class="dq-tag answered">Respondida</span>
+                    <span class="dq-tag">Programação</span>
+                </div>
+
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Qual é o melhor framework para desenvolvimento web em 2026?</h3>
+                    <p class="dq-card-excerpt">Recebi várias sugestões excelentes sobre frameworks modernos. Vou experimentar com React e Vue...</p>
+                    <span class="dq-tag answered">Respondida</span>
+                    <span class="dq-tag">Tecnologia</span>
+                </div>
+
+                <div class="dq-card">
+                    <h3 class="dq-card-title">Como estruturar uma equipa de desenvolvimento?</h3>
+                    <p class="dq-card-excerpt">As dicas recebidas foram invaluáveis para organizar melhor a minha equipa técnica...</p>
+                    <span class="dq-tag answered">Respondida</span>
+                    <span class="dq-tag">Negócios</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'open';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            const tabOpen = document.getElementById('tab-open');
+            const tabResolved = document.getElementById('tab-resolved');
+            
+            if (tab === 'open') {
+                tabOpen.style.color = '#f7941d';
+                tabOpen.style.borderBottom = '2px solid #f7941d';
+                tabResolved.style.color = 'var(--surface-30, #888)';
+                tabResolved.style.borderBottom = 'none';
+                
+                document.getElementById('doubts-container-open').style.display = 'block';
+                document.getElementById('doubts-container-resolved').style.display = 'none';
+            } else {
+                tabResolved.style.color = '#f7941d';
+                tabResolved.style.borderBottom = '2px solid #f7941d';
+                tabOpen.style.color = 'var(--surface-30, #888)';
+                tabOpen.style.borderBottom = 'none';
+                
+                document.getElementById('doubts-container-open').style.display = 'none';
+                document.getElementById('doubts-container-resolved').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

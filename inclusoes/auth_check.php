@@ -81,6 +81,26 @@ function enforceIdleSessionTimeout(): void {
 
 enforceIdleSessionTimeout();
 
+/**
+ * Sanitiza entrada do usuário
+ */
+function sanitizeInput($input): string {
+    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Valida e sanitiza dados de request
+ */
+function getSanitizedInput($key, $default = '', $htmlSpecialChars = true) {
+    $value = $_REQUEST[$key] ?? $_POST[$key] ?? $_GET[$key] ?? $default;
+    
+    if ($htmlSpecialChars && is_string($value)) {
+        return sanitizeInput($value);
+    }
+    
+    return trim($value);
+}
+
 function currentRequestPath(): string {
     return str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 }
@@ -289,19 +309,29 @@ function verifyCSRFToken($token) {
 }
 
 function getRequestCSRFToken() {
-    $headers = function_exists('getallheaders') ? getallheaders() : [];
-    $headerToken = '';
-    foreach ($headers as $key => $value) {
-        if (strtolower($key) === 'x-csrf-token') {
-            $headerToken = $value;
-            break;
+    // Tentativa 1: Header HTTP_X_CSRF_TOKEN (Apache/Nginx via PHP)
+    if (!empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        return $_SERVER['HTTP_X_CSRF_TOKEN'];
+    }
+
+    // Tentativa 2: getallheaders() se disponível
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        foreach ($headers as $key => $value) {
+            if (strtolower($key) === 'x-csrf-token') {
+                return $value;
+            }
         }
     }
 
-    if ($headerToken !== '') {
-        return $headerToken;
+    // Tentativa 3: Procurar em $_SERVER com prefixo HTTP_
+    foreach ($_SERVER as $key => $value) {
+        if (strpos($key, 'CSRF') !== false && !empty($value)) {
+            return $value;
+        }
     }
 
+    // Fallback: POST ou GET
     return $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
 }
 

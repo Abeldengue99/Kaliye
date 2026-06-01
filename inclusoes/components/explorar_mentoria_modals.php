@@ -324,7 +324,7 @@
                             </div>
                             <i class="fas fa-chevron-right arrow-indicator"></i>
                         </a>
-                    <?php elseif (($user_role === 'mentor' || $is_student) && !in_array($_SESSION['mentor_status'] ?? 'unsubmitted', ['approved', 'pending', 'under_review', 'shortlisted'])): ?>
+                    <?php elseif ($user_role === 'mentor' && !in_array($_SESSION['mentor_status'] ?? 'unsubmitted', ['approved', 'pending', 'under_review', 'shortlisted'])): ?>
                         <a href="javascript:void(0)" onclick="closeMentoriaModal(); openMentorAppModal();" class="modal-link-card highlight-glow-orange">
                             <div class="link-card-icon"><i class="fas fa-crown"></i></div>
                             <div class="link-card-body">
