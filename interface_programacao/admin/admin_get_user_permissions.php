@@ -13,7 +13,7 @@ if (!isAdmin() || !hasPermission('users')) {
 
 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 if ($user_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'ID invalido']);
+    echo json_encode(['success' => false, 'message' => 'ID inválido']);
     exit;
 }
 

@@ -5,6 +5,7 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 // Proteção: Apenas utilizadores autenticados
 if (!isset($_SESSION['user_id'])) {
@@ -49,7 +50,7 @@ $liked_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $is_privileged_viewer = in_array($_SESSION['user_type'], ['investor', 'mentor', 'admin']);
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/dashboard-aksanti-elite.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/dashboard-aksanti-elite.css?v=<?php echo aksantiAssetVersion('recursos/css/dashboard-aksanti-elite.css'); ?>">
 
 <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 5%; min-height: 80vh;">
     

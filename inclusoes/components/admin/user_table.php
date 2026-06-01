@@ -5,7 +5,7 @@
  */
 ?>
 <div class="table-container">
-    <table class="aksanti-table">
+    <table class="aksanti-table admin-users-table">
         <thead>
             <tr>
                 <th>Utilizador</th>

@@ -5,6 +5,7 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 $user_id = $_SESSION['user_id'];
 $user_type = $_SESSION['user_type'];
@@ -34,7 +35,7 @@ $peer_count = (int)$stmt_peer_count->fetchColumn();
 
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/pages/mentorship.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/mentorship.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/mentorship.css'); ?>">
 
 <style>
 /* =========================================================================

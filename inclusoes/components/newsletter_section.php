@@ -130,3 +130,80 @@
     pointer-events: none;
 }
 </style>
+
+<script>
+(function() {
+    const form = document.getElementById('newsletterForm');
+    if (!form) return;
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('newsletterBtn');
+        const fd = new FormData(form);
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar...';
+        
+        try {
+            const baseUrl = window.BASE_URL || './';
+            const url = baseUrl + 'interface_programacao/system/subscribe_newsletter.php';
+            console.log('Newsletter POST:', url);
+            
+            const res = await fetch(url, { method: 'POST', body: fd });
+            const responseText = await res.text();
+            console.log('Newsletter Response:', responseText);
+            
+            const data = JSON.parse(responseText);
+            
+            if (data.success) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Subscrito!';
+                btn.style.background = '#10b981';
+                btn.style.color = '#000';
+                form.querySelector('input[name="name"]').value = '';
+                form.querySelector('input[name="email"]').value = '';
+                
+                if (typeof showNewsletterModal === 'function') {
+                    showNewsletterModal(
+                        '✓ Subscrito com Sucesso!',
+                        data.message || 'Bem-vindo à nossa comunidade. Receberá as nossas atualizações em breve.',
+                        'success',
+                        'fa-check-circle'
+                    );
+                } else { alert(data.message); }
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<span>Subscrever</span><i class="fas fa-paper-plane"></i>';
+                    btn.style.background = '#84cc16';
+                    btn.style.color = '#000';
+                    btn.disabled = false;
+                }, 2500);
+            } else {
+                btn.innerHTML = '<span>Subscrever</span><i class="fas fa-paper-plane"></i>';
+                btn.disabled = false;
+                
+                if (typeof showNewsletterModal === 'function') {
+                    const isAlreadySubscribed = data.message && data.message.includes('Já está subscrito');
+                    showNewsletterModal(
+                        isAlreadySubscribed ? 'Já Subscrito' : 'Erro',
+                        data.message || 'Erro ao subscrever',
+                        isAlreadySubscribed ? 'warning' : 'error',
+                        isAlreadySubscribed ? 'fa-info-circle' : 'fa-exclamation-circle'
+                    );
+                } else { alert(data.message); }
+            }
+        } catch(err) {
+            console.error('Newsletter Error:', err);
+            btn.innerHTML = '<span>Subscrever</span><i class="fas fa-paper-plane"></i>';
+            btn.disabled = false;
+            
+            if (typeof showNewsletterModal === 'function') {
+                showNewsletterModal(
+                    'Erro na Subscrição',
+                    err.message || 'Não foi possível subscrever. Tenta novamente mais tarde.',
+                    'error',
+                    'fa-exclamation-circle'
+                );
+            } else { alert(err.message || 'Erro ao subscrever'); }
+        }
+    });
+})();
+</script>

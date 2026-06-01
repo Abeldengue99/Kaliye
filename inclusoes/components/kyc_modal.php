@@ -119,7 +119,12 @@ $lbl_st = "color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 800; t
                         </div>
                         <div class="elite-input-group" style="margin-bottom: 1.5rem;">
                             <label style="<?= $lbl_st ?>">Especialidade Principal</label>
-                            <input type="text" name="specialty" placeholder="Ex: Gestão Financeira, Marketing..." class="kyc-input">
+                            <div style="position: relative;">
+                                <input type="text" name="specialty" maxlength="200" placeholder="Ex: Gestão Financeira, Marketing..." class="kyc-input" oninput="updateCharCounter(this)">
+                                <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 800; pointer-events: none;">
+                                    <span class="char-count">0</span>/200
+                                </div>
+                            </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
                             <div class="elite-input-group">
@@ -148,7 +153,12 @@ $lbl_st = "color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 800; t
                         </div>
                         <div class="elite-input-group" style="margin-bottom: 1.5rem;">
                             <label style="<?= $lbl_st ?>">Área / Curso e Ano Atual</label>
-                            <input type="text" name="specialty" placeholder="Ex: Economia - 4º Ano" class="kyc-input">
+                            <div style="position: relative;">
+                                <input type="text" name="specialty" maxlength="200" placeholder="Ex: Economia - 4º Ano" class="kyc-input" oninput="updateCharCounter(this)">
+                                <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 800; pointer-events: none;">
+                                    <span class="char-count">0</span>/200
+                                </div>
+                            </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
                             <div class="kyc-upload-box-v3">
@@ -186,7 +196,12 @@ $lbl_st = "color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 800; t
                             </div>
                             <div class="elite-input-group">
                                 <label style="<?= $lbl_st ?>">Origem dos Fundos</label>
-                                <input type="text" name="source_of_funds" placeholder="Ex: Salários, Negócios, Herança..." class="kyc-input" required>
+                                <div style="position: relative;">
+                                    <input type="text" name="source_of_funds" maxlength="250" placeholder="Ex: Salários, Negócios, Herança..." class="kyc-input" required oninput="updateCharCounter(this)">
+                                    <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 800; pointer-events: none;">
+                                        <span class="char-count">0</span>/250
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="kyc-upload-box-v3" style="margin-bottom: 2rem;">
@@ -219,6 +234,21 @@ $lbl_st = "color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 800; t
 </div>
 
 <script>
+function updateCharCounter(input) {
+    const wrapper = input.parentElement;
+    const counter = wrapper.querySelector('.char-count');
+    if (counter) {
+        counter.textContent = input.value.length;
+        // Avisar se próximo do limite (90% do máximo)
+        const maxLen = parseInt(input.getAttribute('maxlength')) || 999;
+        if (input.value.length >= maxLen * 0.9) {
+            counter.style.color = 'rgba(239, 68, 68, 0.8)'; // Vermelho
+        } else {
+            counter.style.color = 'rgba(255, 255, 255, 0.4)'; // Normal
+        }
+    }
+}
+
 function handleKycPreview(input) {
     const box = input.closest('.upload-drop-zone');
     const preview = box.querySelector('.file-preview');

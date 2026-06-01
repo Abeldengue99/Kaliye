@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $request_id = isset($_POST['request_id']) ? intval($_POST['request_id']) : 0;
 $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 5; // 1-5
-$feedback = $_POST['feedback'] ?? '';
+$rating = max(1, min(5, $rating));
+$feedback = trim($_POST['feedback'] ?? '');
 
 if (!$request_id) {
     echo json_encode(['success' => false, 'message' => 'ID do pedido inválido.']);
@@ -52,6 +53,14 @@ try {
 
     $db->beginTransaction();
 
+    $stmt_reviewed = $db->prepare("SELECT COUNT(*) FROM free_mentorship_sessions WHERE request_id = ? AND student_rating IS NOT NULL");
+    $stmt_reviewed->execute([$request_id]);
+    if ((int)$stmt_reviewed->fetchColumn() > 0) {
+        $db->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Esta mentoria ja foi avaliada.']);
+        exit;
+    }
+
     // 1. Update request status
     $upd_req = $db->prepare("UPDATE free_mentorship_requests SET status = 'completed', completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE request_id = ?");
     $upd_req->execute([$request_id]);
@@ -79,7 +88,7 @@ try {
         $upd_doubt->execute([$req['doubt_id']]);
     }
 
-    // 4. Award Avaliacao to Mentor
+    // 4. Store the mentor review and award Avaliacao to Mentor
     // Formula: (Rating * 10) + difficulty bonus
     $difficulty_bonus = 0;
     if ($req['difficulty_level'] === 'intermediate') $difficulty_bonus = 15;
@@ -87,8 +96,19 @@ try {
     
     $points = ($rating * 10) + $difficulty_bonus;
 
+    $ins_review = $db->prepare("
+        INSERT INTO user_reviews (mentor_id, student_id, rating, comment, context, reference_id, created_at)
+        VALUES (?, ?, ?, ?, 'free_mentorship', ?, CURRENT_TIMESTAMP)
+        ON CONFLICT DO NOTHING
+    ");
+    $ins_review->execute([$mentor_id, $user_id, $rating, $feedback, $request_id]);
+
     $upd_mentor = $db->prepare("UPDATE users SET avaliacao = avaliacao + ? WHERE user_id = ?");
     $upd_mentor->execute([$points, $mentor_id]);
+
+    $review_link = 'paginas/mentoria/free_mentorship_requests.php?request_id=' . $request_id;
+    $notif = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at) VALUES (?, ?, 'Mentoria avaliada', ?, 'mentorship_review', ?, 0, CURRENT_TIMESTAMP)");
+    $notif->execute([$mentor_id, $user_id, 'O estudante concluiu a mentoria e deixou uma avaliação.', $review_link]);
 
     $db->commit();
     echo json_encode(['success' => true, 'message' => "Mentoria concluída! Atribuiu $points pontos de avaliação ao mentor.", 'points_awarded' => $points]);

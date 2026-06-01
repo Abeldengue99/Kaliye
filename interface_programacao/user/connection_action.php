@@ -78,7 +78,7 @@ try {
         $newStatus = 'pending';
     } elseif ($action === 'accept') {
         $query = "UPDATE user_connections
-                  SET status = 'accepted', updated_at = CURRENT_TIMESTAMP
+                  SET status = 'accepted'
                   WHERE user_id_1 = :u1 AND user_id_2 = :u2
                     AND status = 'pending'
                     AND requester_id = :target_id";

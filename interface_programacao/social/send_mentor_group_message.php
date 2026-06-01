@@ -35,14 +35,11 @@ try {
     $access = $db->prepare("
         SELECT mg.mentor_id
         FROM mentor_chat_groups mg
+        LEFT JOIN mentor_group_members mgm ON mg.id = mgm.group_id AND mgm.user_id = :uid
         WHERE mg.id = :gid
           AND (
               mg.mentor_id = :uid
-              OR mg.mentor_id IN (
-                  SELECT mentor_id FROM mentorship_contracts WHERE student_id = :uid AND status = 'active'
-                  UNION
-                  SELECT mentor_id FROM mentorships WHERE mentee_id = :uid AND status = 'active'
-              )
+              OR mgm.user_id = :uid
           )
         LIMIT 1
     ");

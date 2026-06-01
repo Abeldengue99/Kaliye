@@ -5,6 +5,7 @@ $admin_base = '../';
 $base_url = '../../';
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 if (!isAdmin() || !hasPermission('finances')) {
     header("Location: ../../autenticacao/entrar.php");
@@ -14,6 +15,7 @@ if (!isAdmin() || !hasPermission('finances')) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 // Fetch all approved investments that have been PAID
 $query = "
@@ -29,7 +31,8 @@ $query = "
     JOIN users owner ON p.owner_id = owner.user_id
     LEFT JOIN mentorships m ON p.owner_id = m.mentee_id AND m.status = 'active'
     LEFT JOIN users mentor ON m.mentor_id = mentor.user_id
-    WHERE pi.status = 'paid' OR pi.status = 'approved'
+    WHERE pi.archived_at IS NULL
+      AND (pi.status = 'paid' OR pi.status = 'approved')
     ORDER BY pi.created_at DESC
 ";
 $stmt = $db->query($query);

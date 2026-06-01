@@ -25,7 +25,8 @@ $stats_query = "SELECT
                     SUM(CASE WHEN commission_type = 'mentor' AND status = 'paid' THEN commission_amount ELSE 0 END) as paid_mentor,
                     SUM(CASE WHEN commission_type = 'aksanti' AND status = 'pending' THEN commission_amount ELSE 0 END) as pending_aksanti,
                     SUM(CASE WHEN commission_type = 'mentor' AND status = 'pending' THEN commission_amount ELSE 0 END) as pending_mentor
-                FROM commission_history";
+                FROM commission_history
+                WHERE archived_at IS NULL";
 $stats = $db->query($stats_query)->fetch(PDO::FETCH_ASSOC);
 
 // Busco comissões recentes
@@ -33,7 +34,8 @@ $recent_query = "SELECT ch.*, p.title as project_title, u.full_name as mentor_na
                  FROM commission_history ch
                  JOIN projects p ON ch.project_id = p.project_id
                  LEFT JOIN users u ON ch.mentor_id = u.user_id
-                 JOIN project_investments i ON ch.investment_id = i.investment_id
+                 JOIN project_investments i ON ch.investment_id = i.investment_id AND i.archived_at IS NULL
+                 WHERE ch.archived_at IS NULL
                  ORDER BY ch.created_at DESC
                  LIMIT 20";
 $recent_commissions = $db->query($recent_query)->fetchAll(PDO::FETCH_ASSOC);

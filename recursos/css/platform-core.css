@@ -54,6 +54,13 @@ body.light-theme {
     background-color: var(--primary-bg);
 }
 
+/* AOS fallback: never let external animation loading hide the first screen. */
+[data-aos]:not(.aos-init) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
 /* ==========================================================================
    COMPONENTS: GLASSMORPHISM
    ========================================================================== */

@@ -5,8 +5,17 @@ require_once '../../inclusoes/cabecalho.php';
 
 $current_user_id = $_SESSION['user_id'];
 $current_user_type = $_SESSION['user_type'];
-// Mentors MUST be approved to see the mentor view/functions
-$is_mentor = (isMentor() || isAdmin());
+$current_user_stmt = $db->prepare("SELECT user_type, mentorship_status FROM users WHERE user_id = ?");
+$current_user_stmt->execute([$current_user_id]);
+$current_user = $current_user_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+if (!empty($current_user)) {
+    $_SESSION['user_type'] = $current_user['user_type'] ?? $current_user_type;
+    $_SESSION['mentorship_status'] = $current_user['mentorship_status'] ?? ($_SESSION['mentorship_status'] ?? 'unsubmitted');
+}
+
+// Mentors MUST be approved to see the mentor view/functions. Read DB state so stale sessions do not hide the button.
+$is_mentor = (canActAsMentor($current_user) || isAdmin());
 
 // Check if coming from a doubt conversion
 $from_doubt_id = isset($_GET['from_doubt']) ? intval($_GET['from_doubt']) : null;
@@ -19,6 +28,7 @@ if ($from_doubt_id) {
 }
 
 $request_id_to_open = isset($_GET['request_id']) ? intval($_GET['request_id']) : null;
+$complete_request_after_call = isset($_GET['complete']) && $_GET['complete'] === '1';
 ?>
 
 <style>
@@ -77,6 +87,30 @@ $request_id_to_open = isset($_GET['request_id']) ? intval($_GET['request_id']) :
     .mentor-application-card:hover {
         background: rgba(255,255,255,0.05);
         border-color: var(--accent-orange);
+    }
+
+    .application-person-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        min-width: 0;
+    }
+
+    .application-person-row > div {
+        min-width: 0;
+    }
+
+    .application-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .application-actions .action-btn {
+        min-height: 44px;
+        justify-content: center;
+        white-space: nowrap;
     }
     
     .tab-nav {
@@ -173,6 +207,124 @@ $request_id_to_open = isset($_GET['request_id']) ? intval($_GET['request_id']) :
         color: #ef4444;
         border-color: rgba(239, 68, 68, 0.3);
         transform: rotate(90deg);
+    }
+
+    .free-mentorship-apply-popup {
+        width: min(92vw, 520px) !important;
+        max-width: 520px !important;
+        padding: 1.5rem !important;
+        border-radius: 18px !important;
+        overflow: hidden !important;
+    }
+
+    .free-mentorship-apply-popup .swal2-title {
+        font-size: clamp(1.45rem, 6vw, 2rem) !important;
+        line-height: 1.1 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .free-mentorship-apply-popup .swal2-html-container {
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+
+    .free-mentorship-apply-popup .swal2-actions {
+        width: 100% !important;
+        gap: 0.75rem !important;
+        margin-top: 1.25rem !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .free-mentorship-apply-popup .swal2-confirm,
+    .free-mentorship-apply-popup .swal2-cancel {
+        min-height: 44px !important;
+        border-radius: 8px !important;
+        font-weight: 800 !important;
+        font-size: 0.92rem !important;
+        margin: 0 !important;
+    }
+
+    .free-mentorship-apply-textarea {
+        width: 100% !important;
+        min-height: 118px !important;
+        max-height: 34vh !important;
+        margin: 0 !important;
+        padding: 0.95rem !important;
+        background: #0f172a !important;
+        color: #fff !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        resize: vertical !important;
+        box-sizing: border-box !important;
+        font-size: 0.95rem !important;
+        line-height: 1.45 !important;
+    }
+
+    @media (max-width: 480px) {
+        #requestDetailModal {
+            align-items: flex-start !important;
+            padding: 0.75rem 0 !important;
+        }
+
+        #requestDetailModal > .glass {
+            width: calc(100% - 1.25rem) !important;
+            border-radius: 14px !important;
+        }
+
+        #requestDetailContent {
+            padding: 1.1rem !important;
+            max-height: calc(100dvh - 1.5rem - env(safe-area-inset-bottom)) !important;
+            overflow-x: hidden !important;
+        }
+
+        .request-status {
+            position: static !important;
+            display: inline-flex !important;
+            width: fit-content !important;
+            margin-bottom: 0.85rem !important;
+        }
+
+        .mentor-application-card {
+            padding: 0.95rem !important;
+            border-radius: 12px !important;
+        }
+
+        .application-person-row {
+            gap: 0.75rem !important;
+            align-items: flex-start !important;
+        }
+
+        .application-person-row img {
+            width: 42px !important;
+            height: 42px !important;
+            flex: 0 0 42px !important;
+        }
+
+        .application-actions {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 0.7rem !important;
+        }
+
+        .application-actions .action-btn {
+            width: 100% !important;
+            padding: 0.75rem 0.85rem !important;
+            font-size: 0.82rem !important;
+        }
+
+        .free-mentorship-apply-popup {
+            padding: 1.15rem !important;
+        }
+
+        .free-mentorship-apply-popup .swal2-actions {
+            flex-direction: column !important;
+        }
+
+        .free-mentorship-apply-popup .swal2-confirm,
+        .free-mentorship-apply-popup .swal2-cancel {
+            width: 100% !important;
+        }
     }
 </style>
 
@@ -286,7 +438,12 @@ $request_id_to_open = isset($_GET['request_id']) ? intval($_GET['request_id']) :
             </div>
             
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duração Estimada</label>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Dias e horarios de preferencia*</label>
+                <textarea name="preferred_times" required rows="3"
+                    placeholder="Ex: segunda e quarta depois das 18h; sabado de manha"
+                    style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: white; resize: vertical;"></textarea>
+                <small style="display:block; color: var(--text-secondary); font-size: 0.75rem; margin-top:-0.75rem; margin-bottom:1rem;">Dias e horarios de preferencia para a mentoria.</small>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duracao Estimada</label>
                 <input type="text" name="estimated_duration"
                     placeholder="Ex: 1 sessão de 1 hora"
                     style="width: 100%; padding: 0.75rem; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: white;">
@@ -296,7 +453,7 @@ $request_id_to_open = isset($_GET['request_id']) ? intval($_GET['request_id']) :
             <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                 <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
                 <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">
-                    Mentores poderão candidatar-se para ajudá-lo. Você escolherá quem prefere trabalhar consigo.
+                    Mentores compativeis serao notificados. O primeiro que aceitar ajudara a agendar a sessao diretamente.
                 </span>
             </div>
             
@@ -332,6 +489,24 @@ const AKSANTI_CONFIG = {
     baseUrl: <?php echo json_encode($base_url); ?>
 };
 let currentTab = IS_MENTOR ? 'available' : 'my-requests';
+let activeRequestDetailId = null;
+
+function resolvePlatformUrl(link) {
+    const clean = String(link || '').trim();
+    if (!clean || clean === '#') return '#';
+    if (/^https?:\/\//i.test(clean)) return clean;
+    return new URL(clean.replace(/^(\.\.\/)+/, '').replace(/^(\.\/)+/, ''), new URL(AKSANTI_CONFIG.baseUrl, window.location.href)).href;
+}
+
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+}
 
 // Carregar conteúdo inicial
 document.addEventListener('DOMContentLoaded', function() {
@@ -340,7 +515,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
     
     <?php if ($request_id_to_open): ?>
-        openRequestDetail(<?php echo $request_id_to_open; ?>);
+        openRequestDetail(<?php echo $request_id_to_open; ?>).then(() => {
+            <?php if ($complete_request_after_call): ?>
+                setTimeout(() => showCompleteForm(<?php echo $request_id_to_open; ?>), 350);
+            <?php endif; ?>
+        });
     <?php endif; ?>
     
     loadContent();
@@ -392,6 +571,13 @@ async function loadContent() {
         `;
     }
 }
+
+setInterval(() => {
+    loadContent();
+    if (activeRequestDetailId && document.getElementById('requestDetailModal').style.display === 'flex') {
+        openRequestDetail(activeRequestDetailId);
+    }
+}, 20000);
 
 function renderRequests(requests) {
     const container = document.getElementById('content-container');
@@ -454,7 +640,7 @@ function renderRequests(requests) {
                 
                 <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-users" style="color: var(--accent-orange);"></i> 
-                    <b>${req.application_count || 0}</b> mentores interessados
+                    <b>${req.status === 'open' ? 'Disponivel para aceitar' : 'Mentor atribuido'}</b>
                 </div>
             </div>
         `;
@@ -464,7 +650,7 @@ function renderRequests(requests) {
 function getStatusLabel(status) {
     const labels = {
         'open': '🔓 Aberto',
-        'in_progress': '⏳ Em Progresso',
+        'in_progress': 'Em Agendamento',
         'completed': '✅ Concluído',
         'cancelled': '❌ Cancelado'
     };
@@ -514,7 +700,7 @@ async function submitRequest(e) {
             Swal.fire({
                 icon: 'success',
                 title: 'Sucesso!',
-                text: 'Pedido publicado! Os mentores poderão candidatar-se.',
+                text: data.message || 'Pedido publicado! Os mentores compativeis foram notificados.',
                 background: '#1e293b',
                 color: '#fff',
                 timer: 2000
@@ -540,6 +726,7 @@ async function submitRequest(e) {
 }
 
 async function openRequestDetail(requestId) {
+    activeRequestDetailId = requestId;
     document.getElementById('requestDetailModal').style.display = 'flex';
     document.getElementById('requestDetailContent').innerHTML = `
         <div style="text-align: center; padding: 3rem;">
@@ -553,17 +740,21 @@ async function openRequestDetail(requestId) {
         
         if (data.success) {
             renderRequestDetail(data.request, data.applications);
+            return data;
         }
     } catch (error) {
         console.error('Erro:', error);
     }
+    return null;
 }
 
 function closeRequestDetailModal() {
+    activeRequestDetailId = null;
     document.getElementById('requestDetailModal').style.display = 'none';
 }
 
 function renderRequestDetail(req, applications) {
+    window.activeFreeMentorshipRequest = req;
     const isOwner = <?php echo $current_user_id; ?> == req.student_id;
     const canApply = IS_MENTOR && req.status === 'open';
     
@@ -598,16 +789,23 @@ function renderRequestDetail(req, applications) {
             <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 3px solid var(--accent-orange);">
                 <p style="color: var(--text-primary); line-height: 1.8; margin: 0; white-space: pre-wrap;">${req.description}</p>
             </div>
+
+            ${req.preferred_times ? `
+                <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.65rem 0; color: #93c5fd;"><i class="fas fa-calendar-days"></i> Horarios sugeridos pelo estudante</h4>
+                    <p style="margin: 0; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${escapeHtml(req.preferred_times)}</p>
+                </div>
+            ` : ''}
             
             ${canApply && !req.user_has_applied ? `
                 <button onclick="showApplicationForm(${req.request_id})" class="action-btn btn-primary-doubt" style="margin-bottom: 1.5rem;">
-                    <i class="fas fa-hand-paper"></i> Candidatar-me para Ajudar
+                    <i class="fas fa-hand-paper"></i> Aceito Ajudar
                 </button>
             ` : ''}
             ${canApply && req.user_has_applied ? `
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                    <span style="color: var(--text-secondary); margin-left: 0.5rem;">Você já se candidatou a este pedido</span>
+                    <span style="color: var(--text-secondary); margin-left: 0.5rem;">Voce assumiu este pedido</span>
                 </div>
             ` : ''}
             
@@ -622,7 +820,7 @@ function renderRequestDetail(req, applications) {
                     </div>
                     ${req.meeting_link ? `
                         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(247, 148, 29, 0.2);">
-                            <a href="${req.meeting_link}" target="_blank" class="action-btn btn-primary-doubt" style="display: inline-flex; width: auto; padding: 0.6rem 1.5rem;">
+                            <a href="${resolvePlatformUrl(req.meeting_link)}" target="_blank" class="action-btn btn-primary-doubt" style="display: inline-flex; width: auto; padding: 0.6rem 1.5rem;">
                                 <i class="fas fa-video"></i> Entrar na Reunião
                             </a>
                         </div>
@@ -641,28 +839,34 @@ function renderRequestDetail(req, applications) {
                 </button>
             ` : ''}
 
-            ${isOwner && req.status === 'in_progress' ? `
+            ${isOwner && req.status === 'in_progress' && !req.student_rating ? `
                 <button onclick="showCompleteForm(${req.request_id})" class="action-btn" style="background: var(--brand-green); color: white; margin-bottom: 1.5rem;">
                     <i class="fas fa-check-double"></i> Concluir Mentoria e Avaliar
                 </button>
+            ` : ''}
+            ${isOwner && req.student_rating ? `
+                <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); padding: 1rem; border-radius: 12px; color: #d1fae5; margin-bottom: 1.5rem;">
+                    <i class="fas fa-star" style="color:#fbbf24;"></i>
+                    Avaliação enviada: <b>${req.student_rating}/5</b>
+                </div>
             ` : ''}
         </div>
         
         <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
         
         <h3 style="margin-bottom: 1.5rem;">
-            <i class="fas fa-users"></i> Candidaturas (${applications.length})
+            <i class="fas fa-users"></i> Mentor atribuido
         </h3>
         
         <div id="applications-list">
             ${applications.length === 0 ? `
                 <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
                     <i class="fas fa-inbox" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
-                    <p>Nenhuma candidatura ainda</p>
+                    <p>Ainda sem mentor atribuido</p>
                 </div>
             ` : applications.map(app => `
                 <div class="mentor-application-card">
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="application-person-row">
                         <img src="${app.profile_pic ? (app.profile_pic.startsWith('http') ? app.profile_pic : (app.profile_pic.startsWith('carregamentos/') ? AKSANTI_CONFIG.baseUrl + app.profile_pic : AKSANTI_CONFIG.baseUrl + 'carregamentos/profiles/' + app.profile_pic)) : AKSANTI_CONFIG.baseUrl + 'recursos/images/default_profile.png'}" 
                             style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-orange); object-fit: cover;">
                         <div style="flex: 1;">
@@ -680,12 +884,12 @@ function renderRequestDetail(req, applications) {
                         ` : ''}
                     </div>
                     ${app.message ? `
-                        <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; white-space: pre-wrap;">
+                        <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere;">
                             ${app.message}
                         </p>
                     ` : ''}
-                    ${isOwner && app.status === 'pending' && req.status === 'open' ? `
-                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    ${false && isOwner && app.status === 'pending' && req.status === 'open' ? `
+                        <div class="application-actions">
                             <button onclick="respondToApplication(${req.request_id}, ${app.application_id}, 'accept')" 
                                 class="action-btn" style="background: #10b981; color: white; padding: 0.5rem 1rem;">
                                 <i class="fas fa-check"></i> Aceitar
@@ -751,7 +955,71 @@ function showApplicationForm(requestId) {
     });
 }
 
-async function respondToApplication(requestId, applicationId, action) {
+function showApplicationFormReliable(requestId) {
+    Swal.fire({
+        title: 'Aceitar ajudar?',
+        text: 'Este pedido ficara reservado para si e deixara de aparecer para outros mentores.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Aceito ajudar',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !Swal.isLoading(),
+        customClass: {
+            popup: 'free-mentorship-apply-popup'
+        },
+        background: '#1e293b',
+        color: '#fff',
+        confirmButtonColor: '#f7941d',
+        preConfirm: async () => {
+            const formData = new FormData();
+            formData.append('request_id', requestId);
+
+            try {
+                const response = await fetch('../../interface_programacao/mentorship/apply_for_free_mentorship.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const raw = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(raw);
+                } catch (parseError) {
+                    throw new Error('Resposta invalida do servidor. Recarregue a pagina e tente novamente.');
+                }
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Nao foi possivel assumir esta solicitacao.');
+                }
+
+                return data;
+            } catch (error) {
+                Swal.showValidationMessage(error.message || 'Falha de comunicacao. Tente novamente.');
+                return false;
+            }
+        }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Pedido assumido!',
+            text: (result.value && result.value.message) ? result.value.message : 'Escolha agora a data da mentoria.',
+            background: '#1e293b',
+            color: '#fff',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        openRequestDetail(requestId).then((detail) => showScheduleForm(requestId, detail && detail.request ? (detail.request.preferred_times || '') : ''));
+        loadContent();
+    });
+}
+
+window.showApplicationForm = showApplicationFormReliable;
+
+async function respondToApplicationLegacy(requestId, applicationId, action) {
     const formData = new FormData();
     formData.append('application_id', applicationId);
     formData.append('action', action);
@@ -781,6 +1049,82 @@ async function respondToApplication(requestId, applicationId, action) {
         console.error('Erro:', error);
     }
 }
+
+async function respondToApplicationReliable(requestId, applicationId, action, button) {
+    const shouldAccept = action === 'accept';
+    const confirmed = await Swal.fire({
+        title: shouldAccept ? 'Aceitar candidatura?' : 'Recusar candidatura?',
+        text: shouldAccept ? 'Esta mentoria sera iniciada com este mentor.' : 'Esta candidatura sera marcada como recusada.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: shouldAccept ? 'Sim, aceitar' : 'Sim, recusar',
+        cancelButtonText: 'Cancelar',
+        background: '#1e293b',
+        color: '#fff',
+        confirmButtonColor: shouldAccept ? '#10b981' : '#ef4444'
+    });
+
+    if (!confirmed.isConfirmed) return;
+
+    const sourceButton = button || (window.event && window.event.currentTarget);
+    const originalHtml = sourceButton ? sourceButton.innerHTML : '';
+    if (sourceButton) {
+        sourceButton.disabled = true;
+        sourceButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> A processar...';
+    }
+
+    const formData = new FormData();
+    formData.append('application_id', applicationId);
+    formData.append('action', action);
+
+    try {
+        const response = await fetch('../../interface_programacao/mentorship/respond_mentorship_application.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const raw = await response.text();
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (parseError) {
+            throw new Error('Resposta invalida do servidor. Recarregue a pagina e tente novamente.');
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Nao foi possivel processar esta candidatura.');
+        }
+
+        await Swal.fire({
+            icon: 'success',
+            title: shouldAccept ? 'Mentor aceite!' : 'Candidatura recusada',
+            text: data.message,
+            background: '#1e293b',
+            color: '#fff',
+            timer: 2000,
+            showConfirmButton: false
+        });
+
+        openRequestDetail(requestId);
+        loadContent();
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: error.message || 'Falha de comunicacao. Tente novamente.',
+            background: '#1e293b',
+            color: '#fff'
+        });
+    } finally {
+        if (sourceButton) {
+            sourceButton.disabled = false;
+            sourceButton.innerHTML = originalHtml;
+        }
+    }
+}
+
+window.respondToApplication = respondToApplicationReliable;
 
 function showCompleteForm(requestId) {
     Swal.fire({
@@ -856,11 +1200,21 @@ function showCompleteForm(requestId) {
     });
 }
 
-function showScheduleForm(requestId) {
+function showScheduleForm(requestId, preferredTimes = '') {
+    if (!preferredTimes && window.activeFreeMentorshipRequest && Number(window.activeFreeMentorshipRequest.request_id) === Number(requestId)) {
+        preferredTimes = window.activeFreeMentorshipRequest.preferred_times || '';
+    }
+
     Swal.fire({
         target: document.getElementById('requestDetailModal'),
         title: 'Agendar Sessão',
         html: `
+            ${preferredTimes ? `
+                <div style="text-align: left; margin-bottom: 1rem; padding: 0.85rem; border-radius: 10px; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); color: #dbeafe;">
+                    <strong style="display:block; margin-bottom:0.35rem;">Horarios sugeridos pelo estudante</strong>
+                    <span style="white-space: pre-wrap;">${escapeHtml(preferredTimes)}</span>
+                </div>
+            ` : ''}
             <div style="text-align: left; margin-bottom: 1rem;">
                 <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">Data e Hora*</label>
                 <input type="datetime-local" id="sessionDate" class="swal2-input" style="width: 100%; margin: 0; background: #0f172a; color: #fff;">

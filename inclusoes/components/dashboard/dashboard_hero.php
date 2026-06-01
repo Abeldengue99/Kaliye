@@ -208,7 +208,7 @@ $hero_base_url = $base_url ?? './';
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: -3;
     pointer-events: none;
 }
 

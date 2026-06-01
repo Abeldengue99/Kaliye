@@ -3,6 +3,7 @@
 session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 if (!isAdmin() || !hasPermission('finance_docs')) {
     die("Acesso negado.");
@@ -11,6 +12,7 @@ if (!isAdmin() || !hasPermission('finance_docs')) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 $format = isset($_GET['format']) ? $_GET['format'] : 'csv';
 
@@ -22,6 +24,7 @@ $financial_stats = $db->query("
         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as potential_pipeline,
         currency
     FROM project_investments
+    WHERE archived_at IS NULL
     GROUP BY currency
 ")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -34,6 +37,7 @@ $investments = $db->query("
     JOIN projects p ON pi.project_id = p.project_id
     JOIN users i ON pi.investor_id = i.user_id
     JOIN users o ON p.owner_id = o.user_id
+    WHERE pi.archived_at IS NULL
     ORDER BY pi.created_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 

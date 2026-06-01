@@ -108,8 +108,97 @@ if (!isset($db)) {
             description TEXT,
             deadline TIMESTAMP,
             status VARCHAR(20) DEFAULT 'pending',
+            expires_at TIMESTAMP NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS mentor_assignments (
+            assignment_id SERIAL PRIMARY KEY,
+            mentor_id INTEGER NOT NULL,
+            student_id INTEGER NOT NULL,
+            project_id INTEGER,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            status VARCHAR(50) DEFAULT 'pending',
+            expires_at TIMESTAMP NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE
+        )");
+
+        // Ensure expires_at column exists on existing tables
+        try {
+            $db->exec("ALTER TABLE mentorship_tasks ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
+            $db->exec("ALTER TABLE mentor_assignments ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
+        } catch (Exception $e) {
+            // Column might already exist
+        }
+        }
+
+        // AUTO-REPARAÇÃO: Salas VIP de Mentoria (Sempre criar, mesmo com flag desabilitada)
+        try {
+            $db->exec("CREATE TABLE IF NOT EXISTS mentor_chat_groups (
+                id SERIAL PRIMARY KEY,
+                mentor_id INTEGER NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                UNIQUE(mentor_id)
+            )");
+
+            $db->exec("CREATE TABLE IF NOT EXISTS mentor_group_members (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                role VARCHAR(20) DEFAULT 'member',
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES mentor_chat_groups(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                UNIQUE(group_id, user_id)
+            )");
+
+            $db->exec("CREATE TABLE IF NOT EXISTS mentor_group_messages (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER NOT NULL,
+                sender_id INTEGER NOT NULL,
+                message TEXT,
+                message_type VARCHAR(20) DEFAULT 'text',
+                file_url VARCHAR(500),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES mentor_chat_groups(id) ON DELETE CASCADE,
+                FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE
+            )");
+
+            $db->exec("CREATE TABLE IF NOT EXISTS mentor_group_meetings (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER NOT NULL,
+                mentor_id INTEGER NOT NULL,
+                title VARCHAR(255),
+                scheduled_at TIMESTAMP,
+                meet_link VARCHAR(500),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES mentor_chat_groups(id) ON DELETE CASCADE,
+                FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE
+            )");
+
+            $db->exec("CREATE TABLE IF NOT EXISTS mentor_group_resources (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER NOT NULL,
+                mentor_id INTEGER NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                file_path VARCHAR(500),
+                file_type VARCHAR(50),
+                file_size INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES mentor_chat_groups(id) ON DELETE CASCADE,
+                FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE
+            )");
+
+        } catch (Exception $e) {
+            error_log("Erro ao criar tabelas de mentoria VIP: " . $e->getMessage());
         }
 
     } catch (Exception $e) {
@@ -122,6 +211,23 @@ require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/auth_check.php';
 require_once __DIR__ . '/SystemSettings.php';
 enforceMaintenanceMode($db, $base_url);
+require_once __DIR__ . '/RetentionMaintenance.php';
+
+// AUTO-MIGRATION: Garantir colunas de mentor_chat_groups
+require_once __DIR__ . '/../configuracoes/migration_mentor_groups.php';
+
+// Executar migração de salas VIP de mentoria
+try {
+    require_once __DIR__ . '/../argumentos/migrations/mentor_chat_groups_migration.php';
+} catch (Throwable $migrationError) {
+    error_log('Erro ao executar migração de salas VIP: ' . $migrationError->getMessage());
+}
+
+try {
+    (new RetentionMaintenance($db))->runIfDue(90);
+} catch (Throwable $retentionError) {
+    error_log('Retention maintenance auto-run skipped: ' . $retentionError->getMessage());
+}
 require_once __DIR__ . '/components/header/logic.php';
 
 // HTML Head
@@ -153,10 +259,12 @@ require_once __DIR__ . '/components/header/head.php';
             <i class="fas fa-search"></i>
             <span>Explorar</span>
         </a>
+        <?php if (($_SESSION['user_type'] ?? '') !== 'investor'): ?>
         <a href="javascript:void(0)" onclick="openMobileMentorshipMenu()" class="bottom-nav-item <?php echo (strpos($_SERVER['PHP_SELF'], 'mentoria') !== false) ? 'active' : ''; ?>">
             <i class="fas fa-graduation-cap"></i>
             <span>Mentoria</span>
         </a>
+        <?php endif; ?>
         <a href="javascript:void(0)" onclick="openMobileProfileMenu()" class="bottom-nav-item <?php echo (strpos($_SERVER['PHP_SELF'], 'profile.php') !== false) ? 'active' : ''; ?>">
             <i class="fas fa-user-circle"></i>
             <span>Perfil</span>

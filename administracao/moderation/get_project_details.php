@@ -22,9 +22,22 @@ if (!$id) {
 try {
     $database = new Database();
     $db = $database->getConnection();
+    $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approval_status VARCHAR(30) DEFAULT 'pending'");
+    $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'pending'");
+    $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE");
+    $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP NULL");
+    $db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_by INTEGER NULL");
 
     $stmt = $db->prepare("
-        SELECT p.*, u.full_name, u.profile_pic, u.user_type
+        SELECT p.*, u.full_name, u.profile_pic, u.user_type,
+               CASE
+                   WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'approved'
+                        OR LOWER(TRIM(COALESCE(p.status, ''))) IN ('analyzed', 'approved', 'published')
+                        OR p.is_public = true THEN 'approved'
+                   WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'rejected'
+                        OR LOWER(TRIM(COALESCE(p.status, ''))) = 'rejected' THEN 'rejected'
+                   ELSE 'pending'
+               END AS moderation_status
         FROM projects p
         JOIN users u ON p.owner_id = u.user_id
         WHERE p.project_id = ?

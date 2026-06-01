@@ -5,6 +5,7 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../paginas/guest/landing.php');
@@ -56,7 +57,7 @@ $comm_stmt->execute([$user_id]);
 $recent_comments = $comm_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/dashboard-aksanti-elite.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/dashboard-aksanti-elite.css?v=<?php echo aksantiAssetVersion('recursos/css/dashboard-aksanti-elite.css'); ?>">
 
 <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 7.5%; min-height: 80vh;">
     

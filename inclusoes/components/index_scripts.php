@@ -160,6 +160,27 @@
         if(dropdown) dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     };
 
+    window.lazyPlayProjectCardVideo = function(video) {
+        if (!video || window.matchMedia('(hover: none)').matches) return;
+        if (!video.src && video.dataset && video.dataset.src) {
+            video.src = video.dataset.src;
+            video.load();
+        }
+        video.play().catch(() => {});
+    };
+
+    window.pauseProjectCardVideo = function(video) {
+        if (!video) return;
+        video.pause();
+    };
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) return;
+        document.querySelectorAll('.project-card-premium video').forEach(function(video) {
+            video.pause();
+        });
+    });
+
     // 2b. Verificação de Identidade (KYC) - Motor de Segurança Visual
     window.enforceKYC = function(arg = false) {
         const isEvent = arg && typeof arg === 'object' && typeof arg.preventDefault === 'function';
@@ -1319,7 +1340,7 @@
             nextAction = 'renderProjectModalStep(1)';
             prevAction = 'closeProjectDetailsModal()';
             const fullVideoPath = videoUrl ? (videoUrl.startsWith('http') ? videoUrl : `${BASE_URL}carregamentos/projects/${videoUrl}`) : '';
-            stepContent = `<div style="background:#000; border-radius:24px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">${videoUrl ? `<video src="${fullVideoPath}" controls style="width:100%; height:100%; object-fit:contain;"></video>` : `<p style="opacity:0.2;">Sem Pitch de Vídeo</p>`}</div>`;
+            stepContent = `<div style="background:#000; border-radius:24px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">${videoUrl ? `<video src="${fullVideoPath}" controls preload="metadata" playsinline style="width:100%; height:100%; object-fit:contain;"></video>` : `<p style="opacity:0.2;">Sem Pitch de Vídeo</p>`}</div>`;
         } else if (step === 1) {
             stepTitle = 'Visão';
             nextAction = 'renderProjectModalStep(2)';
@@ -1469,8 +1490,8 @@
         // Lógica de Mensagem (Exclusividade Aksanti)
         // Estudantes não podem enviar mensagens a Investidores
         const isStudent = window.sessionUserType && window.sessionUserType.toLowerCase().includes('student');
-        const isTargetInvestor = u.role.toLowerCase() === 'investor';
-        const canMessage = !(isStudent && isTargetInvestor);
+        const isTargetElite = u.role.toLowerCase() === 'investor' || u.role.toLowerCase() === 'mentor';
+        const canMessage = !(isStudent && isTargetElite && !u.has_active_chat);
 
         const messageBtnHtml = canMessage ? `
             <button onclick="openChatWithUser(${u.id})" class="view-profile-full-btn" style="flex:1; background:rgba(255,255,255,0.05); color:#fff; border:none; padding:15px; border-radius:16px; font-weight:800; cursor:pointer;"><i class="fas fa-comment-dots"></i> MENSAGEM</button>

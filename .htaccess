@@ -1,3 +1,20 @@
+# =======================
+# URL REWRITE: kaliye → aksanti
+# =======================
+# Transparent redirect from /kaliye/ to /aksanti/
+# This allows users to access via localhost/kaliye/ instead of localhost/aksanti/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # If request is for /kaliye/* then rewrite to /aksanti/*
+    RewriteCond %{REQUEST_URI} ^/kaliye(/.*)?$
+    RewriteRule ^kaliye(/.*)?$ /aksanti$1 [L]
+    
+    # Prevent direct access to aksanti folder (optional security)
+    # This keeps aksanti internal but accessible via kaliye
+</IfModule>
+
 # Increase PHP Upload Limits
 <IfModule mod_php.c>
     php_value upload_max_filesize 300M

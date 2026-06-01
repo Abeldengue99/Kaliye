@@ -75,9 +75,6 @@ $institutions = [];
                         <i class="fas fa-file-csv"></i> CSV
                     </a>
                 </div>
-                <button onclick="inviteAdmin()" class="btn-admin btn-admin-primary">
-                    <i class="fas fa-plus-circle"></i> NOVO ADMINISTRADOR
-                </button>
             </div>
         </header>
 

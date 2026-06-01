@@ -21,6 +21,7 @@ try {
               FROM free_mentorship_requests r
               JOIN users u ON r.student_id = u.user_id
               WHERE r.selected_mentor_id = ?
+                AND r.archived_at IS NULL
               ORDER BY r.updated_at DESC";
     
     $stmt = $db->prepare($query);

@@ -4,6 +4,7 @@ session_start();
 $admin_base = '../';
 $base_url = '../../';
 require_once '../../configuracoes/base_dados.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 // Auth check
 require_once '../../inclusoes/auth_check.php';
@@ -20,9 +21,10 @@ if (!hasPermission('mentor_approval')) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 // Fetch pending mentorship applications
-$query = "SELECT * FROM users WHERE mentorship_status = 'pending' ORDER BY updated_at ASC";
+$query = "SELECT * FROM users WHERE mentorship_status = 'pending' AND mentor_application_archived_at IS NULL ORDER BY updated_at ASC";
 $apps = $db->query($query)->fetchAll();
 ?>
 <!DOCTYPE html>

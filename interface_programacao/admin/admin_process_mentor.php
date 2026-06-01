@@ -3,6 +3,7 @@
 @session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 header('Content-Type: application/json');
 
@@ -33,10 +34,11 @@ if ($user_id <= 0 || !in_array($action, ['approve', 'reject'])) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 try {
     // Verificar se o usuário existe e está pendente
-    $check = $db->prepare("SELECT full_name, email, user_type, is_peer_mentor, mentorship_status FROM users WHERE user_id = ?");
+    $check = $db->prepare("SELECT full_name, email, user_type, is_peer_mentor, mentorship_status, mentor_application_archived_at FROM users WHERE user_id = ?");
     $check->execute([$user_id]);
     $user = $check->fetch(PDO::FETCH_ASSOC);
     
@@ -50,9 +52,14 @@ try {
         exit();
     }
     
+    if (!empty($user['mentor_application_archived_at'])) {
+        echo json_encode(['success' => false, 'message' => 'Esta candidatura foi arquivada por antiguidade. Solicite nova submissao ao utilizador se necessario.']);
+        exit();
+    }
+
     if ($action === 'approve') {
         // Aprovar mentor
-        $updateSql = "UPDATE users SET mentorship_status = 'approved'";
+        $updateSql = "UPDATE users SET mentorship_status = 'approved', mentor_application_archived_at = NULL, mentor_application_archive_reason = NULL";
         if ($user['user_type'] !== 'univ_student' && $user['user_type'] !== 'high_student') {
             $updateSql .= ", user_type = 'mentor'";
         }
@@ -77,7 +84,7 @@ try {
         
     } else {
         // Rejeitar mentor
-        $update = $db->prepare("UPDATE users SET mentorship_status = 'rejected' WHERE user_id = ?");
+        $update = $db->prepare("UPDATE users SET mentorship_status = 'rejected', mentor_application_archived_at = NULL, mentor_application_archive_reason = NULL WHERE user_id = ?");
         $update->execute([$user_id]);
         
         // Criar notificação para o usuário

@@ -21,12 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $title = trim($_POST['title'] ?? '');
 $description = trim($_POST['description'] ?? '');
 $category = trim($_POST['category'] ?? '');
+$preferred_times = trim($_POST['preferred_times'] ?? '');
 $difficulty_level = trim($_POST['difficulty_level'] ?? 'beginner');
 $estimated_duration = trim($_POST['estimated_duration'] ?? '');
 $doubt_id = !empty($_POST['doubt_id']) ? intval($_POST['doubt_id']) : null;
 
 if ($title === '' || $description === '') {
     echo json_encode(['success' => false, 'message' => 'Titulo e descrição são obrigatorios.']);
+    exit;
+}
+
+if ($preferred_times === '') {
+    echo json_encode(['success' => false, 'message' => 'Informe pelo menos uma opcao de dia e horario para a mentoria.']);
     exit;
 }
 
@@ -46,10 +52,10 @@ if ($doubt_id) {
 try {
     $stmt = $db->prepare("
         INSERT INTO free_mentorship_requests
-            (student_id, doubt_id, title, description, category, difficulty_level, estimated_duration, status, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'open', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            (student_id, doubt_id, title, description, category, preferred_times, difficulty_level, estimated_duration, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ");
-    $result = $stmt->execute([$user_id, $doubt_id, $title, $description, $category, $difficulty_level, $estimated_duration]);
+    $result = $stmt->execute([$user_id, $doubt_id, $title, $description, $category, $preferred_times, $difficulty_level, $estimated_duration]);
 
     if (!$result) {
         echo json_encode(['success' => false, 'message' => 'Erro ao criar pedido.']);
@@ -70,11 +76,11 @@ try {
         'description' => $description,
         'category' => $category,
     ];
-    $eligible_users = getEligibleFreeMentorshipMentorIds($db, $request_context, $user_id, false);
+    $eligible_users = getAllFreeMentorshipMentorIds($db, $user_id);
 
     if ($eligible_users) {
         $notif_title = 'Nova oportunidade de mentoria';
-        $notif_content = "Um estudante pediu ajuda no tema: '" . mb_strimwidth($title, 0, 70, '...') . "'. Candidate-se se esta area faz parte da sua experiência.";
+        $notif_content = "Um estudante pediu ajuda no tema: '" . mb_strimwidth($title, 0, 70, '...') . "'. Veja o pedido e aceite ajudar se estiver disponivel.";
         $link = 'paginas/mentoria/free_mentorship_requests.php?request_id=' . $request_id;
         $notif_ins = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at) VALUES (?, ?, ?, ?, 'mentorship_request', ?, false, CURRENT_TIMESTAMP)");
         foreach ($eligible_users as $mentor_id) {
@@ -83,8 +89,8 @@ try {
     }
 
     $message = $eligible_users
-        ? 'Pedido de mentoria criado com sucesso! Os mentores mais alinhados foram notificados.'
-        : 'Pedido de mentoria criado com sucesso! Nenhum mentor compativel foi encontrado para notificar agora.';
+        ? 'Pedido de mentoria criado com sucesso! Todos os mentores disponiveis foram notificados.'
+        : 'Pedido de mentoria criado com sucesso! Nenhum mentor disponivel foi encontrado para notificar agora.';
 
     echo json_encode(['success' => true, 'message' => $message, 'request_id' => $request_id, 'notified_mentors' => count($eligible_users)]);
 } catch (PDOException $e) {

@@ -18,7 +18,7 @@ $db = (new Database())->getConnection();
 // 1. Projectos Investidos (Performance Actual)
 $invested_q = "SELECT p.*, COUNT(i.investment_id) as inv_count, SUM(i.amount) as total_raised, u.full_name as owner_name 
                FROM projects p 
-               JOIN project_investments i ON p.project_id = i.project_id 
+               JOIN project_investments i ON p.project_id = i.project_id AND i.archived_at IS NULL
                JOIN users u ON p.owner_id = u.user_id
                GROUP BY p.project_id, u.full_name 
                ORDER BY total_raised DESC";
@@ -28,7 +28,7 @@ $invested_projects = $db->query($invested_q)->fetchAll(PDO::FETCH_ASSOC);
 $virgin_q = "SELECT p.*, u.full_name as owner_name 
              FROM projects p 
              JOIN users u ON p.owner_id = u.user_id
-             LEFT JOIN project_investments i ON p.project_id = i.project_id 
+             LEFT JOIN project_investments i ON p.project_id = i.project_id AND i.archived_at IS NULL
              WHERE i.investment_id IS NULL AND p.approval_status = 'approved'
              ORDER BY p.created_at DESC";
 $virgin_projects = $db->query($virgin_q)->fetchAll(PDO::FETCH_ASSOC);
@@ -39,12 +39,12 @@ $stale_q = "SELECT p.*, u.full_name as owner_name
             JOIN users u ON p.owner_id = u.user_id
             WHERE p.approval_status = 'approved' 
             AND (
-                -- Nunca teve investimento e tem mais de 30 dias
-                (NOT EXISTS (SELECT 1 FROM project_investments i2 WHERE i2.project_id = p.project_id) AND p.created_at < NOW() - INTERVAL '30 days')
+                -- Nunca teve investimento ativo e tem mais de 30 dias
+                (NOT EXISTS (SELECT 1 FROM project_investments i2 WHERE i2.project_id = p.project_id AND i2.archived_at IS NULL) AND p.created_at < NOW() - INTERVAL '30 days')
                 OR 
-                -- Teve investimento mas o último foi há mais de 30 dias
-                (EXISTS (SELECT 1 FROM project_investments i3 WHERE i3.project_id = p.project_id) 
-                 AND (SELECT MAX(created_at) FROM project_investments i4 WHERE i4.project_id = p.project_id) < NOW() - INTERVAL '30 days')
+                -- Teve investimento ativo mas o último foi há mais de 30 dias
+                (EXISTS (SELECT 1 FROM project_investments i3 WHERE i3.project_id = p.project_id AND i3.archived_at IS NULL) 
+                 AND (SELECT MAX(created_at) FROM project_investments i4 WHERE i4.project_id = p.project_id AND i4.archived_at IS NULL) < NOW() - INTERVAL '30 days')
             )
             ORDER BY p.created_at ASC";
 $stale_projects = $db->query($stale_q)->fetchAll(PDO::FETCH_ASSOC);
@@ -55,7 +55,7 @@ $potential_q = "SELECT p.*, u.full_name as owner_name,
                  (SELECT COUNT(*) FROM project_views WHERE project_id = p.project_id)) as engagement_score
                 FROM projects p 
                 JOIN users u ON p.owner_id = u.user_id
-                LEFT JOIN project_investments i ON p.project_id = i.project_id 
+                LEFT JOIN project_investments i ON p.project_id = i.project_id AND i.archived_at IS NULL
                 WHERE i.investment_id IS NULL AND p.approval_status = 'approved'
                 ORDER BY engagement_score DESC LIMIT 10";
 $potential_projects = $db->query($potential_q)->fetchAll(PDO::FETCH_ASSOC);

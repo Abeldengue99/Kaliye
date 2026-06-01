@@ -134,6 +134,17 @@
                             <i class="fas fa-chevron-right arrow-indicator"></i>
                         </a>
                         
+                        <?php if (strpos($_SESSION['user_type'] ?? '', 'student') !== false): ?>
+                            <a href="<?php echo $base_url; ?>paginas/plataforma/student_dashboard.php" onclick="closeExplorarModal()" class="modal-link-card highlight-glow-emerald">
+                                <div class="link-card-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="link-card-body">
+                                    <strong>Minhas Candidaturas</strong>
+                                    <span>Acompanhe o estado das suas candidaturas a projectos</span>
+                                </div>
+                                <i class="fas fa-chevron-right arrow-indicator"></i>
+                            </a>
+                        <?php endif; ?>
+                        
                         <a href="<?php echo $base_url; ?>paginas/explorar/project_analytics.php" onclick="closeExplorarModal()" class="modal-link-card">
                             <div class="link-card-icon"><i class="fas fa-chart-bar"></i></div>
                             <div class="link-card-body">
@@ -313,7 +324,7 @@
                             </div>
                             <i class="fas fa-chevron-right arrow-indicator"></i>
                         </a>
-                    <?php elseif ($is_student && !in_array($_SESSION['mentor_status'] ?? 'unsubmitted', ['approved', 'pending', 'under_review', 'shortlisted'])): ?>
+                    <?php elseif (($user_role === 'mentor' || $is_student) && !in_array($_SESSION['mentor_status'] ?? 'unsubmitted', ['approved', 'pending', 'under_review', 'shortlisted'])): ?>
                         <a href="javascript:void(0)" onclick="closeMentoriaModal(); openMentorAppModal();" class="modal-link-card highlight-glow-orange">
                             <div class="link-card-icon"><i class="fas fa-crown"></i></div>
                             <div class="link-card-body">
@@ -409,6 +420,32 @@
                             <i class="fas fa-lock arrow-indicator"></i>
                         </a>
                     <?php endif; ?>
+
+                    <!-- Minhas Candidaturas - Apenas para Estudantes e Mentores -->
+                    <?php 
+                        $session_user_type = $_SESSION['user_type'] ?? '';
+                        $is_student_check = (strpos($session_user_type, 'student') !== false);
+                        $is_mentor_check = ($session_user_type === 'mentor');
+                    ?>
+                    <?php if ($is_student_check): ?>
+                        <a href="<?php echo $base_url; ?>paginas/plataforma/student_dashboard.php" onclick="closePerfilMenuModal()" class="modal-link-card highlight-glow-emerald">
+                            <div class="link-card-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="link-card-body">
+                                <strong>Minhas Candidaturas</strong>
+                                <span>Acompanhe o estado das suas candidaturas a projectos</span>
+                            </div>
+                            <i class="fas fa-chevron-right arrow-indicator"></i>
+                        </a>
+                    <?php elseif ($is_mentor_check): ?>
+                        <a href="<?php echo $base_url; ?>paginas/plataforma/mentor_dashboard.php" onclick="closePerfilMenuModal()" class="modal-link-card highlight-glow-emerald">
+                            <div class="link-card-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="link-card-body">
+                                <strong>Minhas Propostas</strong>
+                                <span>Acompanhe o estado das suas candidaturas a projectos</span>
+                            </div>
+                            <i class="fas fa-chevron-right arrow-indicator"></i>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -467,6 +504,49 @@
 /* ==========================================================================
    ESTILOS PREMIUM: MODAIS CENTRAIS NAVBAR (EXPLORAR, MENTORIA & PERFIL)
    ========================================================================== */
+
+/* --- Botão X (Fechar) dos Modais Centrais --- */
+.elite-center-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.elite-center-modal-close:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+    transform: rotate(90deg) scale(1.05);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.elite-center-modal-close:active {
+    transform: rotate(90deg) scale(0.92);
+}
+
+.elite-center-modal-close i {
+    pointer-events: none;
+}
 
 .elite-center-modal-overlay {
     position: fixed;
@@ -1095,21 +1175,20 @@ function openExplorarModal() {
     const modal = document.getElementById('explorarModal');
     if (modal) {
         modal.style.display = 'flex';
-        modal.offsetHeight; // force reflow
+        modal.offsetHeight;
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Lock scrolling behind
+        document.body.style.overflow = 'hidden';
     }
 }
 
 function closeExplorarModal(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     const modal = document.getElementById('explorarModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 350);
-    }
+    if (!modal || modal._closing) return;
+    modal._closing = true;
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.style.display = 'none'; modal._closing = false; }, 350);
 }
 
 function openMentoriaModal() {
@@ -1124,35 +1203,33 @@ function openMentoriaModal() {
 }
 
 function closeMentoriaModal(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     const modal = document.getElementById('mentoriaModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 350);
-    }
+    if (!modal || modal._closing) return;
+    modal._closing = true;
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.style.display = 'none'; modal._closing = false; }, 350);
 }
 
 function openPerfilMenuModal() {
     const modal = document.getElementById('perfilMenuModal');
     if (modal) {
         modal.style.display = 'flex';
-        modal.offsetHeight; // force reflow
+        modal.offsetHeight;
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Lock scrolling behind
+        document.body.style.overflow = 'hidden';
     }
 }
 
 function closePerfilMenuModal(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     const modal = document.getElementById('perfilMenuModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 350);
-    }
+    if (!modal || modal._closing) return;
+    modal._closing = true;
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.style.display = 'none'; modal._closing = false; }, 350);
 }
 
 // Fecho universal no clique Escape
@@ -1164,3 +1241,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+

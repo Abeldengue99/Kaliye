@@ -345,6 +345,18 @@
         });
     }
 
+    function normalizeNotificationUrl(link) {
+        const clean = String(link || '').trim();
+        if (!clean || clean === '#') return '';
+        if (/^(https?:|mailto:|tel:)/i.test(clean)) return clean;
+
+        const appBase = new URL(window.BASE_URL || './', window.location.href);
+        if (clean.startsWith('/')) {
+            return new URL(clean, window.location.origin).href;
+        }
+        return new URL(clean.replace(/^(\.\.\/)+/, '').replace(/^(\.\/)+/, ''), appBase).href;
+    }
+
     function loadNotifications(options = {}) {
         fetch('<?php echo $base_url; ?>interface_programacao/social/get_notifications.php', { cache: 'no-store' })
             .then(res => res.json())
@@ -451,7 +463,8 @@
                         }
 
                         if (destUrl && destUrl.trim() !== '') {
-                            window.location.href = destUrl.startsWith('http') ? destUrl : '<?php echo $base_url; ?>' + destUrl;
+                            const normalizedUrl = normalizeNotificationUrl(destUrl);
+                            if (normalizedUrl) window.location.href = normalizedUrl;
                         }
                     };
                     list.appendChild(item);
@@ -569,10 +582,13 @@
             }).catch(e => console.error('[POLLING ERROR]', e));
         };
         
-        const initialDelay = 2500;
-        const pollingInterval = 15000;
+        const initialDelay = 3500;
+        const pollingInterval = (window.matchMedia && window.matchMedia('(hover: none)').matches) ? 45000 : 20000;
         setTimeout(() => window.fetchRealtimeCounts(true), initialDelay);
-        setInterval(() => window.fetchRealtimeCounts(false), pollingInterval);
+        setInterval(() => {
+            if (document.hidden) return;
+            window.fetchRealtimeCounts(false);
+        }, pollingInterval);
     }
     
     function playNotifSound() {
@@ -710,6 +726,8 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             setTimeout(() => {
+                if (window.__aksantiServiceWorkerRegistrationStarted) return;
+                window.__aksantiServiceWorkerRegistrationStarted = true;
                 navigator.serviceWorker.register('<?php echo $base_url; ?>sw.js')
                     .catch(() => {});
             }, 5000);

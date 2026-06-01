@@ -46,7 +46,7 @@ try {
     }
 
     if (in_array((string)$app['status'], ['approved', 'withdrawn'], true)) {
-        throw new Exception('Esta candidatura ja não pode ser alterada neste fluxo.');
+        throw new Exception('Esta candidatura já não pode ser alterada neste fluxo.');
     }
 
     $upd = $db->prepare("UPDATE project_mentorship_applications
@@ -70,13 +70,13 @@ try {
     $notif->execute([
         (int)$app['mentor_id'],
         $admin_id ?: null,
-        'Actualizacao da candidatura de mentoria',
+        'Atualização da candidatura de mentoria',
         $content,
         'paginas/mentoria/mentorship.php'
     ]);
 
     $db->commit();
-    echo json_encode(['success' => true, 'message' => 'Candidatura actualizada com sucesso.']);
+    echo json_encode(['success' => true, 'message' => 'Candidatura atualizada com sucesso.']);
 } catch (Exception $e) {
     if ($db->inTransaction()) {
         $db->rollBack();

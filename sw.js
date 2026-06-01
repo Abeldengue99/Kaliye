@@ -1,5 +1,5 @@
 /* Service Worker para Cache Offline */
-const CACHE_NAME = 'aksanti-v1.0.1';
+const CACHE_NAME = 'aksanti-2026.05.29.1';
 const urlsToCache = [
     '/',
     '/recursos/css/style.css',
@@ -17,9 +17,17 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('Opened cache');
-                return cache.addAll(urlsToCache);
+                return Promise.all(
+                    urlsToCache.map(url => cache.add(url).catch(() => null))
+                );
             })
     );
+});
+
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // Cache and return requests
@@ -78,6 +86,6 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
 });

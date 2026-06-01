@@ -5,12 +5,13 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 $current_user_id  = $_SESSION['user_id'];
 $current_user_type = $_SESSION['user_type'];
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/pages/doubts.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/doubts.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/doubts.css'); ?>">
 
 <style>
 /* ── PAGE LAYOUT ── */

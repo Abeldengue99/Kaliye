@@ -15,6 +15,11 @@
 function closeProjectDetailsModal() {
     const modal = document.getElementById('detailsModal');
     if (modal) {
+        modal.querySelectorAll('video').forEach(function(video) {
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        });
         modal.classList.remove('active');
         document.body.style.overflow = '';
         // Reset styles on close so next open works cleanly

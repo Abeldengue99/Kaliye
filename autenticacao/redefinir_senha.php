@@ -2,6 +2,7 @@
 // auth/reset_password.php
 session_start();
 require_once __DIR__ . '/../configuracoes/base_dados.php';
+require_once __DIR__ . '/../inclusoes/asset_helper.php';
 
 $token = $_GET['token'] ?? '';
 $email = $_GET['email'] ?? '';
@@ -31,7 +32,7 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
     <meta name="theme-color" content="#f7941d">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../recursos/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../recursos/css/style.css?v=<?php echo aksantiAssetVersion('recursos/css/style.css'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* CSS adicional para deixar o card menor e elegante */

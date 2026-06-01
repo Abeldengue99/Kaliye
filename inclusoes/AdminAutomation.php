@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../configuracoes/base_dados.php';
 require_once __DIR__ . '/SimpleSMS.php';
+require_once __DIR__ . '/RetentionMaintenance.php';
 
 class AdminAutomation {
     private PDO $db;
@@ -27,6 +28,7 @@ class AdminAutomation {
         $actions = array_merge($actions, $this->processPendingInvestments($dryRun));
         $actions = array_merge($actions, $this->processUnreadSupport($dryRun));
         $actions = array_merge($actions, $this->archiveOldNotifications($dryRun));
+        $actions = array_merge($actions, $this->runRetentionMaintenance($dryRun));
         $actions = array_merge($actions, $this->expireOldOtpCodes($dryRun));
         $actions = array_merge($actions, $this->expirePastMentorshipSlots($dryRun));
         $actions = array_merge($actions, $this->flagDormantUsers($dryRun));
@@ -128,6 +130,29 @@ class AdminAutomation {
         }
 
         return [['type' => 'notifications_archived', 'label' => $count . ' notificacao(oes) antigas marcadas como lidas']];
+    }
+
+    private function runRetentionMaintenance(bool $dryRun): array {
+        if (!$this->enabled('automation_retention_archive', true)) {
+            return [];
+        }
+
+        $retention = new RetentionMaintenance($this->db);
+        $result = $dryRun ? $retention->run(true) : $retention->runIfDue(90);
+        $actions = [];
+
+        foreach ($result as $type => $count) {
+            if (!is_int($count) || $count <= 0) {
+                continue;
+            }
+
+            $actions[] = [
+                'type' => 'retention_' . $type,
+                'label' => $count . ' registo(s) arquivado(s) em ' . $type,
+            ];
+        }
+
+        return $actions;
     }
 
     private function expireOldOtpCodes(bool $dryRun): array {

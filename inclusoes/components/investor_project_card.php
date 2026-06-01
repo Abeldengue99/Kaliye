@@ -32,7 +32,7 @@
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
             <div style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--accent-orange); overflow: hidden; background: #1e293b; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <?php if($project['profile_pic'] && $project['profile_pic'] != 'default_profile.png'): ?>
-                    <img src="../<?php echo htmlspecialchars($project['profile_pic']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="<?php echo isset($base_url) ? $base_url : '../../'; ?><?php echo htmlspecialchars($project['profile_pic']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
                 <?php else: ?>
                     <i class="fas fa-user" style="font-size: 0.6rem; color: var(--accent-orange);"></i>
                 <?php endif; ?>

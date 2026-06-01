@@ -90,7 +90,7 @@ try {
         $notif->execute([
             $mentor_id,
             $admin_id ?: null,
-            'Nova atribuicao de mentoria',
+            'Nova atribuição de mentoria',
             'Foi atribuido ao projeto "' . $project['title'] . '". Consulte os termos na plataforma.',
             'paginas/mentoria/mentorship.php'
         ]);

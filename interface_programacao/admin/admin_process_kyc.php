@@ -3,6 +3,7 @@
 @session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 header('Content-Type: application/json');
 
@@ -30,6 +31,7 @@ require_once '../../inclusoes/SimpleMailer.php';
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 try {
     $status = ($action === 'approve') ? 'verified' : 'rejected';
@@ -66,7 +68,7 @@ try {
         
         // Aprovar Investidor
         if ($u_role === 'investor') {
-            $query .= ", investor_status = 'approved'";
+            $query .= ", investor_status = 'approved', investor_application_archived_at = NULL, investor_application_archive_reason = NULL";
         }
     } else {
         // Rejeitar tudo em caso de falha no KYC
@@ -74,7 +76,7 @@ try {
             $query .= ", mentorship_status = 'rejected'";
         }
         if ($u_role === 'investor') {
-            $query .= ", investor_status = 'rejected'";
+            $query .= ", investor_status = 'rejected', investor_application_archived_at = NULL, investor_application_archive_reason = NULL";
         }
     }
 

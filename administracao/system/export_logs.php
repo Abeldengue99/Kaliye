@@ -16,7 +16,7 @@ $db = $database->getConnection();
 
 $format = isset($_GET['format']) ? $_GET['format'] : 'csv';
 
-$query = "SELECT l.*, u.full_name, u.email FROM audit_logs l LEFT JOIN users u ON l.admin_id = u.user_id ORDER BY l.created_at DESC";
+$query = "SELECT l.id, l.admin_id, l.action, l.details, l.created_at, u.full_name, u.email FROM audit_logs l LEFT JOIN users u ON l.admin_id = u.user_id ORDER BY l.created_at DESC";
 $logs = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
 if ($format === 'csv') {

@@ -77,6 +77,94 @@ function ensureInvestmentApplicationsSchema(PDO $db): void {
     $db->exec("CREATE INDEX IF NOT EXISTS idx_project_investments_investor ON project_investments(investor_id)");
 }
 
+function ensureSpecialistApplicationsSchema(PDO $db): void {
+    if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+        return;
+    }
+
+    $db->exec("CREATE TABLE IF NOT EXISTS project_specialist_applications (
+        application_id SERIAL PRIMARY KEY,
+        project_id INTEGER NOT NULL,
+        specialist_id INTEGER NOT NULL,
+        status VARCHAR(30) DEFAULT 'submitted',
+        motivation TEXT,
+        relevant_experience TEXT,
+        proposed_support TEXT,
+        specialization_areas TEXT,
+        availability TEXT,
+        admin_response TEXT,
+        reviewed_by INTEGER NULL,
+        reviewed_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(project_id, specialist_id)
+    )");
+
+    $columns = [
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS motivation TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS relevant_experience TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS proposed_support TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS specialization_areas TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS availability TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS admin_response TEXT",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS reviewed_by INTEGER NULL",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP NULL",
+        "ALTER TABLE project_specialist_applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+    ];
+
+    foreach ($columns as $sql) {
+        $db->exec($sql);
+    }
+
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_psa_status ON project_specialist_applications(status)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_psa_project ON project_specialist_applications(project_id)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_psa_specialist ON project_specialist_applications(specialist_id)");
+}
+
+function ensureStudentApplicationsSchema(PDO $db): void {
+    if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+        return;
+    }
+
+    $db->exec("CREATE TABLE IF NOT EXISTS project_student_applications (
+        application_id SERIAL PRIMARY KEY,
+        project_id INTEGER NOT NULL,
+        student_id INTEGER NOT NULL,
+        status VARCHAR(30) DEFAULT 'submitted',
+        motivation TEXT,
+        relevant_skills TEXT,
+        learning_objectives TEXT,
+        time_availability TEXT,
+        academic_background TEXT,
+        admin_response TEXT,
+        reviewed_by INTEGER NULL,
+        reviewed_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(project_id, student_id)
+    )");
+
+    $columns = [
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS motivation TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS relevant_skills TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS learning_objectives TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS time_availability TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS academic_background TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS admin_response TEXT",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS reviewed_by INTEGER NULL",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP NULL",
+        "ALTER TABLE project_student_applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+    ];
+
+    foreach ($columns as $sql) {
+        $db->exec($sql);
+    }
+
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_pstudent_status ON project_student_applications(status)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_pstudent_project ON project_student_applications(project_id)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_pstudent_student ON project_student_applications(student_id)");
+}
+
 function notifyAdmins(PDO $db, int $senderId, string $title, string $content, string $type = 'system', string $link = ''): void {
     $admins = $db->query("SELECT user_id FROM users WHERE user_type IN ('admin', 'superadmin')")->fetchAll(PDO::FETCH_COLUMN);
     if (!$admins) {

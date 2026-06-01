@@ -43,8 +43,15 @@ try {
     // 1. Totais Gerais
     // Conto o total de usuários registrados
     $response['total_users'] = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    // Conto o total de projetos pendentes de aprovação
-    $response['total_projects'] = (int)$db->query("SELECT COUNT(*) FROM projects WHERE approval_status = 'pending'")->fetchColumn();
+    
+    // CORREÇÃO DA MODERAÇÃO: Aplicação da regra estrita dos 3 estados sincronizados para evitar falsos pendentes
+    $response['total_projects'] = (int)$db->query("
+        SELECT COUNT(*) 
+        FROM projects 
+        WHERE approval_status = 'pending' 
+          AND is_public = false 
+          AND status = 'pending'
+    ")->fetchColumn();
     
     // Conta solicitações de verificação pendentes (KYC pendente)
     try {
@@ -170,11 +177,9 @@ try {
 } catch (Exception $e) {
     // Em caso de erro geral, registro no log do servidor
     error_log("Erro no Admin Stats: " . $e->getMessage());
-    // O script continuará e retornará o que conseguiu processar (ou valores padrão)
 }
 
 // Retorno a resposta completa em formato JSON
 echo json_encode($response);
 // Encerro a execução do script
 exit;
-

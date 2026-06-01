@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 requireAdmin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Metodo invalido.']);
+    echo json_encode(['success' => false, 'message' => 'Método inválido.']);
     exit();
 }
 

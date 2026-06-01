@@ -22,6 +22,7 @@ function ensureFreeMentorshipTables(PDO $db): void
             title VARCHAR(255) NOT NULL,
             description TEXT NOT NULL,
             category VARCHAR(120) NULL,
+            preferred_times TEXT NULL,
             difficulty_level VARCHAR(40) NOT NULL DEFAULT 'beginner',
             estimated_duration VARCHAR(80) NULL,
             status VARCHAR(40) NOT NULL DEFAULT 'open',
@@ -39,11 +40,14 @@ function ensureFreeMentorshipTables(PDO $db): void
         "title VARCHAR(255)",
         "description TEXT",
         "category VARCHAR(120)",
+        "preferred_times TEXT",
         "difficulty_level VARCHAR(40) DEFAULT 'beginner'",
         "estimated_duration VARCHAR(80)",
         "status VARCHAR(40) DEFAULT 'open'",
         "started_at TIMESTAMP",
         "completed_at TIMESTAMP",
+        "archived_at TIMESTAMP",
+        "archive_reason VARCHAR(160)",
         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
     ];
@@ -81,6 +85,22 @@ function ensureFreeMentorshipTables(PDO $db): void
     ");
 
     $db->exec("ALTER TABLE free_mentorship_sessions ADD COLUMN IF NOT EXISTS mentorship_slot_id INT");
+
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS user_reviews (
+            review_id SERIAL PRIMARY KEY,
+            mentor_id INT NOT NULL,
+            student_id INT NOT NULL,
+            rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+            comment TEXT NULL,
+            context VARCHAR(80) NULL,
+            reference_id INT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+    $db->exec("ALTER TABLE user_reviews ADD COLUMN IF NOT EXISTS context VARCHAR(80)");
+    $db->exec("ALTER TABLE user_reviews ADD COLUMN IF NOT EXISTS reference_id INT");
+    $db->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_reviews_free_request ON user_reviews (student_id, mentor_id, reference_id) WHERE context = 'free_mentorship'");
 
     $db->exec("
         CREATE TABLE IF NOT EXISTS mentorships (
@@ -160,6 +180,7 @@ function ensureFreeMentorshipTables(PDO $db): void
     $db->exec("CREATE INDEX IF NOT EXISTS idx_free_mentorship_req_student ON free_mentorship_requests (student_id)");
     $db->exec("CREATE INDEX IF NOT EXISTS idx_free_mentorship_req_mentor ON free_mentorship_requests (selected_mentor_id)");
     $db->exec("CREATE INDEX IF NOT EXISTS idx_free_mentorship_req_status ON free_mentorship_requests (status)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_free_mentorship_req_operational ON free_mentorship_requests (status, archived_at, updated_at)");
     $db->exec("CREATE INDEX IF NOT EXISTS idx_free_mentorship_sessions_request ON free_mentorship_sessions (request_id)");
 
     $checked = true;
@@ -204,6 +225,10 @@ function buildFreeMentorshipMentorEligibilitySql(string $alias = 'u'): string
 
 function getEligibleFreeMentorshipMentorIds(PDO $db, array $request, int $studentId, bool $fallbackToAllMentors = false): array
 {
+    if (isGeneralFreeMentorshipRequest($request)) {
+        return getAllFreeMentorshipMentorIds($db, $studentId);
+    }
+
     $keywords = getFreeMentorshipKeywords($request);
     $category = normalizeFreeMentorshipText((string)($request['category'] ?? ''));
     $eligibility = buildFreeMentorshipMentorEligibilitySql('u');
@@ -248,6 +273,15 @@ function getEligibleFreeMentorshipMentorIds(PDO $db, array $request, int $studen
     return $ids;
 }
 
+function getAllFreeMentorshipMentorIds(PDO $db, int $studentId): array
+{
+    $eligibility = buildFreeMentorshipMentorEligibilitySql('u');
+    $stmt = $db->prepare("SELECT u.user_id FROM users u WHERE $eligibility AND u.user_id != ? ORDER BY u.user_id ASC");
+    $stmt->execute([$studentId]);
+
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
 function isEligibleForFreeMentorshipRequest(PDO $db, int $mentorId, array $request): bool
 {
     if ((int)$request['student_id'] === $mentorId) {
@@ -257,4 +291,11 @@ function isEligibleForFreeMentorshipRequest(PDO $db, int $mentorId, array $reque
     $ids = getEligibleFreeMentorshipMentorIds($db, $request, (int)$request['student_id'], false);
 
     return in_array($mentorId, $ids, true);
+}
+
+function isGeneralFreeMentorshipRequest(array $request): bool
+{
+    $category = normalizeFreeMentorshipText((string)($request['category'] ?? ''));
+
+    return $category === '' || in_array($category, ['other', 'outro', 'geral', 'general'], true);
 }

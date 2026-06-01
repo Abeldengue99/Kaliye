@@ -14,7 +14,7 @@ if (!isAdmin() || !hasPermission('settings')) {
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Metodo invalido.']);
+    echo json_encode(['success' => false, 'message' => 'Método inválido.']);
     exit();
 }
 

@@ -344,6 +344,23 @@
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Botão de Gerir Membros da Sala VIP */
+#mentorGroupMembersBtn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+#mentorGroupMembersBtn:hover {
+    background: rgba(16,185,129,0.35) !important;
+    box-shadow: 0 0 12px rgba(16,185,129,0.25);
+}
+
+#mentorGroupMembersBtn:active {
+    transform: scale(0.98);
 }
 
 .chat-idle-header {
@@ -667,5 +684,18 @@
         flex-basis: 34px;
         width: 34px;
         height: 34px;
+    }
+
+    /* Botão de Gerir Membros para Mobile */
+    #mentorGroupMembersBtn {
+        padding: 6px 8px !important;
+        font-size: 0.7rem !important;
+        gap: 4px !important;
+        min-width: auto;
+        height: 40px;
+    }
+
+    #mentorGroupMembersBtn i {
+        font-size: 0.8rem;
     }
 }

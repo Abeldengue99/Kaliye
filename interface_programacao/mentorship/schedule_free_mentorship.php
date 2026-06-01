@@ -65,9 +65,11 @@ try {
 
     $start = date('Y-m-d H:i:s', $timestamp);
     $end = date('Y-m-d H:i:s', $timestamp + ($duration * 60));
-    $room_name = 'Aksanti_Free_' . substr(md5($request_id . '_' . $user_id . '_' . $start), 0, 16);
-    $internal_link = '../../paginas/mentoria/meeting.php?room=' . $room_name;
+    $room_name = 'Mentoria_' . substr(md5($request_id . '_' . $user_id . '_' . $start), 0, 18);
+    
+    $internal_link = 'paginas/mentoria/meeting.php?room=' . rawurlencode($room_name);
     $final_link = $meeting_link !== '' ? $meeting_link : $internal_link;
+    $notification_link = 'paginas/mentoria/mentorship.php?view=mentee&tab=scheduler&join=' . rawurlencode($room_name);
 
     $stmt_session = $db->prepare("SELECT session_id, mentorship_slot_id FROM free_mentorship_sessions WHERE request_id = ? ORDER BY session_id ASC LIMIT 1");
     $stmt_session->execute([$request_id]);
@@ -129,13 +131,14 @@ try {
 
     $mentor_name = $_SESSION['user_name'] ?? 'O seu mentor';
     $formatted_date = date('d/m/Y H:i', $timestamp);
-    $msg = "A sua mentoria com $mentor_name foi agendada para $formatted_date.";
+    $msg = "A sua mentoria com $mentor_name foi agendada para $formatted_date. Duracao: $duration minutos. Link da reuniao: $final_link. Prepare as suas duvidas e esteja online no horario combinado.";
 
+    // ALTERAÇÃO 2: Atualizado o valor de 'is_read' para 0 (smallint) mantendo integridade com o PostgreSQL
     $ins_notif = $db->prepare("
         INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at)
-        VALUES (?, ?, 'Mentoria agendada', ?, 'mentorship_scheduled', ?, false, CURRENT_TIMESTAMP)
+        VALUES (?, ?, 'Mentoria agendada', ?, 'mentorship_scheduled', ?, 0, CURRENT_TIMESTAMP)
     ");
-    $ins_notif->execute([$req['student_id'], $user_id, $msg, $final_link]);
+    $ins_notif->execute([$req['student_id'], $user_id, $msg, $notification_link]);
 
     $mailer = new SimpleMailer();
     $safe_name = htmlspecialchars($req['student_name'] ?? 'Estudante', ENT_QUOTES, 'UTF-8');

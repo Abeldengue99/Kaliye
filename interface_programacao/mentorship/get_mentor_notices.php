@@ -25,15 +25,20 @@ try {
         title VARCHAR(255) NOT NULL,
         content TEXT,
         importance VARCHAR(10) DEFAULT 'normal' CHECK (importance IN ('normal', 'high')),
+        expires_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE
     )");
+    
+    // Add expires_at column if it doesn't exist
+    $db->exec("ALTER TABLE mentorship_notices ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
 
     if ($view === 'mentor') {
         $query = "SELECT n.*, u.full_name as author_name 
                   FROM mentorship_notices n 
                   JOIN users u ON n.mentor_id = u.user_id
                   WHERE n.mentor_id = ? 
+                    AND (n.expires_at IS NULL OR n.expires_at > NOW())
                   ORDER BY n.created_at DESC";
         $stmt = $db->prepare($query);
         $stmt->execute([$user_id]);
@@ -55,6 +60,7 @@ try {
                           SELECT mentor_id FROM mentorship_tasks WHERE mentee_id = ?
                       )
                       AND (mnv.user_id = ? OR mnv.id IS NULL)
+                      AND (n.expires_at IS NULL OR n.expires_at > NOW())
                       ORDER BY n.created_at DESC";
             $stmt = $db->prepare($query);
             $stmt->execute([$user_id, $user_id, $user_id]);
@@ -66,7 +72,8 @@ try {
                       WHERE n.mentor_id IN (
                           SELECT mentor_id FROM mentorship_slots WHERE participant_id = ? UNION
                           SELECT mentor_id FROM mentorship_tasks WHERE mentee_id = ?
-                      ) 
+                      )
+                      AND (n.expires_at IS NULL OR n.expires_at > NOW())
                       ORDER BY n.created_at DESC";
             $stmt = $db->prepare($query);
             $stmt->execute([$user_id, $user_id]);

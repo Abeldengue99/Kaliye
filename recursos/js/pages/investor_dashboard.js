@@ -35,7 +35,7 @@ function openInvestorProjectDetails(id) {
                         if (m.media_type === 'image') {
                             mediaHtml += `<img src="../../${m.media_url}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 16px; border: 1px solid var(--glass-border); cursor: pointer;" onclick="window.open(this.src)">`;
                         } else {
-                            mediaHtml += `<video src="../../${m.media_url}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 16px; border: 1px solid var(--glass-border);" controls></video>`;
+                            mediaHtml += `<video src="../../${m.media_url}" preload="metadata" playsinline style="width: 100%; height: 180px; object-fit: cover; border-radius: 16px; border: 1px solid var(--glass-border);" controls></video>`;
                         }
                     });
                     mediaHtml += '</div>';

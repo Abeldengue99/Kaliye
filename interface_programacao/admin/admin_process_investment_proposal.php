@@ -9,6 +9,7 @@ header('Content-Type: application/json');
 
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 if (!isAdmin()) {
     echo json_encode(['success' => false, 'error' => 'Acesso negado.']);
@@ -29,6 +30,7 @@ if ($investment_id <= 0 || !in_array($action, ['approve', 'reject'])) {
 
 $database = new Database();
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 try {
     $db->beginTransaction();
@@ -40,6 +42,7 @@ try {
         JOIN projects p ON pi.project_id = p.project_id
         JOIN users u ON pi.investor_id = u.user_id
         WHERE pi.investment_id = :id
+          AND pi.archived_at IS NULL
     ");
     $stmt->execute([':id' => $investment_id]);
     $proposal = $stmt->fetch(PDO::FETCH_ASSOC);

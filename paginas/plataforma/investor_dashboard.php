@@ -14,6 +14,7 @@
 
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 // â”€â”€â”€ Access Control â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if ($_SESSION['user_type'] != 'investor') {
@@ -28,7 +29,7 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
 $search_term = isset($_GET['search']) ? $_GET['search'] : '';
 $budget_min = isset($_GET['budget_min']) ? (int)$_GET['budget_min'] : 0;
 $budget_max = isset($_GET['budget_max']) ? (int)$_GET['budget_max'] : PHP_INT_MAX;
-$view_mode = isset($_GET['view']) ? $_GET['view'] : 'explore';
+$view_mode = isset($_GET['view']) ? $_GET['view'] : 'my_investments';
 
 // â”€â”€â”€ Unread Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $unread_query = "SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = ? AND type = 'investment' AND CAST(is_read AS INTEGER) = 0";
@@ -49,7 +50,8 @@ if ($view_mode === 'my_investments') {
               JOIN users u ON p.owner_id = u.user_id
               LEFT JOIN users m ON p.assigned_mentor_id = m.user_id
               JOIN project_investments pi ON p.project_id = pi.project_id
-              WHERE pi.investor_id = ? ";
+              WHERE pi.investor_id = ?
+                AND pi.archived_at IS NULL ";
     $params = [$user_id, $user_id, $user_id];
 } else {
     $query = "SELECT $select_fields
@@ -97,7 +99,7 @@ $balance = $user_stats['wallet_balance'] ?? 0;
 $invested = $user_stats['total_invested'] ?? 0;
 
 // Active investments count
-$active_investments_stmt = $db->prepare("SELECT COUNT(*) FROM project_investments WHERE investor_id = ? AND status = 'confirmed'");
+$active_investments_stmt = $db->prepare("SELECT COUNT(*) FROM project_investments WHERE investor_id = ? AND status = 'confirmed' AND archived_at IS NULL");
 $active_investments_stmt->execute([$user_id]);
 $active_deals = $active_investments_stmt->fetchColumn();
 
@@ -108,7 +110,7 @@ $recent_transactions = $trans_stmt->fetchAll();
 ?>
 
 <!-- Styles -->
-<link rel="stylesheet" href="../../recursos/css/pages/investor_dashboard.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/investor_dashboard.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/investor_dashboard.css'); ?>">
 
 <!-- Content -->
 <?php include '../../inclusoes/components/investor_dashboard_content.php'; ?>
@@ -117,7 +119,7 @@ $recent_transactions = $trans_stmt->fetchAll();
 <?php include '../../inclusoes/components/investor_dashboard_modals.php'; ?>
 
 <!-- Scripts -->
-<script src="../../recursos/js/pages/investor_dashboard.js?v=<?php echo time(); ?>"></script>
+<script src="../../recursos/js/pages/investor_dashboard.js?v=<?php echo aksantiAssetVersion('recursos/js/pages/investor_dashboard.js'); ?>" defer></script>
 
 <?php require_once '../../inclusoes/rodape.php'; ?>
 

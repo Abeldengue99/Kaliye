@@ -386,7 +386,7 @@
             var fullVideo = videoUrl ? (videoUrl.indexOf('http') === 0 ? videoUrl : BASE + 'carregamentos/projects/' + videoUrl) : '';
             if (fullVideo) {
                 html = '<div style="background:#000;border-radius:20px;overflow:hidden;margin-bottom:1.5rem;">' +
-                    '<video src="' + fullVideo + '" controls style="width:100%;max-height:400px;object-fit:contain;"></video></div>';
+                    '<video src="' + fullVideo + '" controls preload="metadata" playsinline style="width:100%;max-height:400px;object-fit:contain;"></video></div>';
             } else {
                 html = '<div style="' + box + 'text-align:center;padding:4rem;"><i class="fas fa-video-slash" style="font-size:2rem;color:rgba(255,255,255,0.1);"></i><p style="color:rgba(255,255,255,0.2);margin-top:1rem;">Sem vídeo de pitch</p></div>';
             }
@@ -474,7 +474,7 @@
                         ? mediaUrl
                         : (mediaUrl.indexOf('carregamentos/') === 0 ? BASE + mediaUrl : BASE + 'carregamentos/projects/' + mediaUrl);
                     if (m.media_type === 'video' || m.type === 'video') {
-                        html += '<video src="' + safeUrl + '" controls style="width:100%;height:80px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.08);"></video>';
+                        html += '<video src="' + safeUrl + '" controls preload="metadata" playsinline style="width:100%;height:80px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.08);"></video>';
                     } else {
                         html += '<img src="' + safeUrl + '" style="width:100%;height:80px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;" onclick="window.open(this.src)">';
                     }
@@ -796,11 +796,7 @@
             var isSessionStudent = (window.sessionUserType === 'student' || window.sessionUserType === 'univ_student' || window.sessionUserType === 'high_student');
             var isTargetAuthority = (u.user_type_raw === 'mentor' || u.user_type_raw === 'investor');
             
-            // Only show message button if connection is accepted AND it's not a student trying to message an authority
-            if (u.connection_status === 'accepted' && !(isSessionStudent && isTargetAuthority)) {
-                msgBtn = '<button onclick="window.location.href=\'' + BASE + 'paginas/mensagens/index.php?user=' + u.id + '\'" style="flex:1;background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:14px;font-weight:900;cursor:pointer;font-size:0.85rem;"><i class="fas fa-comment-dots" style="margin-right:8px;"></i> MENSAGEM</button>';
-            }
-            
+            // Connection button logic
             var cs = u.connection_status || 'none';
             if (cs === 'none') {
                 connectBtn = '<button onclick="handleUserConnectionV2(' + u.id + ', \'request\', this)" style="flex:1;background:linear-gradient(135deg,#f7941d,#ffb347);color:#fff;border:none;padding:14px;border-radius:14px;font-weight:900;cursor:pointer;font-size:0.8rem;box-shadow:0 8px 20px rgba(247,148,29,0.2);transition:0.3s;"><i class="fas fa-bolt"></i> REFORÇAR REDE</button>';
@@ -811,17 +807,11 @@
             } else if (cs === 'received') {
                 connectBtn = '<button onclick="handleUserConnectionV2(' + u.id + ', \'accept\', this)" style="flex:1;background:linear-gradient(135deg,#f7941d,#ffb347);color:#fff;border:none;padding:14px;border-radius:14px;font-weight:900;cursor:pointer;font-size:0.8rem;"><i class="fas fa-check"></i> ACEITAR</button><button onclick="handleUserConnectionV2(' + u.id + ', \'reject\', this)" style="flex:1;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.22);padding:14px;border-radius:14px;font-weight:900;cursor:pointer;font-size:0.8rem;"><i class="fas fa-times"></i> RECUSAR</button>';
             }
-        }
-
-        // Message button (students can't message investors)
-        var canMessage = true;
-        var sessionType = (window.sessionUserType || '').toLowerCase();
-        if (sessionType.indexOf('student') !== -1 && (u.role || '').toLowerCase() === 'investor') {
-            canMessage = false;
-        }
-        var msgBtn = '';
-        if (!isOwnProfile) {
-            if (canMessage) {
+            
+            // Message button logic: estudante NÃO pode iniciar com mentor/investidor, A MENOS QUE já exista conversa ativa
+            var canInitiateMessage = !(isSessionStudent && isTargetAuthority && !u.has_active_chat);
+            
+            if (canInitiateMessage) {
                 msgBtn = '<button onclick="window.location.href=\'' + BASE + 'paginas/social/messages.php?start=' + u.id + '\'" style="flex:1;background:rgba(255,255,255,0.06);color:#fff;border:none;padding:14px;border-radius:14px;font-weight:800;cursor:pointer;font-size:0.8rem;transition:0.3s;"><i class="fas fa-comment-dots"></i> MENSAGEM</button>';
             } else {
                 msgBtn = '<div style="flex:1;background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.2);padding:14px;border-radius:14px;font-size:0.7rem;font-weight:800;text-align:center;border:1px dashed rgba(255,255,255,0.05);">CANAL PROTEGIDO</div>';

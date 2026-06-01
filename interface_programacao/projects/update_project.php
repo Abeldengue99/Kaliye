@@ -176,6 +176,11 @@ $campaign_end    = !empty($_POST['campaign_end_date']) ? $_POST['campaign_end_da
 
 $database = new Database();
 $db = $database->getConnection();
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approval_status VARCHAR(30) DEFAULT 'pending'");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'pending'");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP NULL");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_by INTEGER NULL");
 
 try {
     // 3. Verificação de Propriedade
@@ -222,7 +227,11 @@ try {
             target_audience = :target_audience, needs_to_advance = :needs_to_advance, 
             idea_origin = :idea_origin, motivation = :motivation, project_url = :project_url,
             funding_goal = :funding_goal, minimum_investment = :min_inv, campaign_end_date = :camp_end,
-            approval_status = 'pending', is_public = false
+            approval_status = 'pending',
+            status = 'pending',
+            is_public = false,
+            approved_at = NULL,
+            approved_by = NULL
             WHERE project_id = :id AND owner_id = :owner_id";
     
     $stmt = $db->prepare($sql);

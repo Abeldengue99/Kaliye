@@ -2,6 +2,7 @@
 // meeting.php
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/free_mentorship_schema.php';
 
 // Check login
 if (!isset($_SESSION['user_id'])) {
@@ -17,6 +18,19 @@ $room_param = isset($_GET['room']) ? trim($_GET['room']) : null;
 $error_msg = "";
 $authorized = false;
 $room_display_name = "Sala de Reunião";
+$slot = null;
+$free_request_id = null;
+$meeting_end_time = null;
+$meeting_has_ended = false;
+
+function buildPublicMeetingRoomName(string $roomName): string
+{
+    if (stripos($roomName, 'Aksanti') === false) {
+        return $roomName;
+    }
+
+    return 'Mentoria_' . substr(hash('sha256', $roomName), 0, 18);
+}
 
 if (!$room_param) {
     $error_msg = "ID da sala não fornecido.";
@@ -28,6 +42,7 @@ if (!$room_param) {
         $clean_room_param = preg_replace("/[^a-zA-Z0-9_]/", "", $room_param); 
         
         // Find the slot
+        ensureFreeMentorshipTables($db);
         $stmt = $db->prepare("SELECT * FROM mentorship_slots WHERE meeting_room = ? LIMIT 1");
         $stmt->execute([$clean_room_param]);
         $slot = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,7 +58,14 @@ if (!$room_param) {
              }
         } else {
             // Check Status
-            if ($slot['status'] === 'completed' || $slot['status'] === 'cancelled') {
+            $meeting_end_time = $slot['end_time'] ?? null;
+            $meeting_has_ended = !empty($meeting_end_time) && strtotime($meeting_end_time) !== false && strtotime($meeting_end_time) < time();
+
+            $free_stmt = $db->prepare("SELECT request_id FROM free_mentorship_sessions WHERE mentorship_slot_id = ? LIMIT 1");
+            $free_stmt->execute([$slot['slot_id']]);
+            $free_request_id = $free_stmt->fetchColumn() ?: null;
+
+            if ($slot['status'] === 'completed' || $slot['status'] === 'cancelled' || $slot['status'] === 'expired' || $meeting_has_ended) {
                  $error_msg = "Esta sessão já foi encerrada.";
             } else {
                 // Check Participants
@@ -66,7 +88,10 @@ if (!$room_param) {
 
 // 3. Setup Jitsi Room Name
 // We use the exact DB room name if validated
-$final_room_name = $authorized ? $clean_room_param : '';
+$final_room_name = $authorized ? buildPublicMeetingRoomName($clean_room_param) : '';
+$post_meeting_url = $free_request_id
+    ? 'free_mentorship_requests.php?request_id=' . urlencode((string)$free_request_id) . '&complete=1'
+    : 'mentorship.php';
 ?>
 
 <div class="meeting-page-container">
@@ -114,10 +139,17 @@ $final_room_name = $authorized ? $clean_room_param : '';
                 <p><?php echo htmlspecialchars($error_msg); ?></p>
             </div>
             <div class="access-actions">
+                <?php if ($free_request_id && (int)$current_user_id === (int)($slot['participant_id'] ?? 0)): ?>
+                <a href="<?php echo htmlspecialchars($post_meeting_url); ?>" class="access-primary-btn">
+                    <i class="fas fa-star"></i>
+                    Avaliar Mentor
+                </a>
+                <?php else: ?>
                 <a href="mentorship.php" class="access-primary-btn">
                     <i class="fas fa-arrow-left"></i>
                     Voltar ao Painel
                 </a>
+                <?php endif; ?>
                 <a href="../explorar/explore_mentors.php" class="access-secondary-btn">
                     <i class="fas fa-user-graduate"></i>
                     Procurar mentor
@@ -596,6 +628,17 @@ $final_room_name = $authorized ? $clean_room_param : '';
         const domain = 'meet.jit.si';
         const roomName = '<?php echo $final_room_name; ?>';
         const meetContainer = document.getElementById('meet');
+        const postMeetingUrl = '<?php echo htmlspecialchars($post_meeting_url, ENT_QUOTES, 'UTF-8'); ?>';
+        const meetingEndAt = <?php echo $meeting_end_time ? (strtotime($meeting_end_time) * 1000) : 'null'; ?>;
+
+        if (meetingEndAt) {
+            const remaining = meetingEndAt - Date.now();
+            if (remaining > 0) {
+                setTimeout(() => {
+                    window.location.href = postMeetingUrl;
+                }, remaining + 3000);
+            }
+        }
 
         // Carregar o script do Jitsi dinamicamente para garantir que ele termina de carregar
         const script = document.createElement('script');
@@ -644,7 +687,7 @@ $final_room_name = $authorized ? $clean_room_param : '';
                     const api = new JitsiMeetExternalAPI(domain, options);
                     
                     api.addEventListener('readyToClose', () => {
-                        window.location.href = 'mentorship.php';
+                        window.location.href = postMeetingUrl;
                     });
                 } else {
                     showFallback();

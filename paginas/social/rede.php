@@ -193,6 +193,25 @@ require_once '../../inclusoes/cabecalho.php';
     margin-bottom: 1rem;
     opacity: 0.5;
 }
+@media (max-width: 768px) {
+    .network-container {
+        padding: 0 1rem;
+    }
+    .network-section {
+        padding: 1rem;
+    }
+    .network-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+@media (max-width: 480px) {
+    .network-grid {
+        grid-template-columns: 1fr;
+    }
+    .nc-actions {
+        flex-direction: column;
+    }
+}
 </style>
 
 <div class="network-page-shell">
@@ -224,7 +243,7 @@ require_once '../../inclusoes/cabecalho.php';
                                 <button class="nc-btn nc-btn-reject" onclick="respondRequest(<?php echo $req['user_id']; ?>, 'reject')"><i class="fas fa-times"></i> Recusar</button>
                             </div>
                             <div style="margin-top:10px; width:100%;">
-                                <button class="nc-btn nc-btn-view" style="width:100%;" onclick="openGlobalUserModal(<?php echo $req['user_id']; ?>)">Ver Perfil</button>
+                                <button class="nc-btn nc-btn-view" style="width:100%;" onclick="openUserCard(<?php echo $req['user_id']; ?>)">Ver Perfil</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -269,7 +288,7 @@ require_once '../../inclusoes/cabecalho.php';
                                 <?php if($show_msg): ?>
                                     <button class="nc-btn nc-btn-msg" onclick="window.location.href='messages.php?user=<?php echo $conn['user_id']; ?>'"><i class="fas fa-comment-dots"></i> Mensagem</button>
                                 <?php endif; ?>
-                                <button class="nc-btn nc-btn-view" onclick="openGlobalUserModal(<?php echo $conn['user_id']; ?>)">Ver Perfil</button>
+                                <button class="nc-btn nc-btn-view" onclick="openUserCard(<?php echo $conn['user_id']; ?>)">Ver Perfil</button>
                             </div>
                         </div>
                     <?php endforeach; ?>

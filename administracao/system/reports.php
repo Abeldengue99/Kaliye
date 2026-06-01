@@ -18,7 +18,7 @@ $db = $database->getConnection();
 // Quick Stats for the reports hub
 $stats = [
     'users' => $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-    'investments' => $db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'paid'")->fetchColumn(),
+    'investments' => $db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'paid' AND archived_at IS NULL")->fetchColumn(),
     'ads' => $db->query("SELECT COUNT(*) FROM ads WHERE is_active = true")->fetchColumn(),
     'logs' => $db->query("SELECT COUNT(*) FROM audit_logs")->fetchColumn(),
     'support' => $db->query("SELECT COUNT(*) FROM support_messages")->fetchColumn(),

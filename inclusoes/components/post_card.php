@@ -114,11 +114,11 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
 
         <?php if ($has_video): ?>
             <?php if ($has_full_access): ?>
-                <video src="<?php echo htmlspecialchars($video_src); ?>"
+                <video data-src="<?php echo htmlspecialchars($video_src); ?>"
                        muted loop playsinline preload="none" controlsList="nodownload"
                        poster="<?php echo htmlspecialchars($media_path); ?>"
-                       onmouseover="this.play()"
-                       onmouseout="this.pause()"
+                       onpointerenter="window.lazyPlayProjectCardVideo && window.lazyPlayProjectCardVideo(this)"
+                       onpointerleave="window.pauseProjectCardVideo && window.pauseProjectCardVideo(this)"
                        style="width: 100%; height: 100%; object-fit: cover;"></video>
                 <div class="video-play-indicator" style="background: rgba(247, 148, 29, 0.9);">
                     <i class="fas fa-play" style="margin-left: 3px;"></i>

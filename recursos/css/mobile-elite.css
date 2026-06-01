@@ -32,7 +32,7 @@ body::before {
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: none; /* Escondido por padrão, aparece no mobile */
-    grid-template-columns: repeat(4, 1fr);
+    justify-content: space-around;
     align-items: center;
     z-index: 9999;
     padding-bottom: env(safe-area-inset-bottom);
@@ -42,6 +42,7 @@ body::before {
 
 .bottom-nav-item {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -96,7 +97,7 @@ body::before {
     .mobile-only-search { display: none !important; }
 
     /* Exibir Bottom Nav */
-    .bottom-nav { display: grid; }
+    .bottom-nav { display: flex; }
     
     /* Compensar espaço no fundo do body */
     body { padding-bottom: 80px !important; }
@@ -442,7 +443,7 @@ body::before {
        ========================================== */
        
     .admin-main-content {
-        padding: max(1rem, env(safe-area-inset-top)) 1rem calc(6.25rem + env(safe-area-inset-bottom)) 1rem !important; /* EspaÃ§o em baixo para a Bottom Nav */
+        padding: calc(76px + env(safe-area-inset-top)) 1rem calc(7.5rem + env(safe-area-inset-bottom)) 1rem !important; /* Espaco para navbar admin e Bottom Nav */
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
@@ -462,16 +463,24 @@ body::before {
         word-break: break-word !important;
     }
 
-    .dashboard-header > div {
+    .dashboard-header > div:not(.header-title) {
         display: flex !important;
         flex-wrap: wrap !important;
-        gap: 0.5rem !important;
+        gap: 0.65rem !important;
         width: 100% !important;
         min-width: 0 !important;
     }
 
+    .dashboard-header > div:not(.header-title) > div {
+        flex: 1 1 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.65rem !important;
+        min-width: 0 !important;
+    }
+
     .dashboard-header .btn-admin {
-        flex: 1 1 calc(50% - 0.5rem) !important; /* 2 botões por linha */
+        flex: 1 1 calc(50% - 0.65rem) !important; /* 2 botões por linha */
         padding: 0.8rem 0.5rem !important;
         font-size: 0.75rem !important;
         text-align: center !important;

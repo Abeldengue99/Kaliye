@@ -42,10 +42,14 @@ try {
         description TEXT,
         deadline TIMESTAMP NULL,
         status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+        expires_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE,
         FOREIGN KEY (mentee_id) REFERENCES users(user_id) ON DELETE CASCADE
     )");
+    
+    // Add expires_at column if it doesn't exist
+    $db->exec("ALTER TABLE mentorship_tasks ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
 
     $allowed = $db->prepare("
         SELECT 1
@@ -67,13 +71,26 @@ try {
         exit;
     }
 
-    // 2. Insert Task
-    $query = "INSERT INTO mentorship_tasks (mentor_id, mentee_id, task_name, description, deadline, status) 
-              VALUES (?, ?, ?, ?, ?, 'pending')";
+    // 2. Insert Task with 7-day expiration
+    $query = "INSERT INTO mentorship_tasks (mentor_id, mentee_id, task_name, description, deadline, status, expires_at) 
+              VALUES (?, ?, ?, ?, ?, 'pending', NOW() + (7 * INTERVAL '1 day'))";
     $stmt = $db->prepare($query);
     $stmt->execute([$mentor_id, $mentee_id, $task_name, $description, $deadline]);
+    $task_id = $db->lastInsertId();
 
-    echo json_encode(['success' => true, 'message' => 'Task assigned successfully', 'task_id' => $db->lastInsertId()]);
+    // CORRECÇÃO BUG 3: Notificar o mentorando sobre a nova tarefa
+    $mentor_name_stmt = $db->prepare("SELECT full_name FROM users WHERE user_id = ?");
+    $mentor_name_stmt->execute([$mentor_id]);
+    $mentor_name = $mentor_name_stmt->fetchColumn() ?: 'O teu mentor';
+
+    $notif_stmt = $db->prepare("
+        INSERT INTO notifications (user_id, sender_id, title, content, type, link)
+        VALUES (?, ?, 'Nova Tarefa Atribuída', ?, 'mentorship_task', 'paginas/mentoria/mentorship.php?view=mentee&tab=tasks')
+    ");
+    $notif_content = $mentor_name . ' atribuiu-te uma nova tarefa: "' . $task_name . '". Clica para ver os detalhes.';
+    $notif_stmt->execute([$mentee_id, $mentor_id, $notif_content]);
+
+    echo json_encode(['success' => true, 'message' => 'Task assigned successfully', 'task_id' => $task_id]);
 
 } catch (PDOException $e) {
     error_log("Add Task Error: " . $e->getMessage());

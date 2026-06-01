@@ -8,6 +8,7 @@ $admin_base = '../';
 $base_url = '../../';
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 if (!isAdmin() || !hasPermission('kyc')) {
     header("Location: index.php");
@@ -17,12 +18,13 @@ if (!isAdmin() || !hasPermission('kyc')) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 // Fetch pending requests (Priority for Mentors/Investors)
 $requests = $db->query("SELECT * FROM users 
-                        WHERE verification_status = 'pending' 
-                        OR mentorship_status = 'pending' 
-                        OR investor_status = 'pending' 
+                        WHERE verification_status = 'pending'
+                        OR (mentorship_status = 'pending' AND mentor_application_archived_at IS NULL)
+                        OR (investor_status = 'pending' AND investor_application_archived_at IS NULL)
                         ORDER BY submitted_at ASC")->fetchAll();
 ?>
 <!DOCTYPE html>

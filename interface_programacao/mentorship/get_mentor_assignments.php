@@ -23,13 +23,17 @@ try {
         echo json_encode(['success' => true, 'assignments' => []]);
         exit;
     }
+    
+    // Ensure expires_at column exists
+    $db->exec("ALTER TABLE mentor_assignments ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
 
-    // Standard query for assignments
+    // Standard query for assignments (not expired)
     $query = "SELECT ma.*, u.full_name as student_name, p.title as project_title, p.description as project_description
               FROM mentor_assignments ma
               JOIN users u ON ma.student_id = u.user_id
               LEFT JOIN projects p ON ma.project_id = p.project_id
-              WHERE ma.mentor_id = ? AND ma.status = 'pending'";
+              WHERE ma.mentor_id = ? AND ma.status = 'pending'
+                AND (ma.expires_at IS NULL OR ma.expires_at > NOW())";
     
     $stmt = $db->prepare($query);
     $stmt->execute([$user_id]);

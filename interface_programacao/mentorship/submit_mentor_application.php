@@ -4,6 +4,7 @@ session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
 require_once '../../inclusoes/Security.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 header('Content-Type: application/json');
 
@@ -26,6 +27,11 @@ $linkedin_url = trim($_POST['linkedin_url'] ?? '');
 
 if ($specialty === '' || $linkedin_url === '') {
     echo json_encode(['success' => false, 'message' => 'Todos os campos são obrigatorios.']);
+    exit();
+}
+
+if (mb_strlen($specialty) > 200) {
+    echo json_encode(['success' => false, 'message' => 'A area de especialidade deve ter no maximo 200 caracteres.']);
     exit();
 }
 
@@ -56,6 +62,7 @@ if (!$stored_cv['ok']) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 try {
     $check = $db->prepare("SELECT mentorship_status FROM users WHERE user_id = ?");
@@ -72,7 +79,10 @@ try {
                 specialization_tags = :specialty,
                 years_of_experience = :exp,
                 linkedin_url = :linkedin,
-                cv_path = :cv
+                cv_path = :cv,
+                mentor_application_submitted_at = NOW(),
+                mentor_application_archived_at = NULL,
+                mentor_application_archive_reason = NULL
               WHERE user_id = :user_id";
 
     $stmt = $db->prepare($query);

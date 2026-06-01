@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 // Verifico se o usuário está autenticado
 if (!isset($_SESSION['user_id'])) {
@@ -58,9 +59,25 @@ if (empty($investor_motivation)) {
     exit;
 }
 
+if (mb_strlen($investor_motivation) > 250) {
+    echo json_encode(['success' => false, 'message' => 'A motivacao deve ter no maximo 250 caracteres.']);
+    exit;
+}
+
+if (mb_strlen($investor_experience) > 250) {
+    echo json_encode(['success' => false, 'message' => 'O resumo de experiencia deve ter no maximo 250 caracteres.']);
+    exit;
+}
+
+if (mb_strlen($terms) > 250) {
+    echo json_encode(['success' => false, 'message' => 'Os termos propostos devem ter no maximo 250 caracteres.']);
+    exit;
+}
+
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+(new RetentionMaintenance($db))->ensureSchema();
 
 try {
     // Primeiro, garantir que as colunas opcionais existem (FORA DA TRANSAÇÃO para evitar abortos no PostgreSQL)
@@ -105,7 +122,7 @@ try {
     }
 
     // Verificar se o investidor já tem uma candidatura pendente neste projeto
-    $existing = $db->prepare("SELECT investment_id FROM project_investments WHERE project_id = :pid AND investor_id = :iid AND status = 'pending'");
+    $existing = $db->prepare("SELECT investment_id FROM project_investments WHERE project_id = :pid AND investor_id = :iid AND status = 'pending' AND archived_at IS NULL");
     $existing->execute([':pid' => $project_id, ':iid' => $investor_id]);
     if ($existing->fetch()) {
         throw new Exception("Já tem uma proposta de investimento pendente neste projecto. Aguarde a análise da equipa KALIYE.");

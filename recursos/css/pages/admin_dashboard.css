@@ -510,7 +510,7 @@ h1, h2, h3, h4, .outfit {
     }
 
     .admin-main-content {
-        padding: max(1rem, env(safe-area-inset-top)) 1rem calc(6rem + env(safe-area-inset-bottom));
+        padding: calc(76px + env(safe-area-inset-top)) 1rem calc(7.25rem + env(safe-area-inset-bottom));
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
@@ -590,6 +590,74 @@ h1, h2, h3, h4, .outfit {
         border-radius: 8px;
     }
 
+    .admin-users-table {
+        display: block;
+        min-width: 0;
+        width: 100%;
+        border-spacing: 0;
+    }
+
+    .admin-users-table thead {
+        display: none;
+    }
+
+    .admin-users-table tbody,
+    .admin-users-table tr,
+    .admin-users-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-users-table tr {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--surface-5);
+        border-radius: 14px;
+        padding: 0.85rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .admin-users-table td {
+        background: transparent;
+        border: 0 !important;
+        border-radius: 0 !important;
+        padding: 0.55rem 0;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    .admin-users-table td:not(:first-child) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    .admin-users-table td::before {
+        flex: 0 0 auto;
+        color: rgba(255,255,255,0.38);
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .admin-users-table td:nth-child(2)::before { content: "E-mail"; }
+    .admin-users-table td:nth-child(3)::before { content: "Tipo"; }
+    .admin-users-table td:nth-child(4)::before { content: "Adesao"; }
+    .admin-users-table td:nth-child(5)::before { content: "Gestao"; }
+
+    .admin-users-table td:nth-child(2) {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        text-align: right;
+    }
+
+    .admin-users-table td:nth-child(5) > div {
+        justify-content: flex-end !important;
+        flex-wrap: wrap;
+    }
+
     .aksanti-table th,
     .aksanti-table td {
         padding: 0.85rem 0.75rem;
@@ -622,6 +690,7 @@ h1, h2, h3, h4, .outfit {
 @media (max-width: 420px) {
     .admin-main-content {
         padding-inline: 0.85rem;
+        padding-top: calc(74px + env(safe-area-inset-top));
     }
 
     .dashboard-header {

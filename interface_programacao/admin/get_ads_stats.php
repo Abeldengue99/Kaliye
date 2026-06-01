@@ -61,5 +61,5 @@ try {
     ]);
 } catch (Exception $e) {
     error_log('get_ads_stats error: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro ao carregar estatisticas']);
+    echo json_encode(['success' => false, 'message' => 'Erro ao carregar estatísticas']);
 }

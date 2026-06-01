@@ -28,7 +28,7 @@ if (!isAdmin() || !hasPermission('finances')) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    finishDistribution(false, 'Metodo invalido.');
+    finishDistribution(false, 'Método inválido.');
 }
 
 $investment_id = (int)($_POST['investment_id'] ?? 0);
@@ -67,7 +67,7 @@ try {
     }
 
     if (!in_array($investment['status'], ['approved', 'paid'], true)) {
-        throw new Exception('Apenas investimentos aprovados ou pagos podem ser distribuidos.');
+        throw new Exception('Apenas investimentos aprovados ou pagos podem ser distribuídos.');
     }
 
     $mentorStmt = $db->prepare("SELECT user_id FROM users WHERE user_id = ? AND (user_type = 'mentor' OR mentorship_status = 'approved')");
@@ -87,7 +87,7 @@ try {
     $alreadyDistributed = (float)$existingStmt->fetchColumn();
 
     if ($alreadyDistributed > 0) {
-        throw new Exception('Este investimento ja possui distribuicao registada.');
+        throw new Exception('Este investimento já possui distribuição registada.');
     }
 
     $rows = [];
@@ -123,7 +123,7 @@ try {
     }
 
     if ($total > $investmentAmount + 0.01) {
-        throw new Exception('A distribuicao excede o montante do investimento.');
+        throw new Exception('A distribuição excede o montante do investimento.');
     }
 
     $insert = $db->prepare("

@@ -214,24 +214,57 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar...';
             try {
-                const res = await fetch('<?php echo $base_url; ?>interface_programacao/system/subscribe_newsletter.php', { method: 'POST', body: fd });
-                const data = await res.json();
+                const baseUrl = '<?php echo $base_url; ?>';
+                const url = baseUrl + 'interface_programacao/system/subscribe_newsletter.php';
+                console.log('Newsletter POST:', url);
+                
+                const res = await fetch(url, { method: 'POST', body: fd });
+                const responseText = await res.text();
+                console.log('Newsletter Response:', responseText);
+                
+                const data = JSON.parse(responseText);
                 if (data.success) {
                     btn.innerHTML = '<i class="fas fa-check"></i> Subscrito!';
                     btn.style.background = '#10b981';
                     btn.style.color = '#fff';
                     form.querySelector('input[name="name"]').value = '';
                     form.querySelector('input[name="email"]').value = '';
+                    
+                    if (typeof showNewsletterModal === 'function') {
+                        showNewsletterModal(
+                            '✓ Subscrito com Sucesso!',
+                            data.message || 'Bem-vindo à nossa comunidade. Receberá as nossas atualizações em breve.',
+                            'success',
+                            'fa-check-circle'
+                        );
+                    } else { alert(data.message); }
                 } else {
                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Subscrever';
                     btn.disabled = false;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'info', title: data.message || 'Erro', background: '#1e293b', color: '#fff', timer: 2500 });
+                    
+                    if (typeof showNewsletterModal === 'function') {
+                        const isAlreadySubscribed = data.message && data.message.includes('Já está subscrito');
+                        showNewsletterModal(
+                            isAlreadySubscribed ? 'Já Subscrito' : 'Erro',
+                            data.message || 'Erro ao subscrever',
+                            isAlreadySubscribed ? 'warning' : 'error',
+                            isAlreadySubscribed ? 'fa-info-circle' : 'fa-exclamation-circle'
+                        );
                     } else { alert(data.message); }
                 }
             } catch(err) {
+                console.error('Newsletter Error:', err);
                 btn.innerHTML = '<i class="fas fa-paper-plane"></i> Subscrever';
                 btn.disabled = false;
+                
+                if (typeof showNewsletterModal === 'function') {
+                    showNewsletterModal(
+                        'Erro na Subscrição',
+                        err.message || 'Não foi possível subscrever. Tenta novamente mais tarde.',
+                        'error',
+                        'fa-exclamation-circle'
+                    );
+                } else { alert(err.message || 'Erro ao subscrever'); }
             }
         });
     })();
@@ -256,6 +289,7 @@
         include_once $components_dir . 'kyc_modal.php'; // Novo Wizard Multi-Etapas (Unificado)
         include_once $components_dir . 'legal_modal.php';
         include_once $components_dir . 'evaluation_modal.php'; // Sistema de Feedback da Plataforma
+        include_once $components_dir . 'newsletter_modal.php'; // Modal elegante para newsletter
 
         // 2. Carregamento Universal dos Scripts do Dashboard e Módulos Elite
         include_once $components_dir . 'index_scripts.php';
@@ -263,9 +297,16 @@
     ?>
 
     <!-- Scripts de Sistema (Optimizados) -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script> 
-        AOS.init({ duration: 800, once: true }); 
+        (function initAosWhenNeeded() {
+            if (!document.querySelector('[data-aos]')) return;
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
+            script.onload = function() {
+                if (window.AOS) window.AOS.init({ duration: 800, once: true });
+            };
+            document.head.appendChild(script);
+        })();
 
         // Auto-trigger do Gate de Verificação
         <?php if (isset($trigger_kyc_modal) && $trigger_kyc_modal): ?>
@@ -288,6 +329,10 @@
         <?php endif; ?>
     </script>
     <!-- Aksanti Modals V2: Sistema Standalone (override final) -->
-    <script src="<?php echo $base_url; ?>recursos/js/aksanti_modals_v2.js?v=<?php echo time(); ?>"></script>
+    <?php
+        require_once __DIR__ . '/asset_helper.php';
+        $aksanti_modals_version = aksantiAssetVersion('recursos/js/aksanti_modals_v2.js');
+    ?>
+    <script src="<?php echo $base_url; ?>recursos/js/aksanti_modals_v2.js?v=<?php echo $aksanti_modals_version; ?>" defer></script>
 </body>
 </html>

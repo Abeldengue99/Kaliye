@@ -36,6 +36,9 @@ if (!systemSettingEnabled($db, 'allow_registrations', true)) {
     exit();
 }
 
+// Contagem real de utilizadores para a prova social
+$user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
+
 // Se o utilizador já tem sessão iniciada, redireccioná-lo para o feed
 if (isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -487,7 +490,7 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Título e subtítulo da área de registo de nova conta -->
         <h1 class="titulo-formulario">Criar conta <span>grátis</span></h1>
-        <p class="subtitulo-formulario">Junta-te a +500 membros que já fazem parte da comunidade KALIYE.</p>
+        <p class="subtitulo-formulario">Junta-te a <?php echo number_format($user_count, 0, ',', '.'); ?> membros que já fazem parte da comunidade KALIYE.</p>
 
         <!-- Alerta de erro que aparece se o registo falhar por algum motivo -->
         <?php if ($google_auth_enabled): ?>

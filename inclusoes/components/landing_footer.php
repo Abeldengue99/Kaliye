@@ -15,8 +15,8 @@ $footer_home_url = $footer_user_logged_in ? ($base_url . 'index.php') : ($base_u
                 </a>
                 <p class="rodape-descrição">
                     A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos,
-                    mentores, empreendedores e investidores encontram um espaço digital para desenvolver projectos, fortalecer
-                    competências, construir relações profissionais e transformar projectos em impacto real para Angola.
+                    mentores e investidores encontram um espaço digital para desenvolver projectos, fortalecer
+                    competências, construir relações profissionais e transformar projectos em impacto real.
                 </p>
                 <form class="kaliye-newsletter" data-kaliye-newsletter>
                     <input class="kaliye-newsletter-input" type="text" name="name" placeholder="O teu nome" autocomplete="name" required>

@@ -132,6 +132,7 @@
             <div id="customTextFields" style="display:none;">
                 <label class="chat-safety-label" for="customTextInput" id="customTextLabel">Detalhes</label>
                 <input type="text" id="customTextInput" class="chat-safety-control" autocomplete="off">
+                <input type="file" id="customFileInput" class="chat-safety-control" style="display:none; margin-top: 10px;">
             </div>
 
             <div class="chat-safety-actions">

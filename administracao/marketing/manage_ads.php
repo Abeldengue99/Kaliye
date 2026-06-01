@@ -61,9 +61,71 @@ $ad_ids_js = json_encode(array_column($ads, 'ad_id'));
             }
         }
 
-        function executeDelete() {
-            if (adIdToDelete) {
-                window.location.href = `../../interface_programacao/system/delete_ad.php?id=${adIdToDelete}`;
+        async function executeDelete() {
+            if (!adIdToDelete) return;
+            
+            try {
+                const btn = document.getElementById('deleteConfirmBtn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A eliminar...';
+                }
+                
+                const res = await fetch(`../../interface_programacao/system/delete_ad.php?id=${adIdToDelete}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Eliminado!',
+                            text: data.message || 'Anúncio eliminado com sucesso.',
+                            background: '#0f172a',
+                            color: '#fff',
+                            timer: 2000
+                        }).then(() => {
+                            window.location.href = data.redirect || '../../administracao/marketing/manage_ads.php';
+                        });
+                    } else {
+                        alert(data.message);
+                        window.location.href = data.redirect || '../../administracao/marketing/manage_ads.php';
+                    }
+                    closeDeleteModal();
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro',
+                            text: data.message || 'Erro ao eliminar anúncio.',
+                            background: '#0f172a',
+                            color: '#fff'
+                        });
+                    } else {
+                        alert(data.message || 'Erro ao eliminar anúncio.');
+                    }
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-trash-can"></i> APAGAR AGORA';
+                    }
+                }
+            } catch (err) {
+                console.error('Erro:', err);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro de Conexão',
+                        text: err.message || 'Não foi possível eliminar o anúncio.',
+                        background: '#0f172a',
+                        color: '#fff'
+                    });
+                } else {
+                    alert(err.message || 'Erro ao eliminar anúncio');
+                }
+                const btn = document.getElementById('deleteConfirmBtn');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-trash-can"></i> APAGAR AGORA';
+                }
             }
         }
 
@@ -286,7 +348,7 @@ $ad_ids_js = json_encode(array_column($ads, 'ad_id'));
                 </p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <button onclick="closeDeleteModal()" class="btn-admin" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff;">CANCELAR</button>
-                    <button onclick="executeDelete()" class="btn-admin" style="background: #f43f5e; color: #fff; border: none; box-shadow: 0 10px 20px rgba(244, 63, 94, 0.2);">APAGAR AGORA</button>
+                    <button id="deleteConfirmBtn" onclick="executeDelete()" class="btn-admin" style="background: #f43f5e; color: #fff; border: none; box-shadow: 0 10px 20px rgba(244, 63, 94, 0.2);">APAGAR AGORA</button>
                 </div>
             </div>
         </div>

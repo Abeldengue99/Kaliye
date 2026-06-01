@@ -24,7 +24,8 @@ try {
 
     // Get request details with session info if exists
     $query = "SELECT r.*, u.full_name, u.profile_pic, 
-              s.session_date, s.duration_minutes, s.meeting_link, s.session_id
+              s.session_date, s.duration_minutes, s.meeting_link, s.session_id,
+              s.student_rating, s.student_feedback, s.mentorship_slot_id
               FROM free_mentorship_requests r
               JOIN users u ON r.student_id = u.user_id
               LEFT JOIN free_mentorship_sessions s ON r.request_id = s.request_id
@@ -42,7 +43,7 @@ try {
     $request['user_has_applied'] = false;
 
     // Check if current user has applied (if user is a mentor candidate)
-    $stmt_check = $db->prepare("SELECT COUNT(*) FROM free_mentorship_applications WHERE request_id = ? AND mentor_id = ?");
+    $stmt_check = $db->prepare("SELECT COUNT(*) FROM free_mentorship_applications WHERE request_id = ? AND mentor_id = ? AND status = 'accepted'");
     $stmt_check->execute([$request_id, $user_id]);
     $request['user_has_applied'] = ($stmt_check->fetchColumn() > 0);
 

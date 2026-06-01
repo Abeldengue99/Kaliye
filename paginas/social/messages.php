@@ -6,11 +6,30 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 require_once '../../inclusoes/ChatSecurity.php';
 
 $current_user_id = $_SESSION['user_id'];
 $user_type = $_SESSION['user_type'];
 ChatSecurity::touchPresence($db, (int)$current_user_id);
+
+// ✨ AUTO-FIX: Garantir que coluna group_image existe (redundância para segurança)
+try {
+    $db->exec("
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'mentor_chat_groups' 
+                AND column_name = 'group_image'
+            ) THEN
+                ALTER TABLE mentor_chat_groups ADD COLUMN group_image VARCHAR(500);
+            END IF;
+        END $$;
+    ");
+} catch (Exception $e) {
+    // Silenciar - coluna pode já existir
+}
 
 if ($user_type === 'school_admin') {
     header("Location: institution_dashboard.php");
@@ -27,15 +46,13 @@ $user_groups = $groups_stmt->fetchAll();
 // Fetch Mentor VIP Groups (A nossa nova funcionalidade inovadora).
 // Um aluno vê o grupo se tiver um contrato de mentoria válido. Um mentor vê os grupos criados por si.
 $mentor_groups_stmt = $db->prepare("
-    SELECT mg.*, 
-        (SELECT full_name FROM users WHERE user_id = mg.mentor_id) as mentor_name
+    SELECT mg.id, mg.name, mg.mentor_id,
+        (SELECT full_name FROM users WHERE user_id = mg.mentor_id) as mentor_name,
+        (SELECT COUNT(*) FROM mentor_group_members WHERE group_id = mg.id) as member_count
     FROM mentor_chat_groups mg 
+    LEFT JOIN mentor_group_members mgm ON mg.id = mgm.group_id AND mgm.user_id = :uid
     WHERE mg.mentor_id = :uid 
-       OR mg.mentor_id IN (
-           SELECT mentor_id FROM mentorship_contracts WHERE student_id = :uid AND status = 'active'
-           UNION 
-           SELECT mentor_id FROM mentorships WHERE mentee_id = :uid AND status = 'active'
-       )
+       OR mgm.user_id = :uid
     ORDER BY mg.created_at DESC
 ");
 $mentor_groups_stmt->execute([':uid' => $current_user_id]);
@@ -61,13 +78,14 @@ if (isset($_GET['start'])) {
     $start_id = (int)$_GET['start'];
     $policy = ChatSecurity::canDirectMessage($db, (int)$current_user_id, $start_id);
     if (!$policy['allowed']) {
-        echo "<script>alert(" . json_encode($policy['reason']) . "); window.location.href='messages.php';</script>";
+        // Silently redirect if user doesn't have permission
+        header('Location: messages.php');
         exit;
     }
 }
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/pages/messages.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/messages.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/messages.css'); ?>">
 <style>
     .main-content-wrapper {
         max-width: none !important;
@@ -95,7 +113,21 @@ if (isset($_GET['start'])) {
 <div id="membersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
     <div class="glass" style="width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: 20px;">
         <button onclick="closeMembersModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;"><i class="fas fa-times"></i></button>
-        <h3 style="margin-bottom: 1.5rem; color: var(--accent-orange);"><i class="fas fa-users"></i> Gerir Membros</h3>
+        <h3 style="margin-bottom: 0.5rem; color: var(--accent-orange);"><i class="fas fa-users"></i> Gerir Membros</h3>
+        
+        <!-- Barra de Ações do Grupo -->
+        <div style="display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button onclick="editGroupName()" style="background: rgba(59,130,246,0.2); color: #3b82f6; border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
+                <i class="fas fa-edit"></i> Editar Nome
+            </button>
+            <button onclick="changeGroupImage()" style="background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid #a855f7; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
+                <i class="fas fa-image"></i> Trocar Imagem
+            </button>
+            <button onclick="deleteGroup()" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.3s;">
+                <i class="fas fa-trash"></i> Excluir Grupo
+            </button>
+        </div>
+        
         <div id="currentMembersList" style="margin-bottom: 2rem;"></div>
         <div id="availableStudentsList"></div>
     </div>

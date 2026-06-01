@@ -56,6 +56,9 @@ if (!isAdmin() || !hasPermission('audit')) {
                 </div>
                 
                 <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="exportPDF()" class="shine-on-hover" style="background: rgba(247, 148, 29, 0.1); color: #f7941d; padding: 0.75rem 1.25rem; border-radius: 12px; border: 1px solid rgba(247, 148, 29, 0.3); font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-file-pdf"></i> Imprimir / PDF
+                    </button>
                     <button onclick="exportCSV()" class="shine-on-hover" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.75rem 1.25rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-file-csv"></i> Exportar CSV
                     </button>
@@ -110,6 +113,10 @@ if (!isAdmin() || !hasPermission('audit')) {
 
     <script>
     let currentTab = 'nda';
+
+    function exportPDF() {
+        window.location.href = `../../interface_programacao/admin/export_security_logs.php?type=${currentTab}&format=pdf`;
+    }
 
     function exportCSV() {
         window.location.href = `../../interface_programacao/admin/export_security_logs.php?type=${currentTab}`;

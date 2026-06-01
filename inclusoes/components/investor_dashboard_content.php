@@ -49,7 +49,7 @@ $is_verified_investor = (($user_data['verification_status'] ?? 'unsubmitted') ==
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <div style="background: rgba(0,0,0,0.2); padding: 3px; border-radius: 10px; border: 1px solid var(--glass-border); display: flex;">
-                    <a href="?view=explore" style="padding: 0.45rem 0.85rem; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 700; color: <?= $view_mode == 'explore' ? '#fff' : 'rgba(255,255,255,0.5)' ?>; background: <?= $view_mode == 'explore' ? 'var(--accent-orange)' : 'transparent' ?>; transition: 0.2s;">Explorar</a>
+                    <a href="../../index.php#projectFeedContainer" style="padding: 0.45rem 0.85rem; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 700; color: <?= $view_mode == 'explore' ? '#fff' : 'rgba(255,255,255,0.5)' ?>; background: <?= $view_mode == 'explore' ? 'var(--accent-orange)' : 'transparent' ?>; transition: 0.2s;">Explorar</a>
                     <a href="?view=my_investments" style="padding: 0.45rem 0.85rem; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 700; color: <?= $view_mode == 'my_investments' ? '#fff' : 'rgba(255,255,255,0.5)' ?>; background: <?= $view_mode == 'my_investments' ? 'var(--accent-orange)' : 'transparent' ?>; transition: 0.2s;">Propostas</a>
                 </div>
             </div>

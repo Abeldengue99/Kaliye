@@ -6,7 +6,7 @@ require_once '../../inclusoes/free_mentorship_schema.php';
 session_start();
 require_once '../../inclusoes/auth_check.php';
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessão expirada.']);
+    echo json_encode(['success' => false, 'message' => 'Sessao expirada.']);
     exit;
 }
 
@@ -14,8 +14,12 @@ $user_id = (int)$_SESSION['user_id'];
 $db = (new Database())->getConnection();
 ensureFreeMentorshipTables($db);
 
-if (!canActAsMentor()) {
-    echo json_encode(['success' => false, 'message' => 'Apenas mentores aprovados podem candidatar-se a pedidos de mentoria.']);
+$user_stmt = $db->prepare("SELECT user_type, mentorship_status FROM users WHERE user_id = ?");
+$user_stmt->execute([$user_id]);
+$current_user = $user_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+if (!canActAsMentor($current_user)) {
+    echo json_encode(['success' => false, 'message' => 'Apenas mentores aprovados podem assumir pedidos de mentoria.']);
     exit;
 }
 
@@ -25,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $request_id = isset($_POST['request_id']) ? intval($_POST['request_id']) : 0;
-$message = trim($_POST['message'] ?? '');
 
 if (!$request_id) {
     echo json_encode(['success' => false, 'message' => 'ID do pedido invalido.']);
@@ -38,61 +41,82 @@ try {
     $req = $stmt_req->fetch(PDO::FETCH_ASSOC);
 
     if (!$req) {
-        echo json_encode(['success' => false, 'message' => 'Pedido não encontrado.']);
-        exit;
-    }
-
-    if ($req['status'] !== 'open') {
-        echo json_encode(['success' => false, 'message' => 'Este pedido ja não esta aberto para candidaturas.']);
+        echo json_encode(['success' => false, 'message' => 'Pedido nao encontrado.']);
         exit;
     }
 
     if ((int)$req['student_id'] === $user_id) {
-        echo json_encode(['success' => false, 'message' => 'Não pode candidatar-se ao seu próprio pedido.']);
+        echo json_encode(['success' => false, 'message' => 'Nao pode assumir o seu proprio pedido.']);
         exit;
     }
 
-    if (!isEligibleForFreeMentorshipRequest($db, $user_id, $req)) {
-        echo json_encode(['success' => false, 'message' => 'Este pedido foi direcionado a mentores com experiência nesta categoria/tema. Atualize as suas especialidades se domina esta area.']);
-        exit;
-    }
+    $db->beginTransaction();
 
-    $stmt_check = $db->prepare("SELECT COUNT(*) FROM free_mentorship_applications WHERE request_id = ? AND mentor_id = ?");
-    $stmt_check->execute([$request_id, $user_id]);
-    if ($stmt_check->fetchColumn() > 0) {
-        echo json_encode(['success' => false, 'message' => 'Ja se candidatou a este pedido.']);
-        exit;
-    }
-
-    $stmt = $db->prepare("INSERT INTO free_mentorship_applications (request_id, mentor_id, message, status, created_at) VALUES (?, ?, ?, 'pending', CURRENT_TIMESTAMP)");
-    $result = $stmt->execute([$request_id, $user_id, $message]);
-
-    if (!$result) {
-        echo json_encode(['success' => false, 'message' => 'Erro ao enviar candidatura.']);
-        exit;
-    }
-
-    $info_stmt = $db->prepare("
-        SELECT u.full_name, r.title, r.student_id
-        FROM users u, free_mentorship_requests r
-        WHERE u.user_id = :mentor_id AND r.request_id = :request_id
+    $claim = $db->prepare("
+        UPDATE free_mentorship_requests
+        SET status = 'in_progress',
+            selected_mentor_id = ?,
+            started_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE request_id = ?
+          AND status = 'open'
+          AND selected_mentor_id IS NULL
     ");
-    $info_stmt->execute(['mentor_id' => $user_id, 'request_id' => $request_id]);
-    $info = $info_stmt->fetch(PDO::FETCH_ASSOC);
+    $claim->execute([$user_id, $request_id]);
 
-    if ($info) {
-        $notif_title = 'Nova candidatura de mentoria';
-        $notif_content = $info['full_name'] . " candidatou-se para ajudar no seu pedido: '" . $info['title'] . "'. Clique para analisar e aceitar.";
-        $link = 'paginas/mentoria/free_mentorship_requests.php?request_id=' . $request_id;
-
-        $ins_notif = $db->prepare("
-            INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at)
-            VALUES (?, ?, ?, ?, 'mentorship_application', ?, false, CURRENT_TIMESTAMP)
-        ");
-        $ins_notif->execute([$info['student_id'], $user_id, $notif_title, $notif_content, $link]);
+    if ($claim->rowCount() !== 1) {
+        $db->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Esta solicitacao ja foi atribuida a outro mentor.']);
+        exit;
     }
 
-    echo json_encode(['success' => true, 'message' => 'Candidatura enviada com sucesso!']);
+    $stmt = $db->prepare("
+        UPDATE free_mentorship_applications
+        SET status = 'accepted',
+            responded_at = CURRENT_TIMESTAMP
+        WHERE request_id = ?
+          AND mentor_id = ?
+    ");
+    $stmt->execute([$request_id, $user_id]);
+
+    if ($stmt->rowCount() === 0) {
+        $stmt = $db->prepare("
+            INSERT INTO free_mentorship_applications (request_id, mentor_id, message, status, created_at, responded_at)
+            VALUES (?, ?, '', 'accepted', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ");
+        $stmt->execute([$request_id, $user_id]);
+    }
+
+    $reject_others = $db->prepare("
+        UPDATE free_mentorship_applications
+        SET status = 'rejected', responded_at = CURRENT_TIMESTAMP
+        WHERE request_id = ? AND mentor_id != ? AND status = 'pending'
+    ");
+    $reject_others->execute([$request_id, $user_id]);
+
+    $check_m = $db->prepare("SELECT COUNT(*) FROM mentorships WHERE mentor_id = ? AND mentee_id = ? AND status = 'active'");
+    $check_m->execute([$user_id, $req['student_id']]);
+    if ($check_m->fetchColumn() == 0) {
+        $ins_m = $db->prepare("INSERT INTO mentorships (mentor_id, mentee_id, status) VALUES (?, ?, 'active')");
+        $ins_m->execute([$user_id, $req['student_id']]);
+    }
+
+    if (!empty($req['doubt_id'])) {
+        $upd_doubt = $db->prepare("UPDATE doubts SET status = 'mentorship_requested' WHERE doubt_id = ?");
+        $upd_doubt->execute([$req['doubt_id']]);
+    }
+
+    $db->commit();
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Pedido assumido com sucesso. Escolha agora a data da mentoria.',
+        'request_id' => $request_id,
+        'next_action' => 'schedule',
+    ]);
 } catch (PDOException $e) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
     echo json_encode(['success' => false, 'message' => 'Erro na base de dados: ' . $e->getMessage()]);
 }

@@ -12,7 +12,7 @@ if (!isSuperAdmin()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Metodo invalido.']);
+    echo json_encode(['success' => false, 'message' => 'Método inválido.']);
     exit;
 }
 
@@ -21,7 +21,7 @@ $userId = isset($input['user_id']) ? (int)$input['user_id'] : 0;
 $action = trim((string)($input['action'] ?? ''));
 
 if ($userId <= 0 || !in_array($action, ['remove_access', 'disable_account'], true)) {
-    echo json_encode(['success' => false, 'message' => 'Pedido invalido.']);
+    echo json_encode(['success' => false, 'message' => 'Pedido inválido.']);
     exit;
 }
 

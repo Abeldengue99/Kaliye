@@ -7,6 +7,7 @@ session_start();
 require_once '../../configuracoes/base_dados.php';
 require_once '../../inclusoes/auth_check.php';
 require_once '../../inclusoes/Security.php';
+require_once '../../inclusoes/RetentionMaintenance.php';
 
 header('Content-Type: application/json');
 
@@ -97,6 +98,7 @@ foreach ($required_files as $f_key) {
 
 // 3. Preparação da Query Atómica (Update Users)
 try {
+    (new RetentionMaintenance($db))->ensureSchema();
     $db->beginTransaction();
 
     $sql = "UPDATE users SET 
@@ -117,8 +119,8 @@ try {
 
     // Lógica Específica de Mentor Profissional
     if ($utype === 'mentor') {
-        $sql .= ", specialty = :spec, experience_years = :exp, linkedin_url = :link, cv_path = :cv, mentorship_status = 'pending'";
-        $params[':spec'] = $_POST['specialty'] ?? '';
+        $sql .= ", specialty = :spec, experience_years = :exp, linkedin_url = :link, cv_path = :cv, mentorship_status = 'pending', mentor_application_submitted_at = NOW(), mentor_application_archived_at = NULL, mentor_application_archive_reason = NULL";
+        $params[':spec'] = mb_substr(trim((string)($_POST['specialty'] ?? '')), 0, 200);
         $params[':exp']  = $_POST['experience_years'] ?? 0;
         $params[':link'] = $_POST['linkedin_url'] ?? '';
         $params[':cv']   = $paths['cv_file'] ?? null;
@@ -126,18 +128,18 @@ try {
 
     // Lógica Específica de Peer Mentor (Estudante)
     if ($utype === 'univ_student' && $is_peer_candidate) {
-        $sql .= ", academic_transcript_path = :trans, cv_path = :cv, mentorship_status = 'pending', linkedin_url = :link, specialty = :spec";
+        $sql .= ", academic_transcript_path = :trans, cv_path = :cv, mentorship_status = 'pending', linkedin_url = :link, specialty = :spec, mentor_application_submitted_at = NOW(), mentor_application_archived_at = NULL, mentor_application_archive_reason = NULL";
         $params[':trans'] = $paths['transcript_file'] ?? null;
         $params[':cv']    = $paths['cv_file'] ?? null;
         $params[':link']  = $_POST['linkedin_url'] ?? '';
-        $params[':spec']  = $_POST['specialty'] ?? '';
+        $params[':spec']  = mb_substr(trim((string)($_POST['specialty'] ?? '')), 0, 200);
     }
 
     // Lógica Específica de Investidor
     if ($utype === 'investor') {
-        $sql .= ", annual_income = :inc, source_of_funds = :sof, investor_status = 'pending'";
+        $sql .= ", annual_income = :inc, source_of_funds = :sof, investor_status = 'pending', investor_application_submitted_at = NOW(), investor_application_archived_at = NULL, investor_application_archive_reason = NULL";
         $params[':inc'] = $_POST['annual_income'] ?? '';
-        $params[':sof'] = $_POST['source_of_funds'] ?? '';
+        $params[':sof'] = mb_substr(trim((string)($_POST['source_of_funds'] ?? '')), 0, 250);
         
         // Se enviou comprovativo de renda, guardamos o path no campo bio temporariamente
         // (admin pode ver na consola de revisão KYC)

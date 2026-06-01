@@ -401,15 +401,23 @@ class ChatSecurity {
         }
 
         $senderIsStudent = strpos($senderType, 'student') !== false || in_array($senderType, ['student', 'entrepreneur'], true);
-        if ($senderIsStudent && $receiverType === 'investor') {
-            return ['allowed' => false, 'reason' => 'Apenas investidores, mentores ou contactos existentes podem iniciar conversa com investidores.'];
+        $receiverIsStudent = strpos($receiverType, 'student') !== false || in_array($receiverType, ['student', 'entrepreneur'], true);
+        
+        // Estudante NÃO pode iniciar conversa com Mentor ou Investidor (a menos que já exista conversa)
+        if ($senderIsStudent && (in_array($receiverType, ['mentor', 'investor'], true))) {
+            return ['allowed' => false, 'reason' => 'Para iniciar conversa com mentores ou investidores, crie uma conexao ou tenha uma mentoria ativa.'];
+        }
+
+        // Estudante ↔ Estudante: pode iniciar
+        if ($senderIsStudent && $receiverIsStudent) {
+            return ['allowed' => true, 'mode' => 'student_to_student'];
         }
 
         if (in_array($senderType, ['mentor', 'investor'], true)) {
             return ['allowed' => true, 'mode' => 'professional'];
         }
 
-        return ['allowed' => false, 'reason' => 'Para iniciar esta conversa, crie uma conexao ou tenha uma mentoria ativa.'];
+        return ['allowed' => false, 'reason' => 'Não tem permissão para enviar mensagens a este utilizador.'];
     }
 
     public static function hasDirectHistory(PDO $db, int $a, int $b): bool {

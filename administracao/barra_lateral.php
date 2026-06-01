@@ -1,6 +1,7 @@
 <?php
 // admin/barra_lateral.php (agora a Navbar de Topo do Admin)
 require_once dirname(__DIR__) . '/inclusoes/auth_check.php';
+require_once dirname(__DIR__) . '/inclusoes/RetentionMaintenance.php';
 
 // Auto-detect base_url if not defined to prevent broken headers in subfolders
 if (!isset($base_url)) {
@@ -30,13 +31,14 @@ if (!isset($admin_base)) {
 $badge_counts = ['kyc' => 0, 'mentors' => 0, 'investments' => 0, 'support' => 0, 'moderation' => 0, 'progress' => 0, 'chat_reports' => 0];
 if (isset($db)) {
     try {
+        (new RetentionMaintenance($db))->ensureSchema();
         $badge_counts['kyc'] = $db->query("SELECT COUNT(*) FROM users WHERE verification_status = 'pending'")->fetchColumn();
-        $badge_counts['mentors'] = $db->query("SELECT COUNT(*) FROM users WHERE mentor_status = 'pending'")->fetchColumn();
-        $badge_counts['investments'] = $db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'pending'")->fetchColumn();
+        $badge_counts['mentors'] = $db->query("SELECT COUNT(*) FROM users WHERE (mentor_status = 'pending' OR mentorship_status = 'pending') AND mentor_application_archived_at IS NULL")->fetchColumn();
+        $badge_counts['investments'] = $db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'pending' AND archived_at IS NULL")->fetchColumn();
         $badge_counts['support'] = $db->query("SELECT COUNT(*) FROM support_messages WHERE CAST(is_read AS INTEGER) = 0")->fetchColumn();
         $badge_counts['progress'] = $db->query("SELECT COUNT(*) FROM project_progress_reports WHERE report_status = 'pending_admin'")->fetchColumn();
          try {
-             $badge_counts['moderation'] = $db->query("SELECT COUNT(*) FROM projects WHERE approval_status = 'pending'")->fetchColumn();
+             $badge_counts['moderation'] = $db->query("SELECT COUNT(*) FROM projects WHERE LOWER(TRIM(COALESCE(approval_status, 'pending'))) = 'pending' AND COALESCE(is_public, false) = false AND LOWER(TRIM(COALESCE(status, 'pending'))) NOT IN ('analyzed', 'approved', 'published')")->fetchColumn();
          } catch (Exception $e) {
              $badge_counts['moderation'] = $db->query("SELECT COUNT(*) FROM projects WHERE is_public = false")->fetchColumn();
          }
@@ -266,7 +268,13 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                     <i class="fas fa-user-graduate"></i> Mentores <?= renderBadge($badge_counts['mentors'], '#f7941d', 'badge-nav-mentors') ?>
                 </a>
                 <a href="<?= $admin_base ?>users/project_mentorship_applications.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_mentorship_applications.php' ? 'active-link' : '' ?>">
-                    <i class="fas fa-chalkboard-teacher"></i> Mentoria a Projectos
+                    <i class="fas fa-chalkboard-teacher"></i> Candidaturas Mentores
+                </a>
+                <a href="<?= $admin_base ?>users/project_specialist_applications.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_specialist_applications.php' ? 'active-link' : '' ?>">
+                    <i class="fas fa-briefcase"></i> Candidaturas Especialistas
+                </a>
+                <a href="<?= $admin_base ?>users/project_student_applications.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_student_applications.php' ? 'active-link' : '' ?>">
+                    <i class="fas fa-graduation-cap"></i> Candidaturas Estudantes
                 </a>
                 <a href="<?= $admin_base ?>users/verified_users.php" class="<?= basename($_SERVER['PHP_SELF']) == 'verified_users.php' ? 'active-link' : '' ?>"><i class="fas fa-crown"></i> Comunidade Elite</a>
                 <a href="<?= $admin_base ?>finance/finance_dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'finance_dashboard.php' ? 'active-link' : '' ?>">
@@ -286,6 +294,7 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                 <a href="<?= $admin_base ?>system/telemetry.php" class="<?= basename($_SERVER['PHP_SELF']) == 'telemetry.php' ? 'active-link' : '' ?>"><i class="fas fa-satellite-dish"></i> Telemetria</a>
                 <a href="<?= $admin_base ?>system/war_room.php" class="<?= basename($_SERVER['PHP_SELF']) == 'war_room.php' ? 'active-link' : '' ?>"><i class="fas fa-map-marked-alt" style="color: #f7941d;"></i> War Room Real-time</a>
                 <a href="<?= $admin_base ?>system/logs.php" class="<?= basename($_SERVER['PHP_SELF']) == 'logs.php' ? 'active-link' : '' ?>"><i class="fas fa-fingerprint"></i> Auditoria</a>
+                <a href="<?= $admin_base ?>system/retention_management.php" class="<?= basename($_SERVER['PHP_SELF']) == 'retention_management.php' ? 'active-link' : '' ?>"><i class="fas fa-archive"></i> Retenção de Dados</a>
                 <a href="<?= $admin_base ?>system/security_pi.php" class="<?= basename($_SERVER['PHP_SELF']) == 'security_pi.php' ? 'active-link' : '' ?>"><i class="fas fa-shield-virus" style="color: #ef4444;"></i> Segurança de PI</a>
                 <a href="<?= $admin_base ?>project_analytics.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_analytics.php' ? 'active-link' : '' ?>"><i class="fas fa-chart-line"></i> Inteligência de Projectos</a>
                 <a href="<?= $admin_base ?>moderation/evaluations.php" class="<?= basename($_SERVER['PHP_SELF']) == 'evaluations.php' ? 'active-link' : '' ?>"><i class="fas fa-star"></i> Feedback da Plataforma</a>
@@ -416,8 +425,63 @@ document.addEventListener('DOMContentLoaded', () => {
 /* CSS para ocultar a barra de topo no mobile e mostrar a bottom nav */
 .admin-bottom-nav { display: none !important; }
 @media (max-width: 768px) {
-    .admin-nav-container { display: none !important; }
-    .admin-bottom-nav { display: grid !important; } /* Usa o grid definido globalmente em .bottom-nav */
+    .admin-nav-container {
+        display: flex !important;
+        height: 64px !important;
+        padding: 0 0.9rem !important;
+        z-index: 10000 !important;
+    }
+    .admin-logo-icon {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+    }
+    .admin-logo-text span:first-child {
+        font-size: 1.05rem !important;
+    }
+    .admin-logo-text span:last-child {
+        font-size: 0.48rem !important;
+        letter-spacing: 1.4px !important;
+    }
+    .admin-nav-links {
+        top: 64px !important;
+        max-height: calc(100dvh - 64px - 74px - env(safe-area-inset-bottom)) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-bottom: 1px solid rgba(247,148,29,0.22) !important;
+    }
+    .admin-nav-item {
+        width: 100% !important;
+        padding: 0.85rem !important;
+        min-height: 48px !important;
+        justify-content: flex-start !important;
+    }
+    .admin-dropdown-content {
+        max-height: none !important;
+    }
+    .admin-bottom-nav {
+        display: flex !important;
+        height: 66px !important;
+        align-items: center !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+    }
+    .admin-bottom-nav .bottom-nav-item {
+        min-height: 58px !important;
+        gap: 2px !important;
+        font-size: 0.58rem !important;
+        letter-spacing: 0.3px !important;
+        line-height: 1.1 !important;
+    }
+    .admin-bottom-nav .bottom-nav-item i {
+        font-size: 1.1rem !important;
+        transform: none !important;
+    }
+    .admin-bottom-nav .bottom-nav-item.active i {
+        transform: translateY(-2px) !important;
+    }
+    .admin-bottom-nav .bottom-nav-item.active::after {
+        bottom: 6px !important;
+    }
 }
 
 /* Estilos para o Modal Action Sheet (SweetAlert2) da Administração */

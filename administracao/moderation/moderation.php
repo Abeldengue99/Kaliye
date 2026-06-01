@@ -17,12 +17,53 @@ if (!isAdmin() || !hasPermission('moderation')) {
 $database = new Database();
 /** @var PDO $db */
 $db = $database->getConnection();
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approval_status VARCHAR(30) DEFAULT 'pending'");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'pending'");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP NULL");
+$db->exec("ALTER TABLE projects ADD COLUMN IF NOT EXISTS approved_by INTEGER NULL");
+
+$db->exec("
+    UPDATE projects
+    SET approval_status = 'approved',
+        status = 'analyzed',
+        is_public = true
+    WHERE COALESCE(approval_status, '') <> 'rejected'
+      AND (
+          is_public = true
+          OR LOWER(TRIM(COALESCE(approval_status, ''))) IN ('approved', 'published')
+          OR LOWER(TRIM(COALESCE(status, ''))) IN ('analyzed', 'approved', 'published')
+      )
+");
+
+$db->exec("
+    UPDATE projects
+    SET status = 'pending',
+        is_public = false,
+        approved_at = NULL,
+        approved_by = NULL
+    WHERE LOWER(TRIM(COALESCE(approval_status, 'pending'))) = 'pending'
+");
 
 $projects = $db->query("
-    SELECT p.*, u.full_name, u.profile_pic 
+    SELECT p.*, u.full_name, u.profile_pic,
+           CASE
+               WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'approved'
+                    OR LOWER(TRIM(COALESCE(p.status, ''))) IN ('analyzed', 'approved', 'published')
+                    OR p.is_public = true THEN 'approved'
+               WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'rejected'
+                    OR LOWER(TRIM(COALESCE(p.status, ''))) = 'rejected' THEN 'rejected'
+               ELSE 'pending'
+           END AS moderation_status
     FROM projects p 
     JOIN users u ON p.owner_id = u.user_id 
-    ORDER BY p.created_at DESC
+    ORDER BY
+        CASE
+            WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'pending' THEN 0
+            WHEN LOWER(TRIM(COALESCE(p.approval_status, ''))) = 'rejected' THEN 2
+            ELSE 1
+        END,
+        p.created_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -76,6 +117,7 @@ $projects = $db->query("
                             <tr><td colspan="5" style="padding: 4rem; text-align: center; color: rgba(255,255,255,0.2);"><i class="fas fa-check-circle" style="font-size:3rem; margin-bottom:1rem; opacity:0.5;"></i><br>Tudo em dia! Nenhum projecto pendente.</td></tr>
                         <?php endif; ?>
                         <?php foreach($projects as $p): ?>
+                        <?php $project_status = $p['moderation_status'] ?? ($p['approval_status'] ?? 'pending'); ?>
                         <tr id="project-row-<?= $p['project_id'] ?>">
                             <td>
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -86,7 +128,7 @@ $projects = $db->query("
                             <td>
                                 <div style="font-weight: 700; color: #fff;">
                                     <?= htmlspecialchars($p['title']) ?>
-                                    <?php if ($p['approval_status'] === 'approved'): ?>
+                                    <?php if ($project_status === 'approved'): ?>
                                         <i class="fas fa-circle-check" style="color: #10b981; font-size: 0.75rem; margin-left: 5px;"></i>
                                     <?php endif; ?>
                                 </div>
@@ -104,7 +146,7 @@ $projects = $db->query("
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.6rem; justify-content: flex-end;">
-                                    <?php if ($p['approval_status'] !== 'approved'): ?>
+                                    <?php if ($project_status !== 'approved'): ?>
                                         <button onclick="approveProject(<?= $p['project_id'] ?>)" class="btn-action approve" title="Aprovar"><i class="fas fa-check"></i></button>
                                         <button onclick="rejectProject(<?= $p['project_id'] ?>)" class="btn-action reject" title="Rejeitar"><i class="fas fa-times"></i></button>
                                     <?php endif; ?>
@@ -140,6 +182,59 @@ $projects = $db->query("
     </main>
 
     <script>
+    const htmlEntities = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => htmlEntities[char]);
+    }
+
+    function safeProjectId(value) {
+        return Number.parseInt(value, 10) || 0;
+    }
+
+    function safeAssetPath(value, fallback = 'recursos/images/default_profile.png') {
+        const path = String(value || '').trim().replace(/^(\.\.\/)+/, '');
+        if (!path || path === 'default_profile.png') return fallback;
+
+        return /^[\w\-./% ()]+$/.test(path) ? path : fallback;
+    }
+
+    function safeExternalUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+
+        try {
+            const url = new URL(raw, window.location.origin);
+            return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function sanitizeProject(project) {
+        const safe = {};
+        Object.keys(project || {}).forEach(key => {
+            safe[key] = typeof project[key] === 'string' ? escapeHtml(project[key]) : project[key];
+        });
+
+        safe.project_id = safeProjectId(project.project_id);
+        safe.profile_pic = safeAssetPath(project.profile_pic);
+        safe.project_url = safeExternalUrl(project.project_url);
+        safe.full_name_upper = escapeHtml(String(project.full_name || '').toUpperCase());
+        safe.tags = Array.isArray(project.tags) ? project.tags.map(escapeHtml) : [];
+        safe.title = safe.title || 'Sem titulo';
+        safe.category = safe.category || 'Sem categoria';
+        safe.description = safe.description || 'Sem descricao';
+
+        return safe;
+    }
+
     function approveProject(id) {
         Swal.fire({
             title: 'Aprovar Projecto?',
@@ -215,7 +310,8 @@ $projects = $db->query("
                 closeModal();
                 return;
             }
-            const p = data.project;
+            const p = sanitizeProject(data.project);
+            const moderationStatus = p.moderation_status || p.approval_status || 'pending';
             const content = document.getElementById('modalContent');
             const actions = document.getElementById('modalActions');
             
@@ -227,10 +323,10 @@ $projects = $db->query("
                     <div>
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.5rem;">
                             <h2 style="font-size:2.2rem; font-weight:900; color:#fff; margin:0; letter-spacing:-1px;">${p.title}</h2>
-                            ${p.approval_status === 'approved' ? '<i class="fas fa-check-circle" style="color:#10b981; font-size:1.2rem;"></i>' : ''}
+                            ${moderationStatus === 'approved' ? '<i class="fas fa-check-circle" style="color:#10b981; font-size:1.2rem;"></i>' : ''}
                         </div>
                         <p style="color:var(--accent-orange); font-weight:800; text-transform:uppercase; font-size:0.85rem; letter-spacing:2px; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-folder-open"></i> ${p.category} <span style="color:rgba(255,255,255,0.2);">|</span> <i class="fas fa-user-tie"></i> POR ${p.full_name.toUpperCase()}
+                            <i class="fas fa-folder-open"></i> ${p.category} <span style="color:rgba(255,255,255,0.2);">|</span> <i class="fas fa-user-tie"></i> POR ${p.full_name_upper}
                         </p>
                     </div>
                 </div>
@@ -266,7 +362,7 @@ $projects = $db->query("
                             </div>
                             ${p.project_url ? `
                             <div style="grid-column: span 2; margin-top: 1rem;">
-                                <a href="${p.project_url}" target="_blank" style="color: var(--accent-orange); text-decoration: none; font-weight: 800; font-size: 0.9rem;">
+                                <a href="${p.project_url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-orange); text-decoration: none; font-weight: 800; font-size: 0.9rem;">
                                     <i class="fas fa-external-link-alt"></i> Website do Projecto: ${p.project_url}
                                 </a>
                             </div>
@@ -307,7 +403,7 @@ $projects = $db->query("
 
             actions.innerHTML = `
                 <button onclick="closeModal()" class="btn-admin" style="background:rgba(255,255,255,0.05); color:#fff; padding:0.8rem 1.8rem;">Fechar Painel</button>
-                ${p.approval_status !== 'approved' ? `
+                ${moderationStatus !== 'approved' ? `
                     <button onclick="rejectProject(${p.project_id})" class="btn-admin" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:0.8rem 1.8rem;">Rejeitar Proposta</button>
                     <button onclick="approveProject(${p.project_id})" class="btn-admin btn-admin-primary" style="padding:0.8rem 2.2rem;">✓ Aprovar e Publicar</button>
                 ` : '<div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.8rem 2rem; border-radius:12px; font-weight:800; display:flex; align-items:center; gap:10px;"><i class="fas fa-check-double"></i> PROJECTO PUBLICADO NO FEED</div>'}

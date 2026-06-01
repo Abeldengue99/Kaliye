@@ -5,6 +5,7 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../autenticacao/entrar.php");
@@ -57,7 +58,7 @@ if ($user_type != 'investor') {
 ?>
 
 <!-- Premium Styles -->
-<link rel="stylesheet" href="../../recursos/css/pages/wallet.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/wallet.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/wallet.css'); ?>">
 
 <script>
     document.body.classList.add('wallet-page');

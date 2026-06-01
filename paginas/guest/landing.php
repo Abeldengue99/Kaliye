@@ -58,8 +58,10 @@ $v = (string)max(
     filemtime(__DIR__ . '/../../inclusoes/components/landing_info.php'),
     filemtime(__DIR__ . '/../../inclusoes/components/landing_ads_ticker.php'),
     filemtime(__DIR__ . '/../../inclusoes/components/landing_scripts.php'),
+    filemtime(__DIR__ . '/../../inclusoes/components/landing_footer.php'),
     filemtime(__DIR__ . '/../../recursos/css/user-preferences.css'),
     filemtime(__DIR__ . '/../../recursos/js/user-preferences.js'),
+    filemtime(__DIR__ . '/../../recursos/js/platform-update-install.js'),
     filemtime(__DIR__ . '/../../recursos/images/landing/mentor_elite_landing.png'),
     filemtime(__DIR__ . '/../../recursos/images/landing/investidor_prime_landing.png'),
     filemtime(__DIR__ . '/../../recursos/images/landing/mentoreado_impacto_landing.png')
@@ -80,9 +82,11 @@ $v = (string)max(
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11.1.0/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="../../recursos/css/pages/landing.css?v=<?php echo $v; ?>">
     <link rel="stylesheet" href="../../recursos/css/user-preferences.css?v=<?php echo $v; ?>">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11.1.0/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
     <script src="../../recursos/js/user-preferences.js?v=<?php echo $v; ?>" defer></script>
     <script>
         // Ponto Central de Variáveis JS para a Landing Page
@@ -92,6 +96,7 @@ $v = (string)max(
             return link.href.endsWith('/') ? link.href : link.href + '/';
         })();
     </script>
+    <script src="../../recursos/js/platform-update-install.js?v=<?php echo $v; ?>" defer></script>
     <style>
         /* CRITICAL PRELOADER CSS (MODERNO E RÁPIDO) */
         #kaliye-preloader {
@@ -160,6 +165,7 @@ $v = (string)max(
     <?php include '../../inclusoes/components/landing_footer.php'; ?>
     <?php include '../../inclusoes/components/ad_modal.php'; ?>
     <?php include '../../inclusoes/components/legal_modal.php'; ?>
+    <?php include '../../inclusoes/components/newsletter_modal.php'; ?>
     <?php include '../../inclusoes/components/landing_scripts.php'; ?>
 
     <script>

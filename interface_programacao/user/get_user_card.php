@@ -66,6 +66,7 @@ try {
 
     // 3. Verificação de Estado de Conexão (Para o botão de interatividade)
     $connectionStatus = 'none';
+    $hasActiveChat = false;
     if ($current_user_id && $current_user_id != $userId) {
         $sqlCheck = "SELECT status, requester_id FROM user_connections 
                      WHERE (user_id_1 = ? AND user_id_2 = ?) OR (user_id_1 = ? AND user_id_2 = ?)";
@@ -78,6 +79,16 @@ try {
             if ($connectionStatus === 'pending' && $conn['requester_id'] == $userId) {
                 $connectionStatus = 'received';
             }
+        }
+
+        // Verifica se já houve troca de mensagens
+        $sqlChat = "SELECT COUNT(*) as msg_count FROM messages 
+                    WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)";
+        $stmtChat = $db->prepare($sqlChat);
+        $stmtChat->execute([$current_user_id, $userId, $userId, $current_user_id]);
+        $chat = $stmtChat->fetch();
+        if ($chat && $chat['msg_count'] > 0) {
+            $hasActiveChat = true;
         }
     }
 
@@ -107,7 +118,8 @@ try {
             'created_at' => $user['created_at'],
             'rating' => (float)($user['avaliacao'] ?? 0),
             'connections_count' => (int)($connections['total'] ?? 0),
-            'connection_status' => $connectionStatus
+            'connection_status' => $connectionStatus,
+            'has_active_chat' => $hasActiveChat
         ]
     ]);
 

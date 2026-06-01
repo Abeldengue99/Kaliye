@@ -132,11 +132,25 @@ function loadMentorGroupChat(groupId, groupName, mentorId) {
         <div style="width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #059669, #10b981); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(16,185,129,0.4);">
             <i class="fas fa-gem" style="color: white; font-size: 1.2rem;"></i>
         </div>
-        <div style="flex-grow: 1; text-align: left;">
-            <h4 style="color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0;">${chatEsc(groupName)}</h4>
+        <div style="flex-grow: 1; text-align: left; min-width: 0;">
+            <h4 style="color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chatEsc(groupName)}</h4>
             <span style="color: #10b981; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">SALA DE MENTORIA VIP</span>
         </div>
+        <button id="mentorGroupMembersBtn" onclick="openMembersModal()" style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #10b981; padding: 8px 15px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 800; transition: 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0;">
+            <i class="fas fa-users"></i> Gerir Membros
+        </button>
     `;
+    
+    // Responsividade para mobile
+    if (window.innerWidth < 600) {
+        const btn = document.getElementById('mentorGroupMembersBtn');
+        if (btn) {
+            btn.style.padding = '6px 10px';
+            btn.style.fontSize = '0.75rem';
+            btn.style.gap = '5px';
+        }
+    }
+    
     document.getElementById('chatInputArea').style.display = 'block';
     fetchMentorGroupMessages();
 }
@@ -222,7 +236,7 @@ function renderMessages(data) {
         if (msg.media_url) {
             const path = (msg.media_url.startsWith('http') || msg.media_url.startsWith('/')) ? msg.media_url : AKSANTI_CONFIG.baseUrl + msg.media_url;
             if (msg.media_type === 'image') mediaHtml = `<img src="${path}" style="max-width: 100%; border-radius: 12px; margin-bottom: 0.8rem; cursor: zoom-in;" onclick="window.open(this.src, '_blank')">`;
-            else if (msg.media_type === 'video') mediaHtml = `<video src="${path}" controls style="max-width: 100%; border-radius: 12px; margin-bottom: 0.8rem;"></video>`;
+            else if (msg.media_type === 'video') mediaHtml = `<video src="${path}" controls preload="metadata" playsinline style="max-width: 100%; border-radius: 12px; margin-bottom: 0.8rem;"></video>`;
             else mediaHtml = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05);"><i class="fas fa-file-pdf" style="font-size: 1.5rem; color: #ff3333;"></i><div style="flex:1;"><a href="${path}" target="_blank" style="color: #f7941d; font-weight:800; font-size:0.8rem;">DOC: ${msg.media_type.toUpperCase()}</a></div></div>`;
         }
 
@@ -309,6 +323,16 @@ function openChatTextModal(options) {
     document.getElementById('customTextLabel').textContent = options.label || 'Texto';
     document.getElementById('customTextInput').placeholder = options.placeholder || '';
     document.getElementById('customTextInput').value = '';
+    
+    // Mostrar input de arquivo se permitido
+    const fileInput = document.getElementById('customFileInput');
+    if (options.allowFile) {
+        fileInput.style.display = 'block';
+        fileInput.value = '';
+    } else {
+        fileInput.style.display = 'none';
+    }
+    
     document.getElementById('chatSafetySubmit').textContent = options.submitText || 'Continuar';
     document.getElementById('chatSafetySubmit').className = 'chat-safety-btn danger';
     chatSafetyCustomHandler = options.onSubmit || null;
@@ -325,9 +349,10 @@ function submitChatSafetyModal(e) {
             document.getElementById('chatSafetyText').textContent = 'Preencha este campo para continuar.';
             return;
         }
+        const file = document.getElementById('customFileInput').files[0] || null;
         const handler = chatSafetyCustomHandler;
         closeChatSafetyModal();
-        if (handler) handler(value);
+        if (handler) handler(value, file);
         return;
     }
     const reportedUserId = document.getElementById('safetyReportedUserId').value;
@@ -393,31 +418,66 @@ function renderMentorMessages(data) {
         
         // Fabrico Dinâmico de Formatos Complexos HTML
         let mediaHtml = '';
+        
+        // Notas de Voz (Audio)
         if (msg.message_type === 'audio' && msg.file_url) {
-            mediaHtml = `<audio controls src="${AKSANTI_CONFIG.baseUrl}${msg.file_url}" style="height: 40px; border-radius: 20px; outline: none; margin-bottom: 5px;"></audio>`;
-        } else if (msg.message_type === 'meeting' && msg.file_url) {
+            mediaHtml = `
+            <div style="margin-bottom: 10px;">
+                <audio controls src="${AKSANTI_CONFIG.baseUrl}${msg.file_url}" style="height: 40px; border-radius: 20px; outline: none; width: 100%; max-width: 300px;"></audio>
+            </div>`;
+        } 
+        // Videochamadas Jitsi
+        else if (msg.message_type === 'meeting' && msg.file_url) {
+            const meetingData = typeof msg.message === 'string' ? JSON.parse(msg.message) : msg.message;
             mediaHtml = `
             <div style="background: rgba(16,185,129,0.1); border-left: 3px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
                 <i class="fas fa-video" style="color:#10b981; font-size: 1.5rem; margin-bottom:10px;"></i>
-                <h5 style="color:#10b981; margin:0 0 5px 0; font-size:0.9rem;">Sessão Jitsi Iniciada!</h5>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 10px;">Junte-se ao seu mentor nesta vídeo-chamada criptografada ponto-a-ponto.</p>
+                <h5 style="color:#10b981; margin:0 0 5px 0; font-size:0.9rem;">${chatEsc(meetingData.title || 'Sessão de Mentoria Iniciada')}</h5>
+                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 10px;">Clique para entrar na vídeo-chamada segura e criptografada.</p>
                 <a href="${msg.file_url}" target="_blank" style="background: #10b981; color: #fff; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: 800; display: inline-block;">
-                    Entrar na Sessão <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i>
+                    <i class="fas fa-arrow-right" style="margin-right: 5px;"></i> Entrar na Sessão
+                </a>
+            </div>`;
+        }
+        // Recursos/Materiais
+        else if (msg.message_type === 'resource' && msg.file_url) {
+            const resourceData = typeof msg.message === 'string' ? JSON.parse(msg.message) : msg.message;
+            const fileExt = msg.file_url.split('.').pop().toLowerCase();
+            let fileIcon = 'fas fa-file';
+            let fileColor = '#94a3b8';
+            
+            if (['pdf'].includes(fileExt)) { fileIcon = 'fas fa-file-pdf'; fileColor = '#ef4444'; }
+            else if (['doc', 'docx'].includes(fileExt)) { fileIcon = 'fas fa-file-word'; fileColor = '#3b82f6'; }
+            else if (['xls', 'xlsx'].includes(fileExt)) { fileIcon = 'fas fa-file-excel'; fileColor = '#10b981'; }
+            else if (['ppt', 'pptx'].includes(fileExt)) { fileIcon = 'fas fa-file-powerpoint'; fileColor = '#f59e0b'; }
+            else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) { fileIcon = 'fas fa-image'; fileColor = '#8b5cf6'; }
+            else if (['mp4', 'webm', 'avi'].includes(fileExt)) { fileIcon = 'fas fa-film'; fileColor = '#ec4899'; }
+            
+            mediaHtml = `
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <i class="${fileIcon}" style="font-size: 1.8rem; color: ${fileColor};"></i>
+                <div style="flex: 1;">
+                    <div style="color: #fff; font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">${chatEsc(resourceData.title || 'Arquivo')}</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">${fileExt.toUpperCase()}</div>
+                </div>
+                <a href="${msg.file_url}" target="_blank" download style="background: ${fileColor}; color: #fff; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.7rem; font-weight: 800; white-space: nowrap;">
+                    <i class="fas fa-download"></i>
                 </a>
             </div>`;
         }
 
         // Output com nome da entidade emissora exposto
         div.innerHTML = `
-            ${!isMine ? `<div style="font-size: 0.65rem; color: ${msg.sender_type === 'mentor' ? '#10b981' : 'rgba(255,255,255,0.4)'}; letter-spacing: 0.5px; margin-bottom: 3px; font-weight: 800;">${chatEsc(msg.sender_name).toUpperCase()}</div>` : ''}
+            ${!isMine ? `<div style="font-size: 0.65rem; color: ${msg.sender_type === 'mentor' ? '#10b981' : 'rgba(255,255,255,0.4)'}; letter-spacing: 0.5px; margin-bottom: 3px; font-weight: 800;">${chatEsc(msg.sender_name).toUpperCase()} ${msg.sender_type === 'mentor' ? '<i class="fas fa-crown" style="color: #f7941d;"></i>' : ''}</div>` : ''}
             ${mediaHtml}
-            ${msg.message && msg.message_type === 'text' ? `<div style="word-break: break-word; font-size:0.9rem;">${chatEsc(msg.message)}</div>` : ''}
+            ${msg.message && (msg.message_type === 'text' || !msg.message_type) ? `<div style="word-break: break-word; font-size:0.9rem;">${chatEsc(msg.message)}</div>` : ''}
             <div style="text-align: right; font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 5px;">${chatEsc(msg.time)}</div>
         `;
         container.appendChild(div);
     });
     container.scrollTop = container.scrollHeight;
 }
+
 
 // INOVAÃ‡ÃƒO 3: Motores Globais de Media (WebRTC Recording Stream)
 let mediaRecorder;
@@ -601,6 +661,75 @@ setInterval(() => {
     else if (chatType === 'direct' && currentReceiver) fetchMessages();
 }, 4000);
 
+// FUNCIONALIDADE: Enviar Recurso/Material para a Sala VIP
+function sendMentorGroupResource() {
+    if (chatType !== 'mentor_group' || !currentGroup) {
+        showChatToast('Selecione uma sala de mentoria primeiro.');
+        return;
+    }
+    
+    openChatTextModal({
+        title: 'Enviar Material',
+        text: 'Adicione um título e opcionalmente um arquivo para compartilhar com os mentorandos.',
+        label: 'Título do Material',
+        placeholder: 'Ex: Apresentação do Modelo de Negócio',
+        submitText: 'Enviar Material',
+        icon: 'fas fa-file',
+        allowFile: true,
+        onSubmit: (title, file) => {
+            const formData = new FormData();
+            formData.append('group_id', currentGroup);
+            formData.append('title', title);
+            formData.append('description', '');
+            if (file) formData.append('resource_file', file);
+            
+            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_resource.php`, {
+                method: 'POST', body: formData
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    showChatToast('Material enviado com sucesso!');
+                    fetchMentorGroupMessages();
+                } else {
+                    showChatToast(data.error || 'Erro ao enviar material.');
+                }
+            });
+        }
+    });
+}
+
+// FUNCIONALIDADE: Adicionar Mentorado à Sala VIP
+function addMemberToMentorGroup() {
+    if (chatType !== 'mentor_group' || !currentGroup) {
+        showChatToast('Selecione uma sala de mentoria primeiro.');
+        return;
+    }
+    
+    openChatTextModal({
+        title: 'Adicionar Mentorado',
+        text: 'Digite o ID ou email do mentorado que deseja adicionar à sala.',
+        label: 'ID ou Email do Mentorado',
+        placeholder: 'Ex: 12345 ou mentorado@example.com',
+        submitText: 'Adicionar',
+        icon: 'fas fa-user-plus',
+        onSubmit: (identifier) => {
+            const formData = new FormData();
+            formData.append('group_id', currentGroup);
+            formData.append('identifier', identifier);
+            
+            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/add_member_to_group.php`, {
+                method: 'POST', body: formData
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    showChatToast(data.message || 'Mentorado adicionado com sucesso!');
+                    // Atualizar lista de membros se necessário
+                } else {
+                    showChatToast(data.error || 'Erro ao adicionar mentorado.');
+                }
+            });
+        }
+    });
+}
+
 // Search Filter
 function filterChats() {
     const term = document.getElementById('chatSearchInput').value.toLowerCase();
@@ -608,6 +737,376 @@ function filterChats() {
         const name = item.querySelector('h4').innerText.toLowerCase();
         item.style.display = name.includes(term) ? 'flex' : 'none';
     });
+}
+
+// ============ GERENCIAMENTO DE MEMBROS DA SALA VIP ============
+function openMembersModal() {
+    if (chatType !== 'mentor_group' || !currentGroup) {
+        showChatToast('Selecione uma sala VIP primeiro.');
+        return;
+    }
+    
+    const modal = document.getElementById('membersModal');
+    if (!modal) return;
+    
+    // Limpar conteúdo anterior
+    document.getElementById('currentMembersList').innerHTML = '<p style="color: #888; text-align: center;">Carregando membros...</p>';
+    document.getElementById('availableStudentsList').innerHTML = '<p style="color: #888; text-align: center;">Carregando mentorados...</p>';
+    
+    // Carregar membros atuais
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/get_mentor_group_members.php?group_id=${currentGroup}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.members) {
+                let html = '<h4 style="color: var(--elite-orange); margin-bottom: 1rem; font-size: 0.95rem; text-transform: uppercase;">Membros Atuais (' + data.members.length + ')</h4>';
+                
+                if (data.members.length === 0) {
+                    html += '<p style="color: #888; text-align: center; margin: 1rem 0;">Ainda nenhum membro adicionado</p>';
+                } else {
+                    html += '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                    data.members.forEach(member => {
+                        html += `
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; border-left: 3px solid var(--elite-orange);">
+                                <div>
+                                    <p style="color: #fff; font-weight: 600; margin: 0 0 4px 0;">${chatEsc(member.full_name)}</p>
+                                    <p style="color: #888; font-size: 0.8rem; margin: 0;">${chatEsc(member.email)}</p>
+                                </div>
+                                <span style="background: rgba(16,185,129,0.2); color: #10b981; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">${member.role.toUpperCase()}</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                document.getElementById('currentMembersList').innerHTML = html;
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            document.getElementById('currentMembersList').innerHTML = '<p style="color: #ef4444;">Erro ao carregar membros</p>';
+        });
+    
+    // Carregar mentorados disponíveis com busca
+    loadAvailableStudents();
+    
+    modal.style.display = 'flex';
+}
+
+// Carregar lista de mentorados disponíveis com busca
+function loadAvailableStudents(search = '') {
+    const container = document.getElementById('availableStudentsList');
+    if (!container) {
+        console.error('availableStudentsList element not found');
+        return;
+    }
+    
+    let url = `${AKSANTI_CONFIG.baseUrl}interface_programacao/social/get_mentor_students.php?group_id=${currentGroup}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            console.log('loadAvailableStudents response:', data); // Debug log
+            
+            let html = `
+                <div style="padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="color: var(--elite-orange); margin-bottom: 1rem; font-size: 0.95rem; text-transform: uppercase;">Pesquisar e Adicionar Mentorados</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <input type="text" id="memberSearchInput" placeholder="Pesquisar por nome ou email..." value="${chatEsc(search)}" oninput="loadAvailableStudents(this.value)" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9rem;">
+                    </div>
+            `;
+            
+            if (!data.success) {
+                html += `<p style="color: #f97316; text-align: center; margin: 1rem 0;"><strong>⚠️ Erro ao carregar mentorados:</strong> ${chatEsc(data.error || 'Erro desconhecido')}</p>`;
+            } else if (!data.students || data.students.length === 0) {
+                html += '<p style="color: #888; text-align: center; margin: 1rem 0;">Nenhum mentorado disponível</p>';
+            } else {
+                html += '<div style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">';
+                data.students.forEach(student => {
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(255,165,0,0.08); border-radius: 8px; border: 1px solid rgba(255,165,0,0.2);">
+                            <div style="flex: 1; min-width: 0;">
+                                <p style="color: #fff; font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis;">${chatEsc(student.full_name)}</p>
+                                <p style="color: #888; font-size: 0.75rem; margin: 0; overflow: hidden; text-overflow: ellipsis;">${chatEsc(student.email)}</p>
+                            </div>
+                            <button onclick="addSpecificStudent(${student.user_id})" style="background: var(--elite-orange); color: #fff; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; white-space: nowrap; margin-left: 10px;">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        })
+        .catch(e => {
+            console.error('Error in loadAvailableStudents:', e);
+            container.innerHTML = `<div style="padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);"><h4 style="color: var(--elite-orange); margin-bottom: 1rem; font-size: 0.95rem; text-transform: uppercase;">Pesquisar e Adicionar Mentorados</h4><p style="color: #f97316;"><strong>❌ Erro de rede:</strong> ${chatEsc(e.message)}</p></div>`;
+        });
+}
+
+// Adicionar um mentorado específico da lista
+function addSpecificStudent(studentId) {
+    if (chatType !== 'mentor_group' || !currentGroup) {
+        showChatToast('Selecione uma sala de mentoria primeiro.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('group_id', currentGroup);
+    formData.append('user_id', studentId);
+    
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/add_member_to_group.php`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showChatToast('✅ Mentorado adicionado com sucesso!');
+            // Recarregar as listas
+            setTimeout(() => openMembersModal(), 500);
+        } else {
+            showChatToast('❌ ' + (data.error || 'Erro ao adicionar mentorado.'));
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        showChatToast('❌ Erro na requisição.');
+    });
+}
+
+// Editar nome do grupo
+function editGroupName() {
+    if (!currentGroup) {
+        showChatToast('Selecione uma sala primeiro.');
+        return;
+    }
+    
+    openChatTextModal({
+        title: 'Editar Nome da Sala',
+        text: 'Digite o novo nome para a sala VIP de mentoria.',
+        label: 'Novo Nome',
+        placeholder: 'Ex: Turma Advanced React',
+        submitText: 'Atualizar',
+        icon: 'fas fa-edit',
+        onSubmit: (newName) => {
+            if (!newName.trim()) {
+                showChatToast('Nome não pode estar vazio.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('group_id', currentGroup);
+            formData.append('group_name', newName.trim());
+            
+            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/update_mentor_group.php`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showChatToast('✅ ' + (data.message || 'Sala atualizada com sucesso!'));
+                    // Recarregar lista de grupos
+                    loadMentorGroups();
+                } else {
+                    // Mostrar mensagem do servidor ou fallback
+                    const errorMsg = data.error || 'Erro ao atualizar sala.';
+                    showChatToast(errorMsg);
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                showChatToast('❌ Erro de conexão. Verifique sua internet.');
+            });
+        }
+    });
+}
+
+// Trocar imagem do grupo
+function changeGroupImage() {
+    if (!currentGroup) {
+        showChatToast('Selecione uma sala primeiro.');
+        return;
+    }
+    
+    // Criar input de arquivo
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validar tipo
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            showChatToast('❌ Tipo de arquivo inválido. Use JPG, PNG, GIF ou WebP.');
+            return;
+        }
+        
+        // Validar tamanho (máx 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            showChatToast('❌ Arquivo muito grande. Máximo 2MB.');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('group_id', currentGroup);
+        formData.append('group_image', file);
+        
+        fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/update_mentor_group.php`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showChatToast('✅ Imagem atualizada com sucesso!');
+                // Recarregar lista de grupos
+                loadMentorGroups();
+            } else {
+                // Mostrar mensagem do servidor ou fallback
+                const errorMsg = data.error || 'Erro ao atualizar imagem.';
+                showChatToast(errorMsg);
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            showChatToast('❌ Erro de conexão. Verifique sua internet.');
+        });
+    };
+    fileInput.click();
+}
+
+// Excluir grupo
+function deleteGroup() {
+    if (!currentGroup) {
+        showChatToast('Selecione uma sala primeiro.');
+        return;
+    }
+    
+    // Confirmar exclusão
+    if (!confirm('⚠️ Tem a certeza que deseja EXCLUIR esta sala?\n\nEsta ação não pode ser desfeita e todos os membros e mensagens serão removidos permanentemente.')) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('group_id', currentGroup);
+    
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/delete_mentor_group.php`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showChatToast('✅ Sala excluída com sucesso!');
+            closeMembersModal();
+            currentGroup = null;
+            chatType = 'direct';
+            // Recarregar lista de grupos
+            loadMentorGroups();
+        } else {
+            showChatToast('❌ ' + (data.error || 'Erro ao excluir sala.'));
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        showChatToast('❌ Erro na requisição.');
+    });
+}
+
+function closeMembersModal() {
+    const modal = document.getElementById('membersModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Fechar modal quando clicar fora
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('membersModal');
+    if (modal && e.target === modal) {
+        closeMembersModal();
+    }
+});
+
+// Adaptação: Adicionar membro usando o input do modal
+function addMemberToMentorGroupFromModal() {
+    const identifier = document.getElementById('newMemberInput')?.value?.trim();
+    if (!identifier) {
+        showChatToast('Digite um ID ou email válido.');
+        return;
+    }
+    
+    if (chatType !== 'mentor_group' || !currentGroup) {
+        showChatToast('Selecione uma sala de mentoria primeiro.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('group_id', currentGroup);
+    formData.append('identifier', identifier);
+    
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/add_member_to_group.php`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showChatToast('✅ ' + (data.message || 'Membro adicionado com sucesso!'));
+            document.getElementById('newMemberInput').value = '';
+            // Recarregar a lista de membros
+            setTimeout(() => openMembersModal(), 500);
+        } else {
+            showChatToast('❌ ' + (data.error || 'Erro ao adicionar membro.'));
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        showChatToast('❌ Erro na requisição.');
+    });
+}
+
+// Override: Tornar addMemberToMentorGroup compatível com ambos os contextos
+window.addMemberToMentorGroup_original = addMemberToMentorGroup;
+function addMemberToMentorGroup() {
+    // Se estamos no modal de gerenciamento, usa a versão do modal
+    if (document.getElementById('membersModal').style.display === 'flex') {
+        addMemberToMentorGroupFromModal();
+    } else {
+        // Se estamos na interface de chat, abre o modal de texto
+        if (chatType !== 'mentor_group' || !currentGroup) {
+            showChatToast('Selecione uma sala de mentoria primeiro.');
+            return;
+        }
+        
+        openChatTextModal({
+            title: 'Adicionar Mentorado',
+            text: 'Digite o ID ou email do mentorado que deseja adicionar à sala.',
+            label: 'ID ou Email do Mentorado',
+            placeholder: 'Ex: 12345 ou mentorado@example.com',
+            submitText: 'Adicionar',
+            icon: 'fas fa-user-plus',
+            onSubmit: (identifier) => {
+                const formData = new FormData();
+                formData.append('group_id', currentGroup);
+                formData.append('identifier', identifier);
+                
+                fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/add_member_to_group.php`, {
+                    method: 'POST', body: formData
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        showChatToast(data.message || 'Mentorado adicionado com sucesso!');
+                        // Atualizar lista de membros se necessário
+                    } else {
+                        showChatToast(data.error || 'Erro ao adicionar mentorado.');
+                    }
+                });
+            }
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

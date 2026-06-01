@@ -60,9 +60,10 @@ try {
     $notif_query = "INSERT INTO notifications (user_id, sender_id, title, content, type, link) 
                     VALUES (?, ?, 'Mentoria Confirmada!', ?, 'mentorship_confirmed', ?)";
     $notif_stmt = $db->prepare($notif_query);
-    $meeting_link = "paginas/mentoria/meeting.php?room=" . $room_name;
+    $meeting_link = "paginas/mentoria/meeting.php?room=" . rawurlencode($room_name);
+    $notification_link = "paginas/mentoria/mentorship.php?view=mentee&tab=scheduler&join=" . rawurlencode($room_name);
     $notif_message = $full_name . " confirmou a mentoria: " . $title . ". Clique para acessar a sala.";
-    $notif_stmt->execute([$mentee_id, $user_id, $notif_message, $meeting_link]);
+    $notif_stmt->execute([$mentee_id, $user_id, $notif_message, $notification_link]);
 
     // 4. Send Message to Student (Optional but requested: "mensagem com o link")
     $msg_query = "INSERT INTO messages (sender_id, receiver_id, content, sent_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)";

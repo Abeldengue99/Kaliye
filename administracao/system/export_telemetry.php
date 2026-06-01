@@ -5,7 +5,7 @@ $admin_base = '../';
 $base_url = '../../';
 require_once '../../configuracoes/base_dados.php';
 
-// Segurança: Apenas admins podem baixar
+// SeguranÃ§a: Apenas admins podem baixar
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     die("Acesso negado.");
 }
@@ -17,7 +17,7 @@ $db = $database->getConnection();
 $format = isset($_GET['format']) ? $_GET['format'] : 'csv';
 
 // Buscar dados
-$query = "SELECT l.login_id, u.full_name, u.email, u.user_type, l.ip_address, l.country, l.city, l.isp, l.device_type, l.device_brand, l.login_at 
+$query = "SELECT l.log_id, u.full_name, u.email, u.user_type, l.ip_address, l.country, l.city, l.isp, l.device_type, l.device_brand, l.login_at
           FROM login_logs l 
           JOIN users u ON l.user_id = u.user_id 
           ORDER BY l.login_at DESC";
@@ -31,7 +31,7 @@ if ($format === 'csv') {
     header('Content-Disposition: attachment; filename=' . $filename);
     $output = fopen('php://output', 'w');
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM
-    fputcsv($output, ['ID Log', 'Utilizador', 'Email', 'Tipo de Conta', 'IP Address', 'País', 'Cidade', 'ISP', 'Dispositivo', 'Marca/Browser', 'Data e Hora']);
+    fputcsv($output, ['ID Log', 'Utilizador', 'Email', 'Tipo de Conta', 'IP Address', 'PaÃ­s', 'Cidade', 'ISP', 'Dispositivo', 'Marca/Browser', 'Data e Hora']);
     foreach ($data as $row) {
         fputcsv($output, $row);
     }
@@ -44,7 +44,7 @@ if ($format === 'csv') {
     <html lang="pt">
     <head>
         <meta charset="UTF-8">
-        <title>Relatório de Telemetria - KALIYE</title>
+        <title>RelatÃ³rio de Telemetria - KALIYE</title>
         <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
@@ -98,12 +98,12 @@ if ($format === 'csv') {
                     <img src="../../recursos/images/marca/favicon-k-32x32.png" alt="KALIYE">
                 </div>
                 <div class="title-info">
-                    <h1>Relatório de Telemetria de Acessos</h1>
+                    <h1>RelatÃ³rio de Telemetria de Acessos</h1>
                     <p>Ecossistema KALIYE</p>
                 </div>
             </div>
             <div class="meta-info">
-                <strong>Data do Relatório:</strong> <?php echo date('d/m/Y H:i'); ?><br>
+                <strong>Data do RelatÃ³rio:</strong> <?php echo date('d/m/Y H:i'); ?><br>
                 <strong>Emitido por:</strong> Administrador (ID: <?php echo $_SESSION['user_id']; ?>)
             </div>
         </div>
@@ -114,7 +114,7 @@ if ($format === 'csv') {
                     <th>ID</th>
                     <th>Utilizador</th>
                     <th>Tipo</th>
-                    <th>IP / Localização</th>
+                    <th>IP / LocalizaÃ§Ã£o</th>
                     <th>Dispositivo / Marca</th>
                     <th>Data e Hora</th>
                 </tr>

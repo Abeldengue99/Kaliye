@@ -26,7 +26,7 @@ $permissions = array_values(array_unique(array_filter(array_map('trim', (array)$
 })));
 
 if ($user_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'ID invalido']);
+    echo json_encode(['success' => false, 'message' => 'ID inválido']);
     exit;
 }
 
@@ -49,7 +49,7 @@ try {
         unset($_SESSION['admin_permissions']);
     }
 
-    echo json_encode(['success' => true, 'message' => 'Permissoes guardadas com sucesso']);
+    echo json_encode(['success' => true, 'message' => 'Permissões guardadas com sucesso']);
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {
         $db->rollBack();

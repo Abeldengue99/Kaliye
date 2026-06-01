@@ -42,7 +42,7 @@ $mentorship_data = [
 ];
 
 // 5. Investment Health (Paid vs Pending)
-$investment_stats = $db->query("SELECT status, COUNT(*) as count FROM project_investments GROUP BY status")->fetchAll();
+$investment_stats = $db->query("SELECT status, COUNT(*) as count FROM project_investments WHERE archived_at IS NULL GROUP BY status")->fetchAll();
 
 // 6. Top Institutions
 $institution_stats = $db->query("SELECT COALESCE(institution, 'N/A') as label, COUNT(*) as value FROM users WHERE institution IS NOT NULL AND institution != '' GROUP BY institution ORDER BY value DESC LIMIT 5")->fetchAll();

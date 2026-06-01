@@ -102,9 +102,20 @@
                             </button>
                         <?php endif; ?>
                     <?php else: ?>
-                        <a href="messages.php?start=<?php echo $user['user_id']; ?>" class="btn-cover-primary">
-                            <i class="fas fa-envelope"></i> Mensagem
-                        </a>
+                        <?php 
+                            $is_student = strpos($_SESSION['user_type'] ?? '', 'student') !== false;
+                            $is_target_elite = in_array($user['user_type'] ?? '', ['investor', 'mentor']);
+                            $can_message = !($is_student && $is_target_elite);
+                        ?>
+                        <?php if ($can_message): ?>
+                            <a href="messages.php?start=<?php echo $user['user_id']; ?>" class="btn-cover-primary">
+                                <i class="fas fa-envelope"></i> Mensagem
+                            </a>
+                        <?php else: ?>
+                            <button class="btn-cover-ghost" disabled title="Apenas o Mentor/Investidor pode iniciar a conversa." style="opacity: 0.7; cursor: not-allowed; border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);">
+                                <i class="fas fa-lock"></i> Canal Protegido
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>

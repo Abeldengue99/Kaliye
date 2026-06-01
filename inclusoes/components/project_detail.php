@@ -90,7 +90,7 @@ if (isset($db) && isset($project['project_id'])) {
             <!-- Área do Vídeo de Pitch -->
             <div style="background: #000; position: relative; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--surface-5);">
                 <?php if (!empty($project['video_url'])): ?>
-                    <video src="<?php echo $base_url . $project['video_url']; ?>" controls style="width: 100%; height: 100%; object-fit: cover;"></video>
+                    <video src="<?php echo $base_url . $project['video_url']; ?>" controls preload="metadata" playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
                 <?php else: ?>
                     <?php 
                         require_once __DIR__ . '/../ProjectMediaHelper.php';

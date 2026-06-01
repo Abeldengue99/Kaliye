@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../configuracoes/base_dados.php';
+require_once '../inclusoes/RetentionMaintenance.php';
 
 header('Content-Type: application/json');
 
@@ -12,6 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 try {
     $database = new Database();
     $db = $database->getConnection();
+    (new RetentionMaintenance($db))->ensureSchema();
     
     $user_id = $_SESSION['user_id'];
     
@@ -21,7 +23,7 @@ try {
     $unread_messages = (int)$msg_stmt->fetchColumn();
     
     // Contagem de notificações não lidas (Filtramos para que novos usuários não recebam lixo histórico)
-    $notif_stmt = $db->prepare("SELECT COUNT(*) FROM notifications n JOIN users u ON n.user_id = u.user_id WHERE n.user_id = ? AND CAST(n.is_read AS INTEGER) = 0 AND n.created_at >= u.created_at AND COALESCE(n.type, '') <> 'message'");
+    $notif_stmt = $db->prepare("SELECT COUNT(*) FROM notifications n JOIN users u ON n.user_id = u.user_id WHERE n.user_id = ? AND CAST(n.is_read AS INTEGER) = 0 AND n.created_at >= u.created_at AND n.archived_at IS NULL AND COALESCE(n.type, '') <> 'message'");
     $notif_stmt->execute([$user_id]);
     $unread_notifications = (int)$notif_stmt->fetchColumn();
 
@@ -56,15 +58,23 @@ try {
     $admin_counts = [];
     
     if ($is_admin) {
-        $admin_counts['kyc'] = (int)$db->query("SELECT COUNT(*) FROM users WHERE verification_status = 'pending'")->fetchColumn();
-        $admin_counts['mentors'] = (int)$db->query("SELECT COUNT(*) FROM users WHERE mentor_status = 'pending'")->fetchColumn();
-        $admin_counts['investments'] = (int)$db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'pending'")->fetchColumn();
+        $admin_counts['kyc'] = (int)$db->query("SELECT COUNT(*) FROM users WHERE verification_status = 'pending' OR (investor_status = 'pending' AND investor_application_archived_at IS NULL)")->fetchColumn();
+        $admin_counts['mentors'] = (int)$db->query("SELECT COUNT(*) FROM users WHERE (mentor_status = 'pending' OR mentorship_status = 'pending') AND mentor_application_archived_at IS NULL")->fetchColumn();
+        $admin_counts['investments'] = (int)$db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'pending' AND archived_at IS NULL")->fetchColumn();
         $admin_counts['support'] = (int)$db->query("SELECT COUNT(*) FROM support_messages WHERE CAST(is_read AS INTEGER) = 0")->fetchColumn();
         
         try {
-            $admin_counts['moderation'] = (int)$db->query("SELECT COUNT(*) FROM projects WHERE approval_status = 'pending'")->fetchColumn();
+            // CORREÇÃO DA MODERAÇÃO: Sincronização dos 3 estados para consistência no Polling do Admin
+            $admin_counts['moderation'] = (int)$db->query("
+                SELECT COUNT(*) 
+                FROM projects 
+                WHERE approval_status = 'pending' 
+                  AND is_public = false 
+                  AND status = 'pending'
+            ")->fetchColumn();
         } catch (Exception $e) {
-            $admin_counts['moderation'] = (int)$db->query("SELECT COUNT(*) FROM projects WHERE is_public = false")->fetchColumn();
+            // Fallback caso a tabela enfrente concorrência na transição
+            $admin_counts['moderation'] = (int)$db->query("SELECT COUNT(*) FROM projects WHERE is_public = false AND approval_status = 'pending'")->fetchColumn();
         }
     }
     

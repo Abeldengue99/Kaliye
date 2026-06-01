@@ -5,8 +5,48 @@
 
 // Global State
 let mentorshipState = {
-    currentView: 'mentee' // 'mentee' or 'mentor'
+    currentView: 'mentee', // 'mentee' or 'mentor'
+    joinHandled: false
 };
+
+function getSlotMeetingUrl(slot) {
+    const rawLink = String(slot.meeting_link || '').trim();
+    if (rawLink && (/^https?:\/\//i.test(rawLink) || slot.platform === 'external')) {
+        return rawLink;
+    }
+    if (slot.meeting_room) {
+        return `meeting.php?room=${encodeURIComponent(slot.meeting_room)}`;
+    }
+    if (rawLink) {
+        return rawLink
+            .replace(/^\/?aksanti\/paginas\/mentoria\//i, '')
+            .replace(/^\/?paginas\/mentoria\//i, '');
+    }
+    return '#';
+}
+
+function getFreeMentorshipReviewUrl(slot) {
+    if (!slot.free_request_id) return '';
+    return `free_mentorship_requests.php?request_id=${encodeURIComponent(slot.free_request_id)}&complete=1`;
+}
+
+function handlePendingMeetingJoin(slots) {
+    if (mentorshipState.joinHandled) return;
+
+    const roomToJoin = new URLSearchParams(window.location.search).get('join');
+    if (!roomToJoin) return;
+
+    const slot = (slots || []).find(s => String(s.meeting_room || '') === roomToJoin);
+    if (!slot || slot.status !== 'confirmed') return;
+
+    mentorshipState.joinHandled = true;
+    const meetingUrl = getSlotMeetingUrl(slot);
+    if (meetingUrl && meetingUrl !== '#') {
+        setTimeout(() => {
+            window.location.href = meetingUrl;
+        }, 450);
+    }
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -188,8 +228,20 @@ async function loadTasks() {
 
 function createTaskCard(t) {
     const isMentee = mentorshipState.currentView === 'mentee';
+    const isMentor = mentorshipState.currentView === 'mentor';
     const isCompleted = t.status === 'completed';
     const statusIcon = isCompleted ? 'fa-check-circle' : 'fa-clock';
+    
+    const actionButtons = isMentor ? `
+        <div class="task-actions">
+            <button onclick="editTask(${t.task_id})" title="Editar" class="btn-action edit">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+            <button onclick="deleteTask(${t.task_id})" title="Eliminar" class="btn-action delete">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    ` : '';
     
     return `
         <div class="task-card fade-in ${t.status}">
@@ -211,6 +263,7 @@ function createTaskCard(t) {
                 <i class="fas fa-award"></i> Tarefa Validada
             </div>` 
             : ''}
+            ${actionButtons}
         </div>
     `;
 }
@@ -227,14 +280,14 @@ async function loadSlots() {
             return;
         }
         list.innerHTML = data.slots.map(s => createSlotCard(s)).join('');
+        handlePendingMeetingJoin(data.slots);
     } else {
         list.innerHTML = `<div class="error-state">${data.message || 'Erro ao carregar agenda.'}</div>`;
     }
 }
 
 function createSlotCard(s) {
-    const roomParam = s.meeting_room ? `?room=${s.meeting_room}` : '';
-    const meetingUrl = roomParam ? `meeting.php${roomParam}` : (s.meeting_link || '#');
+    const meetingUrl = getSlotMeetingUrl(s);
     const isAvailable = s.status === 'available';
     const isMentee = mentorshipState.currentView === 'mentee';
     const isMentor = mentorshipState.currentView === 'mentor';
@@ -251,6 +304,7 @@ function createSlotCard(s) {
     const diffMins = Math.floor(diffMs / 60000);
     const isToday = startTime.toDateString() === now.toDateString();
     const canJoin = diffMins <= 10 && diffMs > -(s.duration || 60) * 60000;
+    const isPast = diffMs <= -(s.duration || 60) * 60000 || s.status === 'expired' || s.status === 'completed';
 
     let actionHtml = '';
     if (s.status === 'confirmed') {
@@ -267,7 +321,23 @@ function createSlotCard(s) {
                 const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
                 actionHtml = `<div class="countdown-badge gray"><i class="fas fa-calendar"></i> Em ${daysLeft} d</div>`;
             }
+        } else if (isPast && s.free_request_id && isMentee && !s.student_rating) {
+            actionHtml = `
+                <a href="${getFreeMentorshipReviewUrl(s)}" class="btn-join fade-in" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fas fa-star"></i> Avaliar Mentor
+                </a>
+            `;
+        } else if (isPast) {
+            actionHtml = `<div class="countdown-badge gray"><i class="fas fa-check-circle"></i> Sessão encerrada</div>`;
         }
+    } else if (isPast && s.free_request_id && isMentee && !s.student_rating) {
+        actionHtml = `
+            <a href="${getFreeMentorshipReviewUrl(s)}" class="btn-join fade-in" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <i class="fas fa-star"></i> Avaliar Mentor
+            </a>
+        `;
+    } else if (isPast) {
+        actionHtml = `<div class="countdown-badge gray"><i class="fas fa-check-circle"></i> Sessão encerrada</div>`;
     }
 
     return `
@@ -333,6 +403,30 @@ async function fetchApi(url, options = {}) {
     }
 }
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+}
+
+function getResourceUrl(fileUrl) {
+    const raw = String(fileUrl || '').trim();
+    if (!raw) return '#';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return '../../' + raw.replace(/^(\.\.\/)+/, '').replace(/^(\.\/)+/, '').replace(/^\/+/, '');
+}
+
+function formatResourceSize(bytes) {
+    const size = Number(bytes || 0);
+    if (!size) return '';
+    if (size < 1024 * 1024) return `${Math.ceil(size / 1024)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 async function loadResources() {
     const list = document.getElementById('resourcesList');
     if (!list) return;
@@ -345,28 +439,46 @@ async function loadResources() {
             list.innerHTML = `<div class="empty-state">${msg}</div>`;
             return;
         }
-        list.innerHTML = data.resources.map(r => `
-            <div class="resource-card fade-in">
-                <i class="fas ${getResourceIcon(r.file_type)}"></i>
-                <div class="resource-info">
-                    <h4>${r.title}</h4>
-                    <p>${r.description || 'Sem descrição.'}</p>
-                    <div style="margin-top: 5px; font-size: 0.75rem; color: var(--surface-40);">
-                        <i class="fas fa-calendar-alt" style="font-size: 0.7rem;"></i> ${new Date(r.created_at).toLocaleDateString()}
+        list.innerHTML = data.resources.map(r => {
+            const isMentorView = mentorshipState.currentView === 'mentor';
+            const actionButtons = isMentorView ? `
+                <div style="display: flex; gap: 6px;">
+                    <button onclick="editResource(${r.resource_id})" title="Editar" class="btn-icon" style="background: rgba(59,130,246,0.15); color: #60a5fa; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteResource(${r.resource_id})" title="Apagar" class="btn-icon" style="background: rgba(239,68,68,0.15); color: #f87171; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            ` : '';
+            
+            return `
+                <div class="resource-card fade-in">
+                    <i class="fas ${getResourceIcon(r.file_type || r.resource_type || r.file_url || '')}"></i>
+                    <div class="resource-info">
+                        <h4>${escapeHtml(r.title)}</h4>
+                        <p>${escapeHtml(r.description || 'Sem descricao.')}</p>
+                        <div style="margin-top: 5px; font-size: 0.75rem; color: var(--surface-40);">
+                            <i class="fas fa-calendar-alt" style="font-size: 0.7rem;"></i> ${escapeHtml([new Date(r.created_at).toLocaleDateString('pt-PT'), formatResourceSize(r.file_size), r.expires_at ? `expira em ${new Date(r.expires_at).toLocaleDateString('pt-PT')}` : ''].filter(Boolean).join(' | '))}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a href="${escapeHtml(getResourceUrl(r.file_url))}" ${r.resource_type === 'link' || /^https?:\/\//i.test(String(r.file_url || '')) ? 'target="_blank" rel="noopener"' : 'download'} class="btn-primary-small">
+                            <i class="fas ${r.resource_type === 'link' || /^https?:\/\//i.test(String(r.file_url || '')) ? 'fa-external-link-alt' : 'fa-download'}"></i>
+                        </a>
+                        ${actionButtons}
                     </div>
                 </div>
-                <a href="${r.file_url.startsWith('http') ? r.file_url : '../' + r.file_url}" download class="btn-primary-small">
-                    <i class="fas fa-download"></i>
-                </a>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } else {
         list.innerHTML = '<div class="error-state">Erro ao carregar materiais.</div>';
     }
 }
 
 function getResourceIcon(type) {
-    const t = type.toLowerCase();
+    const t = String(type || '').toLowerCase();
+    if (t.includes('link') || t.includes('http')) return 'fa-link';
     if (t.includes('pdf')) return 'fa-file-pdf';
     if (t.includes('image') || t.includes('jpg') || t.includes('png')) return 'fa-file-image';
     if (t.includes('video') || t.includes('mp4')) return 'fa-file-video';
@@ -387,15 +499,30 @@ async function loadNotices() {
             list.innerHTML = `<div class="empty-state">${msg}</div>`;
             return;
         }
-        list.innerHTML = data.notices.map(n => `
-            <div class="notice-card fade-in">
-                <div class="notice-header">
-                    <span class="author"><i class="fas fa-user-circle"></i> ${n.author_name}</span>
-                    <span class="date">${new Date(n.created_at).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+        list.innerHTML = data.notices.map(n => {
+            const isMentorView = mentorshipState.currentView === 'mentor';
+            const actionButtons = isMentorView ? `
+                <div class="notice-actions">
+                    <button onclick="editNotice(${n.notice_id})" title="Editar" class="btn-action edit">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button onclick="deleteNotice(${n.notice_id})" title="Eliminar" class="btn-action delete">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
                 </div>
-                <p>${n.content}</p>
-            </div>
-        `).join('');
+            ` : '';
+            
+            return `
+                <div class="notice-card fade-in">
+                    <div class="notice-header">
+                        <span class="author"><i class="fas fa-user-circle"></i> ${n.author_name}</span>
+                        <span class="date">${new Date(n.created_at).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                    </div>
+                    <p>${n.content}</p>
+                    ${actionButtons}
+                </div>
+            `;
+        }).join('');
     } else {
         list.innerHTML = '<div class="error-state">Erro ao carregar avisos.</div>';
     }
@@ -414,9 +541,21 @@ async function loadAssignments() {
         }
         list.innerHTML = data.assignments.map(a => `
             <div class="assignment-card glass fade-in">
-                <h4>${a.title}</h4>
-                <p>${a.description}</p>
-                <div class="status-badge ${a.status}">${a.status}</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <h4>${a.title}</h4>
+                        <p>${a.description}</p>
+                        <div class="status-badge ${a.status}">${a.status}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="editAssignment(${a.assignment_id})" title="Editar" class="btn-action edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteAssignment(${a.assignment_id})" title="Eliminar" class="btn-action delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         `).join('');
     } else {
@@ -427,6 +566,8 @@ async function loadAssignments() {
 function loadLegalAgreements() {
     document.getElementById('legalList').innerHTML = '<div class="empty-state">Documentação jurídica em processamento.</div>';
 }
+
+/* --- Applications Tab: No special loader needed, content is pre-rendered in PHP --- */
 
 /* --- Updates & Actions --- */
 
@@ -493,6 +634,108 @@ function handleAddNotice(e) {
                 Swal.fire('Erro', data.error || 'Falha ao postar.', 'error');
             }
         });
+}
+
+/**
+ * Editar um material (recurso) compartilhado
+ */
+function editResource(resourceId) {
+    Swal.fire({
+        title: 'Editar Material',
+        html: `
+            <div style="text-align: left;">
+                <label style="display: block; margin-bottom: 1rem;">
+                    <strong>Título</strong>
+                    <input id="editTitle" type="text" class="swal2-input" placeholder="Título do material" style="margin-top: 0.5rem;">
+                </label>
+                <label style="display: block;">
+                    <strong>Descrição</strong>
+                    <textarea id="editDescription" class="swal2-textarea" placeholder="Descrição do material" style="margin-top: 0.5rem; height: 100px;"></textarea>
+                </label>
+            </div>
+        `,
+        background: '#0d1628',
+        color: '#fff',
+        confirmButtonColor: '#f7941d',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Guardar Alterações',
+        preConfirm: () => {
+            const title = document.getElementById('editTitle').value.trim();
+            const description = document.getElementById('editDescription').value.trim();
+            if (!title) {
+                Swal.showValidationMessage('Insira o título');
+                return false;
+            }
+            return { title, description };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('resource_id', resourceId);
+            fd.append('title', result.value.title);
+            fd.append('description', result.value.description);
+
+            fetch('../../interface_programacao/mentorship/edit_mentor_resource.php', {
+                method: 'POST',
+                body: fd
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Sucesso!', 'Material atualizado.', 'success');
+                        loadResources();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao atualizar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+/**
+ * Apagar um material (recurso) compartilhado
+ */
+function deleteResource(resourceId) {
+    Swal.fire({
+        title: 'Apagar Material?',
+        text: 'Esta ação é irreversível. O material será permanentemente apagado.',
+        icon: 'warning',
+        background: '#0d1628',
+        color: '#fff',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Apagar'
+    }).then(result => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('resource_id', resourceId);
+
+            fetch('../../interface_programacao/mentorship/delete_mentor_resource.php', {
+                method: 'POST',
+                body: fd
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Apagado!', 'Material removido com sucesso.', 'success');
+                        loadResources();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao apagar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
 }
 
 function bookSlot(slotId) {
@@ -915,6 +1158,271 @@ async function processMentorAction(reportId, action, feedback = '') {
 }
 
 window.handleMentorAction = handleMentorAction;
+
+/**
+ * EDITAR & DELETAR TAREFAS
+ */
+function editTask(taskId) {
+    Swal.fire({
+        title: 'Editar Tarefa',
+        html: `
+            <input type="text" id="editTaskName" class="swal2-input" placeholder="Nome da tarefa">
+            <textarea id="editTaskDesc" class="swal2-textarea" placeholder="Descrição"></textarea>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        background: '#0d1628',
+        color: '#fff',
+        preConfirm: () => {
+            const name = document.getElementById('editTaskName').value.trim();
+            const desc = document.getElementById('editTaskDesc').value.trim();
+            if (!name) {
+                Swal.showValidationMessage('Insira o nome da tarefa');
+                return false;
+            }
+            return { name, desc };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('task_id', taskId);
+            formData.append('task_name', result.value.name);
+            formData.append('description', result.value.desc);
+
+            fetch('../../interface_programacao/mentorship/edit_task.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Sucesso!', 'Tarefa atualizada.', 'success');
+                        loadTasks();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao atualizar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+function deleteTask(taskId) {
+    Swal.fire({
+        title: 'Eliminar Tarefa?',
+        text: 'Esta ação é irreversível.',
+        icon: 'warning',
+        background: '#0d1628',
+        color: '#fff',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Eliminar'
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('task_id', taskId);
+
+            fetch('../../interface_programacao/mentorship/delete_task.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Eliminada!', 'Tarefa removida com sucesso.', 'success');
+                        loadTasks();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao eliminar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+/**
+ * EDITAR & DELETAR ANÚNCIOS
+ */
+function editNotice(noticeId) {
+    Swal.fire({
+        title: 'Editar Aviso',
+        html: `<textarea id="editNoticeContent" class="swal2-textarea" placeholder="Conteúdo do aviso"></textarea>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        background: '#0d1628',
+        color: '#fff',
+        preConfirm: () => {
+            const content = document.getElementById('editNoticeContent').value.trim();
+            if (!content) {
+                Swal.showValidationMessage('Insira o conteúdo do aviso');
+                return false;
+            }
+            return { content };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('notice_id', noticeId);
+            formData.append('content', result.value.content);
+
+            fetch('../../interface_programacao/mentorship/edit_notice.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Sucesso!', 'Aviso atualizado.', 'success');
+                        loadNotices();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao atualizar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+function deleteNotice(noticeId) {
+    Swal.fire({
+        title: 'Eliminar Aviso?',
+        text: 'Esta ação é irreversível.',
+        icon: 'warning',
+        background: '#0d1628',
+        color: '#fff',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Eliminar'
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('notice_id', noticeId);
+
+            fetch('../../interface_programacao/mentorship/delete_notice.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Eliminado!', 'Aviso removido com sucesso.', 'success');
+                        loadNotices();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao eliminar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+/**
+ * EDITAR & DELETAR ATRIBUIÇÕES
+ */
+function editAssignment(assignmentId) {
+    Swal.fire({
+        title: 'Editar Atribuição',
+        html: `
+            <input type="text" id="editAssignTitle" class="swal2-input" placeholder="Título">
+            <textarea id="editAssignDesc" class="swal2-textarea" placeholder="Descrição"></textarea>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        background: '#0d1628',
+        color: '#fff',
+        preConfirm: () => {
+            const title = document.getElementById('editAssignTitle').value.trim();
+            const desc = document.getElementById('editAssignDesc').value.trim();
+            if (!title) {
+                Swal.showValidationMessage('Insira o título');
+                return false;
+            }
+            return { title, desc };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('assignment_id', assignmentId);
+            formData.append('title', result.value.title);
+            formData.append('description', result.value.desc);
+
+            fetch('../../interface_programacao/mentorship/edit_assignment.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Sucesso!', 'Atribuição atualizada.', 'success');
+                        loadAssignments();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao atualizar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
+
+function deleteAssignment(assignmentId) {
+    Swal.fire({
+        title: 'Eliminar Atribuição?',
+        text: 'Esta ação é irreversível.',
+        icon: 'warning',
+        background: '#0d1628',
+        color: '#fff',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Eliminar'
+    }).then(result => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('assignment_id', assignmentId);
+
+            fetch('../../interface_programacao/mentorship/delete_assignment.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Eliminada!', 'Atribuição removida com sucesso.', 'success');
+                        loadAssignments();
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao eliminar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erro', 'Erro na conexão.', 'error');
+                });
+        }
+    });
+}
 
 // Live Countdown Updater
 setInterval(() => {

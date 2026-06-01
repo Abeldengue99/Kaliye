@@ -54,8 +54,8 @@ try {
 
     $status = $participant_id ? 'booked' : 'available';
     
-    // Automatic Room Generation for Jitsi
-    $room_name = "Aksanti_" . substr(md5($user_id . time() . rand()), 0, 12);
+    // Automatic room generation for Jitsi. Keep the public name brand-neutral.
+    $room_name = "Mentoria_" . substr(md5($user_id . time() . rand()), 0, 14);
     
     $query = "INSERT INTO mentorship_slots 
               (mentor_id, start_time, end_time, status, participant_id, meeting_room, platform, title, description, category, duration) 

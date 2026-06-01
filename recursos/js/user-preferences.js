@@ -13,7 +13,7 @@
 
     const phrasebook = {
         en: {
-            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores, empreendedores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real para Angola.': 'KALIYE is a platform created to connect people, knowledge and opportunities. Here, talents, mentors, entrepreneurs and investors find a digital space to develop projects, strengthen skills, build professional relationships and turn projects into real impact for Angola.',
+            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real.': 'KALIYE is a platform created to connect people, knowledge and opportunities. Here, talents, mentors and investors find a digital space to develop projects, strengthen skills, build professional relationships and turn projects into real impact.',
             'Português': 'Portuguese', 'Français': 'French', 'Español': 'Spanish',
             'Inicio': 'Home', 'Início': 'Home', 'Home': 'Home', 'Explorar': 'Explore', 'Mentoria': 'Mentorship',
             'Mentorias': 'Mentorships', 'Perfil': 'Profile', 'Mensagens': 'Messages', 'Dashboard': 'Dashboard',
@@ -55,7 +55,7 @@
             'Publicado por': 'Published by', 'Publicado em': 'Published on', 'Há pouco': 'Just now'
         },
         fr: {
-            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores, empreendedores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real para Angola.': 'KALIYE est une plateforme créée pour rapprocher les personnes, les connaissances et les opportunités. Ici, talents, mentors, entrepreneurs et investisseurs trouvent un espace numérique pour développer des projets, renforcer des compétences, construire des relations professionnelles et transformer des projets en impact réel pour l’Angola.',
+            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real.': 'KALIYE est une plateforme créée pour rapprocher les personnes, les connaissances et les opportunités. Ici, talents, mentors et investisseurs trouvent un espace numérique pour développer des projets, renforcer des compétences, construire des relations professionnelles et transformer des projets en impact réel.',
             'Português': 'Portugais', 'Français': 'Français', 'Español': 'Espagnol',
             'Inicio': 'Accueil', 'Início': 'Accueil', 'Home': 'Accueil', 'Explorar': 'Explorer',
             'Mentoria': 'Mentorat', 'Mentorias': 'Mentorats', 'Perfil': 'Profil', 'Mensagens': 'Messages',
@@ -73,7 +73,7 @@
             'Carregando...': 'Chargement...', 'A carregar...': 'Chargement...', 'Nenhum resultado encontrado': 'Aucun résultat trouvé'
         },
         es: {
-            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores, empreendedores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real para Angola.': 'KALIYE es una plataforma creada para acercar personas, conocimiento y oportunidades. Aquí, talentos, mentores, emprendedores e inversores encuentran un espacio digital para desarrollar proyectos, fortalecer competencias, construir relaciones profesionales y transformar proyectos en impacto real para Angola.',
+            'A KALIYE é uma plataforma criada para aproximar pessoas, conhecimento e oportunidades. Aqui, talentos, mentores e investidores encontram um espaço digital para desenvolver projectos, fortalecer competências, construir relações profissionais e transformar projectos em impacto real.': 'KALIYE es una plataforma creada para acercar personas, conocimiento y oportunidades. Aquí, talentos, mentores e inversores encuentran un espacio digital para desarrollar proyectos, fortalecer competencias, construir relaciones profesionales y transformar proyectos en impacto real.',
             'Português': 'Portugués', 'Français': 'Francés', 'Español': 'Español',
             'Inicio': 'Inicio', 'Início': 'Inicio', 'Home': 'Inicio', 'Explorar': 'Explorar',
             'Mentoria': 'Mentoria', 'Mentorias': 'Mentorias', 'Perfil': 'Perfil', 'Mensagens': 'Mensajes',
@@ -318,18 +318,64 @@
             }
 
             try {
-                const res = await fetch((window.BASE_URL || './') + 'interface_programacao/system/subscribe_newsletter.php', {
+                const baseUrl = window.BASE_URL || './';
+                const url = baseUrl + 'interface_programacao/system/subscribe_newsletter.php';
+                console.log('Newsletter POST:', url);
+                
+                const res = await fetch(url, {
                     method: 'POST',
                     body: new FormData(form)
                 });
-                const data = await res.json();
-                if (!data.success) throw new Error(data.message || 'Erro');
+                
+                const responseText = await res.text();
+                console.log('Newsletter Response:', responseText);
+                
+                const data = JSON.parse(responseText);
+                if (!data.success) throw new Error(data.message || 'Erro ao subscrever');
+                
                 form.reset();
-                if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Subscrito!';
-            } catch (e) {
-                if (window.Swal) {
-                    Swal.fire({ icon: 'info', title: e.message || 'Não foi possível subscrever.', background: '#111827', color: '#fff' });
+                
+                // Usar modal elegante se disponível
+                if (typeof showNewsletterModal === 'function') {
+                    showNewsletterModal(
+                        '✓ Subscrito com Sucesso!',
+                        data.message || 'Bem-vindo à nossa comunidade. Receberá as nossas atualizações em breve.',
+                        'success',
+                        'fa-check-circle'
+                    );
+                } else { 
+                    alert(data.message || 'Subscrito com sucesso!');
                 }
+                
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Subscrito!';
+                    btn.style.background = '#10b981';
+                }
+            } catch (e) {
+                console.error('Newsletter Error:', e.message, e);
+                
+                // Usar modal elegante se disponível
+                if (typeof showNewsletterModal === 'function') {
+                    // Verificar se é "já subscrito" (warning) ou erro real
+                    if (e.message && e.message.includes('Já está subscrito')) {
+                        showNewsletterModal(
+                            'Já Subscrito',
+                            e.message,
+                            'warning',
+                            'fa-info-circle'
+                        );
+                    } else {
+                        showNewsletterModal(
+                            'Erro na Subscrição',
+                            e.message || 'Não foi possível subscrever. Tenta novamente mais tarde.',
+                            'error',
+                            'fa-exclamation-circle'
+                        );
+                    }
+                } else { 
+                    alert(e.message || 'Erro ao subscrever'); 
+                }
+                
                 if (btn) btn.innerHTML = original;
             } finally {
                 if (btn) {
@@ -363,6 +409,9 @@
     const prefs = loadPrefs();
     applyTheme(prefs);
 
+    // Executar imediatamente e também no DOMContentLoaded para garantir
+    bindNewsletter();
+    
     document.addEventListener('DOMContentLoaded', () => {
         applyTheme(loadPrefs());
         syncControls(loadPrefs());

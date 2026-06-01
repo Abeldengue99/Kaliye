@@ -17,6 +17,24 @@ require_once 'inclusoes/project_votes_schema.php';
 $db = (new Database())->getConnection();
 ensureProjectVotesTable($db);
 
+// ✨ AUTO-FIX: Garantir que coluna group_image existe (mensagens VIP)
+try {
+    $db->exec("
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'mentor_chat_groups' 
+                AND column_name = 'group_image'
+            ) THEN
+                ALTER TABLE mentor_chat_groups ADD COLUMN group_image VARCHAR(500);
+            END IF;
+        END $$;
+    ");
+} catch (Exception $e) {
+    // Silenciar - coluna pode já existir
+}
+
 require_once 'inclusoes/components/header/logic.php'; // Garante $user_data e $header_user_id
 
 // --- Variáveis globais do utilizador para o Feed ---

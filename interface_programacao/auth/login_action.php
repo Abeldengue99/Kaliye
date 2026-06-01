@@ -167,8 +167,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Roteamento Final baseado no Nível de Acesso.
                 if ($row['user_type'] == 'admin') {
                     header("Location: ../../administracao/index.php");
-                } elseif ($row['user_type'] == 'investor') {
-                    header("Location: ../../paginas/plataforma/investor_dashboard.php");
                 } else {
                     header("Location: ../../index.php");
                 }

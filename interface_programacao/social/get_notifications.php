@@ -16,6 +16,9 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
+    $db->exec("ALTER TABLE notifications ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP NULL");
+    $db->exec("ALTER TABLE notifications ADD COLUMN IF NOT EXISTS archive_reason VARCHAR(160) NULL");
+
     $query = "SELECT n.*, u.profile_pic as sender_pic, u.full_name as sender_name, u.user_type as sender_role,
                      uc.status as conn_status
               FROM notifications n 
@@ -24,7 +27,7 @@ try {
               LEFT JOIN user_connections uc ON (
                   (uc.user_id_1 = LEAST(n.user_id, n.sender_id) AND uc.user_id_2 = GREATEST(n.user_id, n.sender_id))
               )
-              WHERE n.user_id = :user_id AND n.created_at >= me.created_at
+              WHERE n.user_id = :user_id AND n.created_at >= me.created_at AND n.archived_at IS NULL
               ORDER BY n.created_at DESC 
               LIMIT 50";
     
@@ -34,7 +37,7 @@ try {
     $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Contagem de não lidas (Filtramos pela data de criação do usuário também)
-    $count_query = "SELECT COUNT(*) FROM notifications n JOIN users u ON n.user_id = u.user_id WHERE n.user_id = :user_id AND CAST(n.is_read AS INTEGER) = 0 AND n.created_at >= u.created_at AND COALESCE(n.type, '') <> 'message'";
+    $count_query = "SELECT COUNT(*) FROM notifications n JOIN users u ON n.user_id = u.user_id WHERE n.user_id = :user_id AND CAST(n.is_read AS INTEGER) = 0 AND n.created_at >= u.created_at AND n.archived_at IS NULL AND COALESCE(n.type, '') <> 'message'";
     $count_stmt = $db->prepare($count_query);
     $count_stmt->bindParam(':user_id', $user_id);
     $count_stmt->execute();
@@ -88,11 +91,15 @@ try {
             
             // Reescrita Inteligente dos Textos (Retrocompatibilidade e Novos Dados)
             // Usamos verificações flexíveis para capturar títulos mesmo corrompidos
-            $is_conn = ($n['type'] === 'connection_request' || stripos($n['title'], 'Conex') !== false || stripos($n['title'], 'pediu') !== false);
+            $is_conn_request = ($n['type'] === 'connection_request' || (stripos($n['title'], 'pediu') !== false && stripos($n['title'], 'conex') !== false));
+            $is_conn_accept = ($n['type'] === 'connection_accepted' || stripos($n['title'], 'aceitou') !== false);
             
-            if ($is_conn) {
+            if ($is_conn_request) {
                 $n['title'] = '🤝 ' . $sender_name . ' pediu conexão';
-                $n['content'] = 'Um novo membro quer conectar-se consigo na rede Aksanti. Clique para analisar o perfil.';
+                $n['content'] = 'Um novo membro quer conectar-se consigo na rede KALIYE. Clique para analisar o perfil.';
+            } elseif ($is_conn_accept) {
+                $n['title'] = '✅ ' . $sender_name . ' aceitou a sua conexão!';
+                $n['content'] = 'A sua rede foi expandida com sucesso! Agora podem conversar.';
             } 
             else if ($n['type'] === 'project_like' || stripos($n['title'], 'Adorou') !== false || stripos($n['title'], 'curtida') !== false) {
                 $n['title'] = '❤ ' . $sender_name . ' Adorou o seu Projecto!';

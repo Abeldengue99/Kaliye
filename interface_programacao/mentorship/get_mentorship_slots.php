@@ -2,6 +2,7 @@
 // servicos/mentorship/get_mentorship_slots.php
 session_start();
 require_once __DIR__ . '/../../configuracoes/base_dados.php';
+require_once __DIR__ . '/../../inclusoes/free_mentorship_schema.php';
 
 header('Content-Type: application/json');
 
@@ -17,31 +18,33 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
-    $view = $_GET['view'] ?? 'mentee';
+    ensureFreeMentorshipTables($db);
 
-    // 2. Query Slots
-    if ($requested_mentor_id) {
-        // Public profile view: Fetch slots for a specific mentor
-        $query = "SELECT ms.*, 
+    $db->exec("UPDATE mentorship_slots SET status = 'expired' WHERE status IN ('pending', 'booked', 'confirmed') AND end_time < NOW()");
+
+    $view = $_GET['view'] ?? 'mentee';
+    $select = "SELECT ms.*, 
                          m.full_name as mentor_name, 
                          p.full_name as participant_name,
+                         fms.request_id as free_request_id,
+                         fms.student_rating,
                          ms.slot_id as booking_id 
                   FROM mentorship_slots ms
                   JOIN users m ON ms.mentor_id = m.user_id
                   LEFT JOIN users p ON ms.participant_id = p.user_id
+                  LEFT JOIN free_mentorship_sessions fms ON fms.mentorship_slot_id = ms.slot_id";
+
+    // 2. Query Slots
+    if ($requested_mentor_id) {
+        // Public profile view: Fetch slots for a specific mentor
+        $query = "$select
                   WHERE ms.mentor_id = ? 
                   ORDER BY ms.start_time ASC";
         $stmt = $db->prepare($query);
         $stmt->execute([$requested_mentor_id]);
     } elseif ($view === 'mentor') {
         // Mentor Dashboard: Show MY created slots
-        $query = "SELECT ms.*, 
-                         m.full_name as mentor_name, 
-                         p.full_name as participant_name,
-                         ms.slot_id as booking_id 
-                  FROM mentorship_slots ms
-                  JOIN users m ON ms.mentor_id = m.user_id
-                  LEFT JOIN users p ON ms.participant_id = p.user_id
+        $query = "$select
                   WHERE ms.mentor_id = ? 
                   ORDER BY ms.start_time ASC";
         $stmt = $db->prepare($query);
@@ -50,13 +53,7 @@ try {
         // Mentee Dashboard: Show MY bookings + Available slots 
         // Showing all available slots might be too much, restricting to MY bookings for now to avoid clutter
         // Or show my bookings AND confirmed slots
-        $query = "SELECT ms.*, 
-                         m.full_name as mentor_name, 
-                         p.full_name as participant_name,
-                         ms.slot_id as booking_id 
-                  FROM mentorship_slots ms
-                  JOIN users m ON ms.mentor_id = m.user_id
-                  LEFT JOIN users p ON ms.participant_id = p.user_id
+        $query = "$select
                   WHERE ms.participant_id = ? 
                   ORDER BY ms.start_time ASC";
         $stmt = $db->prepare($query);

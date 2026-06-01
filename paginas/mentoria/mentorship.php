@@ -6,6 +6,7 @@
 session_start();
 $base_url = '../../';
 require_once '../../inclusoes/cabecalho.php';
+require_once '../../inclusoes/asset_helper.php';
 
 $user_type = $_SESSION['user_type'];
 $user_id = $_SESSION['user_id'];
@@ -43,26 +44,24 @@ if (!$authorized_to_mentor) {
     $initial_view = 'mentee';
 }
 
-// Fetch Mentor's Project Applications
+// Fetch Project Applications (for mentors to see their mentor job applications)
 $my_project_apps = [];
-if ($authorized_to_mentor) {
-    try {
-        $app_stmt = $db->prepare("
-            SELECT pma.*, p.title as project_title, p.category 
-            FROM project_mentorship_applications pma
-            JOIN projects p ON p.project_id = pma.project_id
-            WHERE pma.mentor_id = ?
-            ORDER BY pma.created_at DESC
-        ");
-        $app_stmt->execute([$user_id]);
-        $my_project_apps = $app_stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        $my_project_apps = [];
-    }
+try {
+    $app_stmt = $db->prepare("
+        SELECT pma.*, p.title as project_title, p.category 
+        FROM project_mentorship_applications pma
+        JOIN projects p ON p.project_id = pma.project_id
+        WHERE pma.mentor_id = ?
+        ORDER BY pma.created_at DESC
+    ");
+    $app_stmt->execute([$user_id]);
+    $my_project_apps = $app_stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $my_project_apps = [];
 }
 ?>
 
-<link rel="stylesheet" href="../../recursos/css/pages/mentorship.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../../recursos/css/pages/mentorship.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/mentorship.css'); ?>">
 
 <div class="mentorship-container" style="position: relative;">
 
@@ -110,7 +109,7 @@ if ($authorized_to_mentor) {
                 <button class="m-tab mentor-only-tab" data-tab="projects" onclick="switchMentorTab('projects', this)" style="display: none; border-color: var(--accent-orange); color: var(--accent-orange);">
                     <i class="fas fa-rocket"></i> Revisão de Projectos
                 </button>
-                <button class="m-tab mentor-only-tab" data-tab="applications" onclick="switchMentorTab('applications', this)" style="display: none; border-color: #10b981; color: #10b981;">
+                <button class="m-tab" data-tab="applications" onclick="switchMentorTab('applications', this)" style="border-color: #10b981; color: #10b981;">
                     <i class="fas fa-paper-plane"></i> Minhas Candidaturas
                 </button>
             </div>
@@ -279,7 +278,7 @@ if ($authorized_to_mentor) {
     const initialView = '<?php echo $initial_view; ?>';
     const currentUserId = <?php echo (int)$user_id; ?>;
 </script>
-<script src="../../recursos/js/pages/mentorship.js?v=<?php echo time(); ?>"></script>
+<script src="../../recursos/js/pages/mentorship.js?v=<?php echo aksantiAssetVersion('recursos/js/pages/mentorship.js'); ?>" defer></script>
 
 <?php require_once '../../inclusoes/rodape.php'; ?>
 

@@ -64,12 +64,11 @@ try {
         // 3. Update request status to 'in_progress' and set the selected mentor
         $upd_req = $db->prepare("UPDATE free_mentorship_requests SET status = 'in_progress', selected_mentor_id = ?, started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE request_id = ?");
         $upd_req->execute([$app['mentor_id'], $app['request_id']]);
-
-        // 4. Also insert into general 'mentorships' table if not exists to link them
+// 4. Also insert into general 'mentorships' table if not exists to link them
         $check_m = $db->prepare("SELECT COUNT(*) FROM mentorships WHERE mentor_id = ? AND mentee_id = ?");
         $check_m->execute([$app['mentor_id'], $app['student_id']]);
         if ($check_m->fetchColumn() == 0) {
-            $ins_m = $db->prepare("INSERT INTO mentorships (mentor_id, mentee_id, status, started_at) VALUES (?, ?, 'active', CURRENT_TIMESTAMP)");
+            $ins_m = $db->prepare("INSERT INTO mentorships (mentor_id, mentee_id, status) VALUES (?, ?, 'active')");
             $ins_m->execute([$app['mentor_id'], $app['student_id']]);
         }
         
@@ -85,9 +84,8 @@ try {
         $link = 'paginas/mentoria/free_mentorship_requests.php?request_id=' . $app['request_id'];
         
         $ins_notif = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, link, is_read, created_at) 
-                                   VALUES (?, ?, ?, ?, 'mentorship_accepted', ?, false, CURRENT_TIMESTAMP)");
+                                   VALUES (?, ?, ?, ?, 'mentorship_accepted', ?, 0, CURRENT_TIMESTAMP)");
         $ins_notif->execute([$app['mentor_id'], $app['student_id'], $notif_title, $notif_msg, $link]);
-
         $db->commit();
         echo json_encode(['success' => true, 'message' => 'Candidatura aceite! A mentoria começou.']);
     } else {

@@ -27,14 +27,18 @@ try {
         description TEXT,
         deadline TIMESTAMP NULL,
         status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+        expires_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (mentor_id) REFERENCES users(user_id) ON DELETE CASCADE,
         FOREIGN KEY (mentee_id) REFERENCES users(user_id) ON DELETE CASCADE
     )");
+    
+    // Add expires_at column if it doesn't exist
+    $db->exec("ALTER TABLE mentorship_tasks ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP NULL");
 
     // 2. Query Tasks based on View
     if ($view === 'mentor') {
-        // I am the Mentor, fetch tasks I assigned
+        // I am the Mentor, fetch tasks I assigned (not expired)
         $query = "SELECT mt.*, 
                          m.full_name as mentor_name, 
                          s.full_name as student_name 
@@ -42,11 +46,12 @@ try {
                   JOIN users m ON mt.mentor_id = m.user_id
                   JOIN users s ON mt.mentee_id = s.user_id
                   WHERE mt.mentor_id = ? 
+                    AND (mt.expires_at IS NULL OR mt.expires_at > NOW())
                   ORDER BY mt.deadline ASC";
         $stmt = $db->prepare($query);
         $stmt->execute([$user_id]);
     } else {
-        // I am the Student, fetch tasks assigned to me
+        // I am the Student, fetch tasks assigned to me (not expired)
         $query = "SELECT mt.*, 
                          m.full_name as mentor_name, 
                          s.full_name as student_name 
@@ -54,6 +59,7 @@ try {
                   JOIN users m ON mt.mentor_id = m.user_id
                   JOIN users s ON mt.mentee_id = s.user_id
                   WHERE mt.mentee_id = ? 
+                    AND (mt.expires_at IS NULL OR mt.expires_at > NOW())
                   ORDER BY mt.deadline ASC";
         $stmt = $db->prepare($query);
         $stmt->execute([$user_id]);

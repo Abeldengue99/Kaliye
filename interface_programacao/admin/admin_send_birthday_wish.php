@@ -36,12 +36,12 @@ try {
     $notif->execute([
         $user_id,
         $_SESSION['user_id'] ?? null,
-        'Feliz aniversario!',
-        'A equipa KALIYE deseja-te um excelente aniversario e muito sucesso no teu percurso.',
+        'Feliz aniversário!',
+        'A equipa KALIYE deseja-te um excelente aniversário e muito sucesso no teu percurso.',
         'index.php'
     ]);
 
-    echo json_encode(['success' => true, 'message' => 'Mensagem de aniversario enviada.']);
+    echo json_encode(['success' => true, 'message' => 'Mensagem de aniversário enviada.']);
 } catch (Exception $e) {
     error_log('admin_send_birthday_wish error: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Erro ao enviar mensagem: ' . $e->getMessage()]);
