@@ -892,9 +892,12 @@ function editGroupName() {
         icon: 'fas fa-edit',
         onSubmit: (newName) => {
             if (!newName.trim()) {
-                showChatToast('Nome não pode estar vazio.');
+                showChatToast('❌ Nome não pode estar vazio.');
                 return;
             }
+            
+            // Mostrar loading
+            showChatToast('⏳ A atualizar nome da sala...');
             
             const formData = new FormData();
             formData.append('group_id', currentGroup);
@@ -907,13 +910,14 @@ function editGroupName() {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    showChatToast('✅ ' + (data.message || 'Sala atualizada com sucesso!'));
-                    // Recarregar lista de grupos
-                    loadMentorGroups();
+                    showChatToast('✅ Nome atualizado com sucesso!');
+                    // Atualizar header imediatamente
+                    document.querySelector('#chatHeader h4').textContent = chatEsc(newName.trim());
+                    // Recarregar lista de grupos após 500ms
+                    setTimeout(() => loadMentorGroups(), 500);
                 } else {
-                    // Mostrar mensagem do servidor ou fallback
                     const errorMsg = data.error || 'Erro ao atualizar sala.';
-                    showChatToast(errorMsg);
+                    showChatToast('❌ ' + errorMsg);
                 }
             })
             .catch(e => {
@@ -952,6 +956,9 @@ function changeGroupImage() {
             return;
         }
         
+        // Mostrar loading
+        showChatToast('⏳ A carregar imagem...');
+        
         const formData = new FormData();
         formData.append('group_id', currentGroup);
         formData.append('group_image', file);
@@ -964,12 +971,11 @@ function changeGroupImage() {
         .then(data => {
             if (data.success) {
                 showChatToast('✅ Imagem atualizada com sucesso!');
-                // Recarregar lista de grupos
-                loadMentorGroups();
+                // Recarregar lista de grupos para ver nova imagem
+                setTimeout(() => loadMentorGroups(), 500);
             } else {
-                // Mostrar mensagem do servidor ou fallback
                 const errorMsg = data.error || 'Erro ao atualizar imagem.';
-                showChatToast(errorMsg);
+                showChatToast('❌ ' + errorMsg);
             }
         })
         .catch(e => {
@@ -987,34 +993,44 @@ function deleteGroup() {
         return;
     }
     
-    // Confirmar exclusão
-    if (!confirm('⚠️ Tem a certeza que deseja EXCLUIR esta sala?\n\nEsta ação não pode ser desfeita e todos os membros e mensagens serão removidos permanentemente.')) {
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('group_id', currentGroup);
-    
-    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/delete_mentor_group.php`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            showChatToast('✅ Sala excluída com sucesso!');
-            closeMembersModal();
-            currentGroup = null;
-            chatType = 'direct';
-            // Recarregar lista de grupos
-            loadMentorGroups();
-        } else {
-            showChatToast('❌ ' + (data.error || 'Erro ao excluir sala.'));
+    // Usar modal custom em vez de confirm()
+    openChatModal({
+        icon: 'fas fa-exclamation-triangle',
+        title: '⚠️ Eliminar Sala VIP',
+        text: 'Tem a certeza que deseja ELIMINAR esta sala?\n\nEsta ação não pode ser desfeita e todos os membros e mensagens serão removidos permanentemente.',
+        submitText: 'Sim, Eliminar Sala',
+        submitClass: 'danger',
+        cancelText: 'Cancelar',
+        onSubmit: () => {
+            // Confirmar eliminação
+            const formData = new FormData();
+            formData.append('group_id', currentGroup);
+            
+            // Mostrar loading
+            showChatToast('⏳ A eliminar sala...');
+            
+            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/delete_mentor_group.php`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showChatToast('✅ Sala eliminada com sucesso!');
+                    closeMembersModal();
+                    currentGroup = null;
+                    chatType = 'direct';
+                    // Recarregar lista de grupos
+                    setTimeout(() => loadMentorGroups(), 500);
+                } else {
+                    showChatToast('❌ ' + (data.error || 'Erro ao eliminar sala.'));
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                showChatToast('❌ Erro de conexão. Verifique sua internet.');
+            });
         }
-    })
-    .catch(e => {
-        console.error(e);
-        showChatToast('❌ Erro na requisição.');
     });
 }
 

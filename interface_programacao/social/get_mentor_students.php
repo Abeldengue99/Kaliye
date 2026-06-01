@@ -20,7 +20,7 @@ try {
     $group_id = isset($_GET['group_id']) ? (int)$_GET['group_id'] : 0;
     
     // Validar que o usuário é realmente mentor
-    $mentor_check = $db->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $mentor_check = $db->prepare("SELECT user_type FROM users WHERE id = ?");
     $mentor_check->execute([$mentor_id]);
     $user = $mentor_check->fetch(PDO::FETCH_ASSOC);
     
@@ -30,10 +30,10 @@ try {
     
     // Buscar mentorados (estudantes da plataforma que podem ser adicionados ao grupo)
     $query = "
-        SELECT DISTINCT u.user_id, u.full_name, u.email, u.profile_pic
+        SELECT DISTINCT u.id, u.full_name, u.email, u.profile_pic
         FROM users u
         WHERE u.user_type IN ('univ_student', 'high_student')
-        AND u.user_id != ?
+        AND u.id != ?
     ";
     
     $params = [$mentor_id];
@@ -48,7 +48,7 @@ try {
     
     // Se houver group_id, excluir membros já adicionados
     if ($group_id > 0) {
-        $query .= " AND u.user_id NOT IN (
+        $query .= " AND u.id NOT IN (
             SELECT user_id FROM mentor_group_members WHERE group_id = ?
         )";
         $params[] = $group_id;
@@ -64,7 +64,7 @@ try {
     $formatted_students = [];
     foreach ($students as $student) {
         $formatted_students[] = [
-            'user_id' => (int)$student['user_id'],
+            'user_id' => (int)$student['id'],
             'full_name' => htmlspecialchars($student['full_name']),
             'email' => htmlspecialchars($student['email']),
             'profile_pic' => $student['profile_pic'] ?? null
