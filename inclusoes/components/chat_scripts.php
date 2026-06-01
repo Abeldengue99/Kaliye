@@ -115,13 +115,16 @@ function loadMentorGroupChat(groupId, groupName, mentorId) {
     document.getElementById('receiver_id').value = '';
     document.getElementById('chat_type').value = 'mentor_group';
     
+    // Controlo de Acesso: Verificar se utilizador é mentor deste grupo
+    isMentorOfGroup = (AKSANTI_CONFIG.userId == mentorId);
+    
     // Realce do contacto na aba esquerda
     document.querySelectorAll('.contact-item-elite').forEach(i => i.classList.remove('active'));
     
     // Regulação de Permissões: Só o dono (Mentor) pode iniciar a Vídeo-Chamada.
     const jitsiBtn = document.getElementById('jitsiMeetBtn');
     if (jitsiBtn) {
-        if (AKSANTI_CONFIG.userId == mentorId) {
+        if (isMentorOfGroup) {
             jitsiBtn.style.display = 'block'; // O botão verde de Vídeo aparece para o Mentor
         } else {
             jitsiBtn.style.display = 'none'; // Fica invisível para os alunos.
@@ -742,6 +745,12 @@ function addMemberToMentorGroup() {
         return;
     }
     
+    // PROTEÇÃO: Apenas mentor pode adicionar membros
+    if (!isMentorOfGroup) {
+        showChatToast('❌ Apenas o mentor pode adicionar membros ao grupo.');
+        return;
+    }
+    
     openChatTextModal({
         title: 'Adicionar Mentorado',
         text: 'Digite o ID ou email do mentorado que deseja adicionar à sala.',
@@ -789,6 +798,29 @@ function openMembersModal() {
     
     // Abrir modal com display flex
     modal.style.display = 'flex';
+    
+    // CONTROLO DE ACESSO: Mostrar/ocultar botões de editar e deletar baseado em permissões
+    const editBtn = modal.querySelector('button[onclick="editGroupName()"]');
+    const deleteBtn = modal.querySelector('button[onclick="deleteGroup()"]');
+    const addBtn = modal.querySelector('button[onclick="addMemberToMentorGroup()"]');
+    
+    if (editBtn) {
+        editBtn.style.display = isMentorOfGroup ? 'inline-flex' : 'none';
+        editBtn.style.cursor = isMentorOfGroup ? 'pointer' : 'not-allowed';
+        editBtn.title = isMentorOfGroup ? 'Editar nome da sala' : 'Apenas o mentor pode editar';
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.style.display = isMentorOfGroup ? 'inline-flex' : 'none';
+        deleteBtn.style.cursor = isMentorOfGroup ? 'pointer' : 'not-allowed';
+        deleteBtn.title = isMentorOfGroup ? 'Eliminar sala' : 'Apenas o mentor pode eliminar';
+    }
+    
+    if (addBtn) {
+        addBtn.style.display = isMentorOfGroup ? 'flex' : 'none';
+        addBtn.style.cursor = isMentorOfGroup ? 'pointer' : 'not-allowed';
+        addBtn.title = isMentorOfGroup ? 'Adicionar membro' : 'Apenas o mentor pode adicionar membros';
+    }
     
     // Limpar conteúdo anterior
     document.getElementById('currentMembersList').innerHTML = '<p style="color: #888; text-align: center;">Carregando membros...</p>';
@@ -922,6 +954,12 @@ function editGroupName() {
         return;
     }
     
+    // PROTEÇÃO: Apenas mentor pode editar
+    if (!isMentorOfGroup) {
+        showChatToast('❌ Apenas o mentor pode editar o nome do grupo.');
+        return;
+    }
+    
     // Abrir modal de edição
     document.getElementById('editGroupNameInput').value = '';
     document.getElementById('editGroupNameInput').focus();
@@ -1032,6 +1070,12 @@ function changeGroupImage() {
 function deleteGroup() {
     if (!currentGroup) {
         showChatToast('Selecione uma sala primeiro.');
+        return;
+    }
+    
+    // PROTEÇÃO: Apenas mentor pode deletar
+    if (!isMentorOfGroup) {
+        showChatToast('❌ Apenas o mentor pode eliminar o grupo.');
         return;
     }
     
