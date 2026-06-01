@@ -110,9 +110,9 @@ if (isset($_GET['start'])) {
 </div>
 
 <!-- Member Management Modal -->
-<div id="membersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="glass" style="width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: 20px;">
-        <button onclick="closeMembersModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;"><i class="fas fa-times"></i></button>
+<div id="membersModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; display: none;">
+    <div class="glass" style="width: 100%; max-width: 650px; max-height: 85vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: 20px; box-shadow: 0 25px 100px rgba(0,0,0,0.8);">
+        <button onclick="closeMembersModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem; z-index: 10000;"><i class="fas fa-times"></i></button>
         <h3 style="margin-bottom: 0.5rem; color: var(--accent-orange);"><i class="fas fa-users"></i> Gerir Membros</h3>
         
         <!-- Barra de Ações do Grupo -->

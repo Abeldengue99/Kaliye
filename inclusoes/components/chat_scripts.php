@@ -749,6 +749,9 @@ function openMembersModal() {
     const modal = document.getElementById('membersModal');
     if (!modal) return;
     
+    // Abrir modal com display flex
+    modal.style.display = 'flex';
+    
     // Limpar conteúdo anterior
     document.getElementById('currentMembersList').innerHTML = '<p style="color: #888; text-align: center;">Carregando membros...</p>';
     document.getElementById('availableStudentsList').innerHTML = '<p style="color: #888; text-align: center;">Carregando mentorados...</p>';
@@ -787,8 +790,6 @@ function openMembersModal() {
     
     // Carregar mentorados disponíveis com busca
     loadAvailableStudents();
-    
-    modal.style.display = 'flex';
 }
 
 // Carregar lista de mentorados disponíveis com busca
@@ -993,44 +994,38 @@ function deleteGroup() {
         return;
     }
     
-    // Usar modal custom em vez de confirm()
-    openChatModal({
-        icon: 'fas fa-exclamation-triangle',
-        title: '⚠️ Eliminar Sala VIP',
-        text: 'Tem a certeza que deseja ELIMINAR esta sala?\n\nEsta ação não pode ser desfeita e todos os membros e mensagens serão removidos permanentemente.',
-        submitText: 'Sim, Eliminar Sala',
-        submitClass: 'danger',
-        cancelText: 'Cancelar',
-        onSubmit: () => {
-            // Confirmar eliminação
-            const formData = new FormData();
-            formData.append('group_id', currentGroup);
-            
-            // Mostrar loading
-            showChatToast('⏳ A eliminar sala...');
-            
-            fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/delete_mentor_group.php`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    showChatToast('✅ Sala eliminada com sucesso!');
-                    closeMembersModal();
-                    currentGroup = null;
-                    chatType = 'direct';
-                    // Recarregar lista de grupos
-                    setTimeout(() => loadMentorGroups(), 500);
-                } else {
-                    showChatToast('❌ ' + (data.error || 'Erro ao eliminar sala.'));
-                }
-            })
-            .catch(e => {
-                console.error(e);
-                showChatToast('❌ Erro de conexão. Verifique sua internet.');
-            });
+    // Confirmação com alert nativo
+    if (!confirm('⚠️ Tem a certeza que deseja ELIMINAR esta sala?\n\nEsta ação não pode ser desfeita. Todos os membros e mensagens serão removidos permanentemente.')) {
+        return;
+    }
+    
+    // Confirmar eliminação
+    const formData = new FormData();
+    formData.append('group_id', currentGroup);
+    
+    // Mostrar loading
+    showChatToast('⏳ A eliminar sala...');
+    
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/social/delete_mentor_group.php`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showChatToast('✅ Sala eliminada com sucesso!');
+            closeMembersModal();
+            currentGroup = null;
+            chatType = 'direct';
+            // Recarregar lista de grupos
+            setTimeout(() => loadMentorGroups(), 500);
+        } else {
+            showChatToast('❌ ' + (data.error || 'Erro ao eliminar sala.'));
         }
+    })
+    .catch(e => {
+        console.error(e);
+        showChatToast('❌ Erro de conexão. Verifique sua internet.');
     });
 }
 

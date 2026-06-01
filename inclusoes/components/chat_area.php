@@ -147,7 +147,7 @@
     .chat-safety-modal {
         position: fixed;
         inset: 0;
-        z-index: 5000;
+        z-index: 10001;
         background: rgba(3, 7, 18, 0.72);
         backdrop-filter: blur(12px);
         align-items: center;

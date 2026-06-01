@@ -4,7 +4,7 @@
  * Script de diagnóstico e reparo para mentor_chat_groups
  */
 
-require_once __DIR__ . '/../configuracoes/base_dados.php';
+require_once __DIR__ . '/configuracoes/base_dados.php';
 
 echo "<pre style='background: #1e1e1e; color: #00ff00; padding: 20px; font-family: monospace; border-radius: 5px;'>";
 echo "🔧 DIAGNÓSTICO E REPARO - MENTOR_CHAT_GROUPS\n";
@@ -31,7 +31,6 @@ try {
             id SERIAL PRIMARY KEY,
             mentor_id INTEGER NOT NULL UNIQUE,
             name VARCHAR(255) NOT NULL,
-            group_image VARCHAR(500),
             description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,19 +95,6 @@ try {
             }
         } else {
             echo "✓ Coluna 'id' já existe. Status OK!\n\n";
-        }
-        
-        // Verificar se coluna group_image existe
-        echo "Verificando coluna 'group_image'...\n";
-        $has_group_image = array_filter($columns, fn($c) => $c['column_name'] === 'group_image');
-        
-        if (empty($has_group_image)) {
-            echo "❌ COLUNA 'group_image' NÃO EXISTE! Adicionando...\n";
-            $db->exec("ALTER TABLE mentor_chat_groups 
-                ADD COLUMN group_image VARCHAR(500)");
-            echo "✅ Coluna 'group_image' adicionada com sucesso!\n\n";
-        } else {
-            echo "✓ Coluna 'group_image' já existe. Status OK!\n\n";
         }
     }
     
