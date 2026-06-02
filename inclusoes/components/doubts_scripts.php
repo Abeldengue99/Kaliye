@@ -433,10 +433,11 @@ function renderDoubtDetail(doubt, comments) {
         <!-- REPLY FORM -->
         ${doubt.status === 'open' ? `
         <div class="dq-reply-form" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--surface-5);">
-            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--surface-25); margin-bottom: 1rem;">A tua resposta</div>
+            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--surface-25); margin-bottom: 1rem;">A tua resposta <span style="color: #f7941d;">*</span></div>
             <form id="commentForm">
                 <input type="hidden" name="parent_id" id="replyParentId" value="">
-                <textarea name="content" id="commentContent" required rows="4" placeholder="Partilha o teu conhecimento ou experiência..."></textarea>
+                <textarea name="content" id="commentContent" required rows="4" placeholder="Partilha o teu conhecimento ou experiência..." data-tipo="comentario" data-tamanho-maximo="250" data-obrigatorio="true"></textarea>
+                <div class="contador-caracteres normal" id="commentContent_contador">0/250 caracteres</div>
                 <button type="submit" class="dq-reply-submit"><i class="fas fa-paper-plane" style="margin-right:8px;"></i>Responder</button>
                 <div style="clear:both;"></div>
             </form>

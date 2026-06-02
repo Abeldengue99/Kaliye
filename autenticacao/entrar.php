@@ -6,6 +6,9 @@ session_start();
 // Inclui o ficheiro de configuração da base de dados
 require_once __DIR__ . '/../configuracoes/base_dados.php';
 
+// Inclui a biblioteca de validações
+require_once __DIR__ . '/../interface_programacao/validacoes.php';
+
 // Cria uma nova instância da classe de ligação à base de dados
 $database = new Database();
 
@@ -418,6 +421,9 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
             .painel-esquerdo { padding: 2rem 1rem; }
         }
     </style>
+
+    <!-- CSS para validações de campos -->
+    <link rel="stylesheet" href="../recursos/css/validacoes.css">
 </head>
 <body>
 
@@ -514,27 +520,33 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
 
             <!-- Campo de email com ícone de envelope integrado -->
             <div class="grupo-campo">
-                <label class="etiqueta-campo" for="email">Endereço de Email</label>
+                <label class="etiqueta-campo label-obrigatorio" for="email">Endereço de Email</label>
                 <div class="caixa-input">
                     <i class="fas fa-envelope icone-input"></i>
                     <input
                         type="email" id="email" name="email"
                         class="campo-input"
                         placeholder="nome@exemplo.com"
+                        data-tipo="email"
+                        data-obrigatorio="true"
                         required autocomplete="email"
                     >
                 </div>
+                <small class="invalid-feedback"></small>
             </div>
 
             <!-- Campo de password com ícone de cadeado e botão de visibilidade -->
             <div class="grupo-campo">
-                <label class="etiqueta-campo" for="password">Password</label>
+                <label class="etiqueta-campo label-obrigatorio" for="password">Password</label>
                 <div class="caixa-input">
                     <i class="fas fa-lock icone-input"></i>
                     <input
                         type="password" id="password" name="password"
                         class="campo-input input-senha"
                         placeholder="••••••••"
+                        data-tipo="senha"
+                        data-obrigatorio="true"
+                        minlength="8"
                         required autocomplete="current-password"
                     >
                     <!-- Botão para alternar entre ver e ocultar a password -->
@@ -542,6 +554,7 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
+                <small class="invalid-feedback"></small>
                 <!-- Link de recuperação de password esquecida -->
                 <div class="linha-rodape-campo">
                     <a href="recuperar_senha.php" class="link-esqueci">Esqueceste a password?</a>
@@ -637,6 +650,9 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
     </div>
 </div>
 
+<!-- Script de validações de formulários - DEVE SER CARREGADO ANTES DA INICIALIZAÇÃO -->
+<script src="../recursos/js/validacoes_form.js"></script>
+
 <script>
     // Alterna a visibilidade da password entre texto e ponto
     document.getElementById('alternarSenha').addEventListener('click', function() {
@@ -674,6 +690,71 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
             conteudo.style.opacity = '1';
             conteudo.style.transform = 'translateY(0)';
         });
+
+        // Função para mostrar modal bonito de erro
+        window.mostrarErroModal = function(titulo, mensagem) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: titulo,
+                    text: mensagem,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonColor: '#f7941d',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                alert(`${titulo}\n${mensagem}`);
+            }
+        };
+        
+        // Validação em tempo real para campos numéricos
+        const form = document.getElementById('formularioLogin');
+        if (form) {
+            form.querySelectorAll('input[data-tipo="numeros-apenas"], input[type="tel"]').forEach(field => {
+                field.addEventListener('input', function(e) {
+                    // Remove qualquer caractere não-numérico
+                    this.value = this.value.replace(/[^\d\+\-\(\)\s]/g, '');
+                });
+            });
+        }
+
+        // Inicializa validações do formulário com proteção
+        if (typeof ValidadorFormulario === 'undefined') {
+            // Fallback: validação básica inline com modal
+            console.warn('Usando validação inline como fallback');
+            window.ValidadorFormulario = {
+                inicializarFormulario: function(formId) {
+                    const form = document.getElementById(formId);
+                    if (!form) return;
+                    
+                    // Validação básica no submit
+                    form.addEventListener('submit', function(e) {
+                        const email = form.querySelector('[name="email"]');
+                        const password = form.querySelector('[name="password"]');
+                        
+                        // Validar email
+                        if (email && !email.value.includes('@')) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Email Inválido', 'Por favor, insira um email válido (ex: seu@email.com).');
+                            return;
+                        }
+                        
+                        // Validar password
+                        if (password && password.value.length < 8) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Password Fraca', 'A password deve ter mínimo 8 caracteres.');
+                            return;
+                        }
+                    });
+                }
+            };
+        }
+        
+        // Tenta usar ValidadorFormulario (externo ou fallback)
+        if (typeof ValidadorFormulario !== 'undefined') {
+            ValidadorFormulario.inicializarFormulario('formularioLogin');
+        }
     });
 </script>
 </body>

@@ -7,6 +7,9 @@ session_start();
 require_once __DIR__ . '/../configuracoes/base_dados.php';
 require_once __DIR__ . '/../inclusoes/SystemSettings.php';
 
+// Inclui a biblioteca de validações
+require_once __DIR__ . '/../interface_programacao/validacoes.php';
+
 // Cria o objecto principal da base de dados
 $database = new Database();
 
@@ -351,17 +354,7 @@ if (isset($_SESSION['user_id'])) {
             font-size: 0.77rem; color: var(--cor-texto-discreto); line-height: 1.5;
         }
 
-        /* Área de aceitação dos termos e política de privacidade */
-        .area-termos { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.7rem; }
-        .linha-termos {
-            display: flex; align-items: flex-start; gap: 0.75rem;
-            font-size: 0.82rem; color: var(--cor-texto-paragrafo);
-        }
-        .linha-termos input[type="checkbox"] {
-            width: 16px; height: 16px; margin-top: 1px;
-            accent-color: var(--cor-destaque-laranja); flex-shrink: 0;
-        }
-        .linha-termos a { color: var(--cor-destaque-laranja); text-decoration: underline; }
+
 
         /* Botão principal de submissão do formulário de registo */
         .botao-registar {
@@ -430,6 +423,9 @@ if (isset($_SESSION['user_id'])) {
             .titulo-formulario { font-size: 1.7rem; }
         }
     </style>
+
+    <!-- CSS para validações de campos -->
+    <link rel="stylesheet" href="../recursos/css/validacoes.css">
 </head>
 <body>
 
@@ -515,6 +511,9 @@ if (isset($_SESSION['user_id'])) {
                         case 'invalid_id':
                             $msg_erro = 'Formato de documento inválido. Verifica o BI ou Passaporte.';
                             break;
+                        case 'missing_bilhete':
+                            $msg_erro = 'O número do BI ou Passaporte é obrigatório para criar a tua conta.';
+                            break;
                         case 'terms_not_accepted':
                             $msg_erro = 'Deves aceitar os Termos e a Política de Privacidade.';
                             break;
@@ -539,15 +538,18 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Campo do nome completo do utilizador -->
                 <div class="grupo-campo col-completa">
-                    <label class="etiqueta-campo" for="nome_completo">Nome Completo</label>
+                    <label class="etiqueta-campo label-obrigatorio" for="nome_completo">Nome Completo</label>
                     <div class="caixa-input">
                         <i class="fas fa-user icone-input"></i>
                         <input type="text" id="nome_completo" name="full_name"
                             class="campo-input"
-                            placeholder="Ex: Abel Dengue" required
-                            pattern="[a-zA-Z\u00C0-\u00FF\s]+"
-                            title="Por favor, insira apenas letras no nome.">
+                            placeholder="Ex: Abel Dengue" 
+                            data-tipo="letras-apenas"
+                            data-obrigatorio="true"
+                            maxlength="100"
+                            required>
                     </div>
+                    <small class="invalid-feedback"></small>
                 </div>
 
                 <!-- Campo de data de nascimento do utilizador -->
@@ -563,7 +565,7 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Campo do número do BI ou Passaporte do utilizador -->
                 <div class="grupo-campo">
-                    <label class="etiqueta-campo" for="numero_documento">Nº BI ou Passaporte</label>
+                    <label class="etiqueta-campo label-obrigatorio" for="numero_documento">Nº BI ou Passaporte</label>
                     <div class="caixa-input">
                         <i class="fas fa-id-card icone-input"></i>
                         <input type="text" id="numero_documento" name="id_number"
@@ -571,9 +573,11 @@ if (isset($_SESSION['user_id'])) {
                             placeholder="BI ou Passaporte" required
                             pattern="^(\d{9}[A-Z]{2}\d{3}|[A-Z]{2}\d{7})$"
                             maxlength="14"
+                            data-obrigatorio="true"
                             title="BI: 9 números, 2 letras, 3 números. Passaporte: 2 letras, 7 números."
                             style="text-transform: uppercase;">
                     </div>
+                    <small class="invalid-feedback"></small>
                 </div>
 
             </div>
@@ -584,39 +588,53 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Campo de endereço de email do utilizador -->
                 <div class="grupo-campo col-completa">
-                    <label class="etiqueta-campo" for="email">Endereço de Email</label>
+                    <label class="etiqueta-campo label-obrigatorio" for="email">Endereço de Email</label>
                     <div class="caixa-input">
                         <i class="fas fa-envelope icone-input"></i>
                         <input type="email" id="email" name="email"
                             class="campo-input"
-                            placeholder="nome@exemplo.com" required autocomplete="email">
+                            placeholder="nome@exemplo.com" 
+                            data-tipo="email"
+                            data-obrigatorio="true"
+                            required autocomplete="email">
                     </div>
+                    <small class="invalid-feedback"></small>
                 </div>
 
                 <!-- Campo de número de telefone do utilizador -->
                 <div class="grupo-campo">
-                    <label class="etiqueta-campo" for="telefone">Telefone (Obrigatório)</label>
+                    <label class="etiqueta-campo label-obrigatorio" for="telefone">Telefone (Obrigatório)</label>
                     <div class="caixa-input">
                         <i class="fas fa-phone icone-input"></i>
                         <input type="tel" id="telefone" name="phone"
                             class="campo-input"
-                            placeholder="+244 9..." required>
+                            placeholder="+244 9..."
+                            data-tipo="numeros-apenas"
+                            data-obrigatorio="true"
+                            required>
                     </div>
+                    <small class="invalid-feedback"></small>
                 </div>
 
                 <!-- Campo de password com botão de mostrar/ocultar -->
                 <div class="grupo-campo">
-                    <label class="etiqueta-campo" for="senha">Criar Password</label>
+                    <label class="etiqueta-campo label-obrigatorio" for="senha">Criar Password</label>
                     <div class="caixa-input">
                         <i class="fas fa-lock icone-input"></i>
                         <input type="password" id="senha" name="password"
                             class="campo-input input-senha"
-                            placeholder="••••••••" required>
+                            placeholder="••••••••" 
+                            data-tipo="senha"
+                            data-obrigatorio="true"
+                            minlength="8"
+                            required>
                         <!-- Botão para alternar visibilidade da password -->
                         <button type="button" class="botao-olho" id="alternarSenha" aria-label="Ver password">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    <small class="hint">Mínimo 8 caracteres</small>
+                    <small class="invalid-feedback"></small>
                 </div>
 
             </div>
@@ -660,20 +678,7 @@ if (isset($_SESSION['user_id'])) {
                 </label>
             </div>
 
-            <!-- ===== ACEITAÇÃO DE TERMOS E CONDIÇÕES ===== -->
-            <div class="area-termos">
-                <!-- Checkbox de aceitação dos Termos e Condições de uso -->
-                <label class="linha-termos">
-                    <input type="checkbox" name="accept_terms" value="1" required>
-                    <span>Li e aceito os <a href="../paginas/legal/termos.php" target="_blank">Termos e Condições</a> de uso.</span>
-                </label>
 
-                <!-- Checkbox de aceitação da Política de Privacidade -->
-                <label class="linha-termos">
-                    <input type="checkbox" name="accept_privacy" value="1" required>
-                    <span>Li e aceito a <a href="../paginas/legal/privacidade.php" target="_blank">Política de Privacidade</a>.</span>
-                </label>
-            </div>
 
             <!-- Botão principal de criação de conta com efeito de brilho -->
             <button type="submit" class="botao-registar" id="botaoCriarConta">
@@ -690,6 +695,9 @@ if (isset($_SESSION['user_id'])) {
 
     </div>
 </div>
+
+<!-- Script de validações de formulários - DEVE SER CARREGADO ANTES DA INICIALIZAÇÃO -->
+<script src="../recursos/js/validacoes_form.js"></script>
 
 <script>
     // Carregamento automático do perfil via URL para facilitar o registo
@@ -759,6 +767,98 @@ if (isset($_SESSION['user_id'])) {
         texto.textContent = 'A criar conta...';
         botao.disabled = true;
         botao.style.opacity = '0.8';
+    });
+
+    // Inicializa validações do formulário com proteção
+    document.addEventListener('DOMContentLoaded', () => {
+        // Função para mostrar modal bonito de erro
+        window.mostrarErroModal = function(titulo, mensagem) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: titulo,
+                    text: mensagem,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonColor: '#f7941d',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                alert(`${titulo}\n${mensagem}`);
+            }
+        };
+        
+        // Validação em tempo real para campos numéricos
+        const form = document.getElementById('formularioRegisto');
+        if (form) {
+            form.querySelectorAll('input[data-tipo="numeros-apenas"], input[type="tel"]').forEach(field => {
+                field.addEventListener('input', function(e) {
+                    // Remove qualquer caractere não-numérico
+                    this.value = this.value.replace(/[^\d\+\-\(\)\s]/g, '');
+                });
+            });
+            
+            // Validação em tempo real para campos alfabéticos
+            form.querySelectorAll('input[data-tipo="letras-apenas"]').forEach(field => {
+                field.addEventListener('input', function(e) {
+                    // Remove números e caracteres especiais
+                    this.value = this.value.replace(/[^a-zA-ZáéíóúãõâêôàäöäöüçÁÉÍÓÚÃÕÂÊÔÀ\s]/gu, '');
+                });
+            });
+        }
+        
+        // Validação de submissão com ValidadorFormulario ou fallback
+        if (typeof ValidadorFormulario === 'undefined') {
+            // Fallback: validação básica inline com modal
+            console.warn('Usando validação inline como fallback');
+            window.ValidadorFormulario = {
+                inicializarFormulario: function(formId) {
+                    const form = document.getElementById(formId);
+                    if (!form) return;
+                    
+                    // Validação básica no submit
+                    form.addEventListener('submit', function(e) {
+                        const email = form.querySelector('[name="email"]');
+                        const phone = form.querySelector('[name="phone"]');
+                        const password = form.querySelector('[name="senha"]');
+                        const nome = form.querySelector('[name="nome_completo"]');
+                        
+                        // Validar nome
+                        if (nome && !nome.value.trim()) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Campo Obrigatório', 'Por favor, preencha o seu nome completo.');
+                            return;
+                        }
+                        
+                        // Validar email
+                        if (email && !email.value.includes('@')) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Email Inválido', 'Por favor, insira um email válido (ex: seu@email.com).');
+                            return;
+                        }
+                        
+                        // Validar telefone
+                        if (phone && phone.value.length < 9) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Telefone Inválido', 'Por favor, insira um telefone válido com mínimo 9 números.');
+                            return;
+                        }
+                        
+                        // Validar password
+                        if (password && password.value.length < 8) {
+                            e.preventDefault();
+                            window.mostrarErroModal('Password Fraca', 'A password deve ter mínimo 8 caracteres.');
+                            return;
+                        }
+                    });
+                }
+            };
+        }
+        
+        // Tenta usar ValidadorFormulario (externo ou fallback)
+        if (typeof ValidadorFormulario !== 'undefined') {
+            ValidadorFormulario.inicializarFormulario('formularioRegisto');
+        }
     });
 </script>
 </body>

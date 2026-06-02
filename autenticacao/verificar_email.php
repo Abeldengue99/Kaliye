@@ -54,26 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
                     $db->prepare("DELETE FROM otp_codes WHERE user_id = ? AND purpose = 'email_verify'")->execute([$user['user_id']]);
                     
                     // Criar sessão completa
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['user_name'] = $user['full_name'];
-                    $_SESSION['user_type'] = $user['user_type'];
-                    $_SESSION['mentor_status'] = $user['mentorship_status'] ?? 'unsubmitted';
-                    $_SESSION['mentorship_status'] = $user['mentorship_status'] ?? 'unsubmitted';
-                    $_SESSION['verification_status'] = $user['verification_status'] ?? 'unsubmitted';
-                    $_SESSION['email_verified'] = true;
-                    $_SESSION['is_email_verified'] = true;
-                    $_SESSION['is_verified'] = hasVerifiedIdentity($user);
                     unset($_SESSION['pending_email_verification']);
                     unset($_SESSION['debug_last_otp']);
 
-                    // Redirecionar para o dashboard
-                    if ($user['user_type'] === 'admin') {
-                        header("Location: ../administracao/index.php");
-                    } elseif ($user['user_type'] === 'investor') {
-                        header("Location: ../paginas/plataforma/investor_dashboard.php");
-                    } else {
-                        header("Location: ../index.php?success=registered");
-                    }
+                    // Redirecionar para página de sucesso (NÃO fazer login automático)
+                    header("Location: verificacao_sucesso.php?email=" . urlencode($verify_email));
                     exit();
                 }
             }

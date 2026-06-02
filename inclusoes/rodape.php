@@ -296,6 +296,9 @@
         include_once $components_dir . 'project_scripts_v2.php'; // Motor v2 para validação de vídeos de Pitch
     ?>
 
+    <!-- Scripts de Validação de Formulários (Global) -->
+    <script src="<?php echo htmlspecialchars($base_url ?? './'); ?>recursos/js/validacoes_form.js?v=<?php echo isset($aksantiAssetVersion) ? $aksantiAssetVersion('recursos/js/validacoes_form.js') : time(); ?>"></script>
+
     <!-- Scripts de Sistema (Optimizados) -->
     <script> 
         (function initAosWhenNeeded() {

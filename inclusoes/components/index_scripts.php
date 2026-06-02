@@ -1024,7 +1024,9 @@
                     Apresenta brevemente como podes contribuir para este projecto de investimento.
                 </p>
                 <textarea id="applicationMsg" rows="4" placeholder="Descreve as tuas competências e motivação..." 
+                    data-tipo="comentario" data-tamanho-maximo="250" data-obrigatorio="true"
                     style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; padding:1rem; font-size:0.9rem; resize:none; box-sizing:border-box;"></textarea>
+                <div class="contador-caracteres normal" id="applicationMsg_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">0/250 caracteres</div>
             `,
             background: '#0d1628',
             color: '#fff',
@@ -1035,8 +1037,16 @@
             cancelButtonColor: 'rgba(255,255,255,0.1)',
             preConfirm: () => {
                 const msg = document.getElementById('applicationMsg').value.trim();
-                if (!msg) { Swal.showValidationMessage('Escreve uma mensagem de candidatura.'); return false; }
+                if (!msg) { Swal.showValidationMessage('Escreve uma mensagem de candidatura (mínimo 1 caracter).'); return false; }
+                if (msg.length > 250) { Swal.showValidationMessage('Máximo 250 caracteres permitido.'); return false; }
                 return msg;
+            },
+            didOpen: () => {
+                setTimeout(() => {
+                    if (typeof ValidadorFormulario !== 'undefined') {
+                        ValidadorFormulario.inicializarFormulario();
+                    }
+                }, 100);
             }
         }).then(result => {
             if (result.isConfirmed) {
@@ -1070,7 +1080,9 @@
                     Explique como pode orientar este projecto e qual o valor que trará como Mentor.
                 </p>
                 <textarea id="mentorshipMsg" rows="4" placeholder="Descreva a sua experiência e como pode ajudar este projecto..."
+                    data-tipo="comentario" data-tamanho-maximo="250" data-obrigatorio="true"
                     style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; padding:1rem; font-size:0.9rem; resize:none; box-sizing:border-box;"></textarea>
+                <div class="contador-caracteres normal" id="mentorshipMsg_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">0/250 caracteres</div>
             `,
             background: '#0d1628',
             color: '#fff',
@@ -1081,8 +1093,16 @@
             cancelButtonColor: 'rgba(255,255,255,0.1)',
             preConfirm: () => {
                 const msg = document.getElementById('mentorshipMsg').value.trim();
-                if (!msg) { Swal.showValidationMessage('Escreva uma mensagem de candidatura.'); return false; }
+                if (!msg) { Swal.showValidationMessage('Escreva uma mensagem de candidatura (mínimo 1 caracter).'); return false; }
+                if (msg.length > 250) { Swal.showValidationMessage('Máximo 250 caracteres permitido.'); return false; }
                 return msg;
+            },
+            didOpen: () => {
+                setTimeout(() => {
+                    if (typeof ValidadorFormulario !== 'undefined') {
+                        ValidadorFormulario.inicializarFormulario();
+                    }
+                }, 100);
             }
         }).then(result => {
             if (result.isConfirmed) {
@@ -2059,7 +2079,8 @@
                 </div>
                 <div class="profile-edit-input-group">
                     <label class="profile-edit-label">Experiencias / Realizacoes</label>
-                    <textarea name="experience_summary" class="profile-edit-input" style="min-height:130px;" placeholder="Projectos, cargos, premios, mentorias, voluntariado ou resultados relevantes.">${esc(d.experience_summary || '')}</textarea>
+                    <textarea name="experience_summary" class="profile-edit-input" style="min-height:130px;" placeholder="Projectos, cargos, premios, mentorias, voluntariado ou resultados relevantes." data-tipo="comentario" data-tamanho-maximo="300">${esc(d.experience_summary || '')}</textarea>
+                    <div class="contador-caracteres normal" id="experience_summary_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">${(d.experience_summary || '').length}/300 caracteres</div>
                 </div>
             `;
             nextBtn = `<button type="button" onclick="if(saveCurrentStepData(3)) renderProfileEditStep(4)" class="view-profile-full-btn">BIOGRAFIA</button>`;
@@ -2071,8 +2092,9 @@
                 </div>
                 <div class="profile-edit-input-group">
                     <label class="profile-edit-label">Biografia / Pitch Pessoal *</label>
-                    <textarea name="bio" class="profile-edit-input" required minlength="40" style="min-height:190px;" placeholder="Conte quem e, o que faz, o que procura na KALIYE e que impacto quer criar.">${esc(d.bio || '')}</textarea>
-                    <small class="profile-field-hint">Minimo de 40 caracteres para tornar o perfil mais confiavel.</small>
+                    <textarea name="bio" class="profile-edit-input" required minlength="40" style="min-height:190px;" placeholder="Conte quem e, o que faz, o que procura na KALIYE e que impacto quer criar." data-tipo="comentario" data-tamanho-maximo="500">${esc(d.bio || '')}</textarea>
+                    <div class="contador-caracteres normal" id="bio_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">${(d.bio || '').length}/500 caracteres</div>
+                    <small class="profile-field-hint">Mínimo de 40 caracteres para tornar o perfil mais confiável.</small>
                 </div>
             `;
             nextBtn = `<button type="button" onclick="if(saveCurrentStepData(4)) renderProfileEditStep(5)" class="view-profile-full-btn">LINKS</button>`;

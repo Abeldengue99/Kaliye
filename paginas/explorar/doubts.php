@@ -12,6 +12,7 @@ $current_user_type = $_SESSION['user_type'];
 ?>
 
 <link rel="stylesheet" href="../../recursos/css/pages/doubts.css?v=<?php echo aksantiAssetVersion('recursos/css/pages/doubts.css'); ?>">
+<link rel="stylesheet" href="../../recursos/css/validacoes.css?v=<?php echo aksantiAssetVersion('recursos/css/validacoes.css'); ?>">
 
 <style>
 /* ── PAGE LAYOUT ── */
@@ -481,6 +482,8 @@ $current_user_type = $_SESSION['user_type'];
         baseUrl:  <?php echo json_encode($base_url); ?>
     };
 </script>
+
+<script src="../../recursos/js/validacoes_form.js?v=<?php echo aksantiAssetVersion('recursos/js/validacoes_form.js'); ?>"></script>
 
 <?php include '../../inclusoes/components/doubts_scripts.php'; ?>
 

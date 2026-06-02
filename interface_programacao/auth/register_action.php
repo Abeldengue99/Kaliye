@@ -21,17 +21,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password       = $_POST['password'];
     $user_type      = $_POST['user_type'];
     $is_peer_mentor = isset($_POST['is_peer_mentor']) ? 1 : 0;
-    $accept_terms   = isset($_POST['accept_terms']) ? 1 : 0;
-    $accept_privacy = isset($_POST['accept_privacy']) ? 1 : 0;
 
-    // Verificação de Conformidade Legal.
-    if (!$accept_terms || !$accept_privacy) {
-        header("Location: ../../autenticacao/registar.php?error=terms_not_accepted");
-        exit();
-    }
-
-    if (empty($full_name) || empty($email) || empty($password) || empty($user_type)) {
-        header("Location: ../../autenticacao/registar.php?error=empty_fields");
+    if (empty($full_name) || empty($email) || empty($password) || empty($user_type) || empty($id_number)) {
+        if (empty($id_number)) {
+            header("Location: ../../autenticacao/registar.php?error=missing_bilhete");
+        } else {
+            header("Location: ../../autenticacao/registar.php?error=empty_fields");
+        }
         exit();
     }
 

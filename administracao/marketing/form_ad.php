@@ -103,10 +103,16 @@ $action_url = $ad ? "../../interface_programacao/system/update_ad.php" : "../../
                         </div>
 
                         <div class="input-group-premium" style="margin-bottom: 1.5rem;">
+                            <label>Orçamento / Valor Pago (AOA)</label>
+                            <input type="number" name="budget" value="<?php echo htmlspecialchars($ad['budget'] ?? '0'); ?>" step="0.01" min="0" placeholder="Ex: 50000" required>
+                            <small style="color: rgba(255,255,255,0.3); display: block; margin-top: 0.5rem;">Insira o valor total da campanha ou valor já pago em AOA (Kwanzas Angolanos).</small>
+                        </div>
+
+                        <div class="input-group-premium" style="margin-bottom: 1.5rem;">
                             <label>Banner ou Criativo (Imagem)</label>
                             <div style="display: flex; gap: 1.5rem; align-items: center;">
                                 <?php if($ad && $ad['image_url']): ?>
-                                    <img src="../<?php echo htmlspecialchars($ad['image_url']); ?>" style="width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <img src="../../<?php echo htmlspecialchars($ad['image_url']); ?>" style="width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                                 <?php endif; ?>
                                 <input type="file" name="image" accept="image/*" style="padding: 0.6rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; background: rgba(255,255,255,0.02); flex: 1;">
                             </div>
