@@ -9,6 +9,7 @@ session_start();
 require_once __DIR__ . '/../../configuracoes/base_dados.php';
 require_once __DIR__ . '/../../inclusoes/RateLimiter.php';
 require_once __DIR__ . '/../../inclusoes/Security.php';
+require_once __DIR__ . '/../../configuracoes/legacy_users.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);

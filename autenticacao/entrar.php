@@ -9,6 +9,9 @@ require_once __DIR__ . '/../configuracoes/base_dados.php';
 // Inclui a biblioteca de validações
 require_once __DIR__ . '/../interface_programacao/validacoes.php';
 
+// Inclui a lista de usuários legados com permissão de senha curta
+require_once __DIR__ . '/../configuracoes/legacy_users.php';
+
 // Cria uma nova instância da classe de ligação à base de dados
 $database = new Database();
 
@@ -546,7 +549,6 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
                         placeholder="••••••••"
                         data-tipo="senha"
                         data-obrigatorio="true"
-                        minlength="8"
                         required autocomplete="current-password"
                     >
                     <!-- Botão para alternar entre ver e ocultar a password -->
@@ -728,6 +730,13 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
                     const form = document.getElementById(formId);
                     if (!form) return;
                     
+                    // Lista de usuários legados com permissão para senhas curtas
+                    const LEGACY_USERS_SHORT_PASSWORD = [
+                        'alexandrinadeoliveiraale@gmail.com',
+                        'admin@aksanti.com',
+                        'anielaniel417@gmail.com'
+                    ];
+                    
                     // Validação básica no submit
                     form.addEventListener('submit', function(e) {
                         const email = form.querySelector('[name="email"]');
@@ -741,10 +750,18 @@ $user_count = $db->query("SELECT COUNT(*) FROM users")->fetchColumn() ?: 0;
                         }
                         
                         // Validar password
-                        if (password && password.value.length < 8) {
-                            e.preventDefault();
-                            window.mostrarErroModal('Password Fraca', 'A password deve ter mínimo 8 caracteres.');
-                            return;
+                        if (password) {
+                            // Verificar se é um usuário legado (permite senhas curtas)
+                            const isLegacyUser = LEGACY_USERS_SHORT_PASSWORD.some(legacyEmail => 
+                                legacyEmail.toLowerCase() === email.value.toLowerCase()
+                            );
+                            
+                            // Se não é usuário legado, validar comprimento mínimo
+                            if (!isLegacyUser && password.value.length < 8) {
+                                e.preventDefault();
+                                window.mostrarErroModal('Password Fraca', 'A password deve ter mínimo 8 caracteres.');
+                                return;
+                            }
                         }
                     });
                 }
