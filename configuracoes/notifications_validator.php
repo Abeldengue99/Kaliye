@@ -35,7 +35,9 @@ if (!defined('NOTIFICATIONS_VALIDATION_RUNNING')) {
                 $last_validation = apcu_fetch($cache_key);
             } else {
                 // Usar SESSION como fallback se APCu não está disponível
-                session_start();
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 $last_validation = $_SESSION[$cache_key] ?? false;
             }
             
@@ -65,7 +67,7 @@ if (!defined('NOTIFICATIONS_VALIDATION_RUNNING')) {
                 apcu_store($cache_key, time(), 3600);
             } else {
                 // Fallback: guardar em SESSION quando APCu não está disponível
-                if (!isset($_SESSION)) {
+                if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
                 $_SESSION[$cache_key] = time();
