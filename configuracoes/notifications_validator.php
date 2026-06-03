@@ -29,9 +29,17 @@ if (!defined('NOTIFICATIONS_VALIDATION_RUNNING')) {
 
             // Verificar cache para evitar validação muito frequente
             $cache_key = 'notifications_last_validation';
-            $last_validation = apcu_fetch($cache_key);
             
-            if ($last_validation !== false) {
+            // Fallback para quando APCu não está disponível
+            if (function_exists('apcu_fetch')) {
+                $last_validation = apcu_fetch($cache_key);
+            } else {
+                // Usar SESSION como fallback se APCu não está disponível
+                session_start();
+                $last_validation = $_SESSION[$cache_key] ?? false;
+            }
+            
+            if ($last_validation !== false && (time() - $last_validation) < 3600) {
                 // Validação executada há menos de 1 hora
                 return;
             }
@@ -55,6 +63,12 @@ if (!defined('NOTIFICATIONS_VALIDATION_RUNNING')) {
             // Cache a próxima validação por 1 hora
             if (function_exists('apcu_store')) {
                 apcu_store($cache_key, time(), 3600);
+            } else {
+                // Fallback: guardar em SESSION quando APCu não está disponível
+                if (!isset($_SESSION)) {
+                    session_start();
+                }
+                $_SESSION[$cache_key] = time();
             }
 
         } catch (Exception $e) {
