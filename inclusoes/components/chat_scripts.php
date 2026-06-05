@@ -162,6 +162,34 @@ function loadMentorGroupChat(groupId, groupName, mentorId) {
     fetchMentorGroupMessages();
 }
 
+// INOVAÇÃO: Portabilidade do Comité VIP para a Interface Central
+function loadVipRoomChat(roomId, roomName, desc) {
+    chatType = 'vip_room';
+    currentGroup = roomId;
+    currentReceiver = null;
+    document.getElementById('group_id').value = roomId;
+    document.getElementById('receiver_id').value = '';
+    document.getElementById('chat_type').value = 'vip_room';
+    
+    const jitsiBtn = document.getElementById('jitsiMeetBtn');
+    if(jitsiBtn) jitsiBtn.style.display = 'none';
+
+    document.querySelectorAll('.contact-item-elite').forEach(i => i.classList.remove('active'));
+
+    document.getElementById('chatHeader').innerHTML = `
+        <div style="width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #fcd34d); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(245,158,11,0.3);">
+            <i class="fas fa-crown" style="color: white; font-size: 1.2rem;"></i>
+        </div>
+        <div style="flex-grow: 1; text-align: left; min-width: 0;">
+            <h4 style="color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chatEsc(roomName)}</h4>
+            <span style="color: #f59e0b; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">Comité VIP</span>
+        </div>
+    `;
+    
+    document.getElementById('chatInputArea').style.display = 'block';
+    fetchVipRoomMessages();
+}
+
 // Criar Grupo de Mentoria On-The-Fly (AJAX Backend)
 function createMentorGroup() {
     openChatTextModal({
@@ -236,6 +264,47 @@ function fetchMentorGroupMessages() {
                 renderMentorMessages(data.messages);
             }
         });
+}
+
+function fetchVipRoomMessages() {
+    if (!currentGroup) return;
+    fetch(`${AKSANTI_CONFIG.baseUrl}interface_programacao/vip_chat/get_room_messages.php?chat_id=${currentGroup}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                renderVipMessages(data.messages);
+            }
+        });
+}
+
+function renderVipMessages(data) {
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    data.forEach(msg => {
+        const isMine = msg.sender_id == AKSANTI_CONFIG.userId;
+        const div = document.createElement('div');
+        div.className = `msg-bubble-elite ${isMine ? 'msg-mine-elite' : 'msg-theirs-elite'}`;
+        
+        let mediaHtml = '';
+        if (msg.file_path) {
+            const path = (msg.file_path.startsWith('http') || msg.file_path.startsWith('/')) ? msg.file_path : AKSANTI_CONFIG.baseUrl + msg.file_path;
+            const isImage = ['png','jpg','jpeg','gif'].includes(msg.file_type);
+            if (isImage) {
+                mediaHtml = `<img src="${path}" style="max-width: 100%; border-radius: 12px; margin-bottom: 0.8rem; cursor: zoom-in;" onclick="window.open(this.src, '_blank')">`;
+            } else {
+                mediaHtml = `<div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05);"><i class="fas fa-file-download" style="font-size: 1.5rem; color: #f59e0b;"></i><div style="flex:1;"><a href="${path}" target="_blank" style="color: #f7941d; font-weight:800; font-size:0.8rem;">Anexo: ${msg.file_name}</a></div></div>`;
+            }
+        }
+
+        div.innerHTML = `
+            ${!isMine ? `<div style="font-size: 0.65rem; color: #f59e0b; letter-spacing: 0.5px; margin-bottom: 3px; font-weight: 800;">${chatEsc(msg.full_name).toUpperCase()}</div>` : ''}
+            ${mediaHtml}
+            ${msg.message_text ? `<div style="word-break: break-word; font-size:0.9rem;">${chatEsc(msg.message_text)}</div>` : ''}
+            <div style="text-align: right; font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 5px;">${chatEsc(msg.sent_at)}</div>
+        `;
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
 }
 
 // 🔔 Atualizar badges de contagem nos grupos no sidebar
@@ -675,8 +744,11 @@ function handleSendElite(e) {
     if (chatType === 'group') {
         endpoint = `${AKSANTI_CONFIG.baseUrl}servicos/social/send_group_message.php`;
     } else if (chatType === 'mentor_group') {
-        endpoint = `${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`; // API que criámos agora!
+        endpoint = `${AKSANTI_CONFIG.baseUrl}interface_programacao/social/send_mentor_group_message.php`;
         if (!formData.get('message_type')) formData.append('message_type', 'text');
+    } else if (chatType === 'vip_room') {
+        endpoint = `${AKSANTI_CONFIG.baseUrl}interface_programacao/vip_chat/send_message.php`;
+        formData.append('chat_id', currentGroup);
     }
     
     const sendBtn = form.querySelector('.elite-btn-send');
@@ -697,8 +769,9 @@ function handleSendElite(e) {
             sendBtn.disabled = false;
             sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
             // Auto refrescar as pipelines
-            if (chatType === 'group') fetchGroupMessages(); 
-            else if (chatType === 'mentor_group') fetchMentorGroupMessages(); 
+            if (chatType === 'group') fetchGroupMessages();
+            else if (chatType === 'mentor_group') fetchMentorGroupMessages();
+            else if (chatType === 'vip_room') fetchVipRoomMessages();
             else fetchMessages();
         })
         .catch(() => {
@@ -738,6 +811,7 @@ function initEmojiPicker() {
 setInterval(() => {
     if (chatType === 'group' && currentGroup) fetchGroupMessages();
     else if (chatType === 'mentor_group' && currentGroup) fetchMentorGroupMessages();
+    else if (chatType === 'vip_room' && currentGroup) fetchVipRoomMessages();
     else if (chatType === 'direct' && currentReceiver) fetchMessages();
     
     // 🔔 Verificar notificações de todos os grupos mentor (mesmo quando não está a ver)

@@ -130,8 +130,7 @@ function renderReportPage($ad, $views, $clicks, $ctr, $unique_users, $cpv, $cpc,
 <head>
     <meta charset="UTF-8">
     <title>Relatório de Campanha - {$title}</title>
-    <link rel="icon" type="image/png" href="../../recursos/images/marca/favicon-k-32x32.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -317,6 +316,16 @@ function renderReportPage($ad, $views, $clicks, $ctr, $unique_users, $cpv, $cpc,
             .section-title { color: #333 !important; border-color: #f7941d !important; }
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 
@@ -324,7 +333,7 @@ function renderReportPage($ad, $views, $clicks, $ctr, $unique_users, $cpv, $cpc,
     <div class="report-header">
         <div class="brand">
             <div class="logo">
-                <img src="../../recursos/images/marca/favicon-k-32x32.png" alt="A">
+                <img src="../../recursos/images/marca/favicon-16x16.ico" alt="A">
             </div>
             <div>
                 <h1 style="font-size: 1.5rem; margin: 0;">Relatório de Performance</h1>

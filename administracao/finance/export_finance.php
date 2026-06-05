@@ -1,4 +1,4 @@
-<?php
+ï»¿<?php
 // admin/finance/export_finance.php
 session_start();
 require_once '../../configuracoes/base_dados.php';
@@ -84,8 +84,8 @@ if ($format === 'csv') {
     <html lang="pt">
     <head>
         <meta charset="UTF-8">
-        <title>Relatório Financeiro Consolidado - KALIYE</title>
-        <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+        <title>Relatï¿½rio Financeiro Consolidado - KALIYE</title>
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
             :root {
@@ -125,7 +125,17 @@ if ($format === 'csv') {
                 @page { margin: 1cm; }
             }
         </style>
-    </head>
+        <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
     <body>
         <div class="actions">
             <button onclick="window.print()" class="btn" style="background: var(--aksanti-orange); color: white;"><i class="fas fa-print"></i> Imprimir / PDF</button>
@@ -135,11 +145,11 @@ if ($format === 'csv') {
         <div class="header">
             <div class="logo-section">
                 <div class="logo-box">
-                    <img src="../../recursos/images/marca/favicon-k-32x32.png" alt="KALIYE">
+                    <img src="../../recursos/images/marca/favicon-16x16.ico" alt="KALIYE">
                 </div>
                 <div class="title-info">
-                    <h1>Relatório Financeiro Consolidado</h1>
-                    <p>Gestão de Fluxo de Capital - KALIYE</p>
+                    <h1>Relatï¿½rio Financeiro Consolidado</h1>
+                    <p>Gestï¿½o de Fluxo de Capital - KALIYE</p>
                 </div>
             </div>
             <div class="meta-info">

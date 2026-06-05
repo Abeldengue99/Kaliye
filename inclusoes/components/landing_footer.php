@@ -81,7 +81,76 @@ $footer_home_url = $footer_user_logged_in ? ($base_url . 'index.php') : ($base_u
     </div>
 </footer>
 
+<!-- Seta Voltar ao Topo -->
+<button id="kaliye-scroll-top" aria-label="Voltar ao topo">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('kaliye-scroll-top');
+    if (!btn) return;
+    
+    // Fallback caso o main script não faça o bind
+    if (!window.__kaliyeScrollHandlerBoundNative) {
+        window.__kaliyeScrollHandlerBoundNative = true;
+        
+        const toggleScroll = () => {
+            if (window.scrollY > 300) {
+                btn.classList.add('is-visible');
+            } else {
+                btn.classList.remove('is-visible');
+            }
+        };
+        
+        window.addEventListener('scroll', toggleScroll);
+        toggleScroll();
+        
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+});
+</script>
+
 <style>
+#kaliye-scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--kaliye-accent, #f7941d);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#kaliye-scroll-top svg {
+    transition: transform 0.3s ease;
+}
+#kaliye-scroll-top:hover svg {
+    transform: translateY(-3px);
+}
+#kaliye-scroll-top:hover {
+    background: var(--kaliye-accent-2, #fbbf24);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+#kaliye-scroll-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
 .rodape-principal {
     background: #030712;
     padding: 6rem 0 0;

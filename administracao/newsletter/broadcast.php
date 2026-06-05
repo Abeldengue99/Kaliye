@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * administracao/newsletter/broadcast.php
  * KALIYE Broadcast Center - Envio de Mensagens em Massa
@@ -23,8 +23,8 @@ $total_subs = $db->query("SELECT COUNT(*) FROM newsletter_subscribers")->fetchCo
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $base_url; ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $base_url; ?>recursos/images/marca/apple-touch-icon-k.png">
+
+    recursos/images/marca/apple-touch-icon.png">
     <title>Broadcast Center | KALIYE Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo $base_url; ?>recursos/css/dashboard-aksanti-elite.css">
@@ -56,11 +56,21 @@ $total_subs = $db->query("SELECT COUNT(*) FROM newsletter_subscribers")->fetchCo
         }
         .btn-broadcast:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(247,148,29,0.3); }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
-<body class="admin-body">
-    <?php include $base_url . 'inclusoes/cabecalho.php'; ?>
+<body class="admin-dashboard-layout">
+    <?php include '../barra_lateral.php'; ?>
 
-    <main class="main-content" style="padding-top: 100px;">
+    <main class="admin-main-content">
         <div class="container-secao">
             <div class="broadcast-card">
                 <header style="margin-bottom: 2rem;">
@@ -154,7 +164,6 @@ $total_subs = $db->query("SELECT COUNT(*) FROM newsletter_subscribers")->fetchCo
         }
     </script>
 
-    <?php include $base_url . 'inclusoes/rodape.php'; ?>
 </body>
 </html>
 

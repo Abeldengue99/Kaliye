@@ -52,6 +52,24 @@ class SimpleMailer {
         $this->sendCommand('RCPT TO: <' . $to . '>');
         $this->sendCommand('DATA');
 
+        // Wrapper KALIYE Template
+        if (stripos($body, '<html') === false && stripos($body, '<body') === false) {
+            $year = date('Y');
+            $body = "
+            <div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #fff;\">
+                <div style=\"background: #0b1120; padding: 25px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);\">
+                    <h2 style=\"margin: 0; color: #f7941d; font-size: 28px; font-weight: 900; letter-spacing: 2px;\">KALIYE</h2>
+                </div>
+                <div style=\"padding: 40px 30px; font-size: 16px; line-height: 1.6; color: #e2e8f0;\">
+                    " . nl2br($body) . "
+                </div>
+                <div style=\"background: #0b1120; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.05);\">
+                    <p style=\"margin: 0;\">Este é um e-mail automático. Por favor, não responda diretamente a este endereço.</p>
+                    <p style=\"margin: 5px 0 0 0;\">&copy; {$year} Ecossistema KALIYE. Todos os direitos reservados.</p>
+                </div>
+            </div>";
+        }
+
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
         $headers .= "From: " . SMTP_FROM_NAME . " <" . $fromEmail . ">\r\n";

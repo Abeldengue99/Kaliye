@@ -1233,8 +1233,7 @@
     }
 
     // 5b. MOTOR DE VISUALIZAÃ‡ÃƒO DE PERFIL MULTI-STEP (USER MODAL ELITE)
-    // 5b. MOTOR DE VISUALIZAÃ‡ÃƒO DE PERFIL (Removido duplicado obsoleto)
-
+    // 5c. Função Wrapper Removida (A usar o modal Oficial de NDA abaixo)
 
     // 6. Modal Elite de Detalhes (Viewing System) - Versão SIMPLIFICADA
     window.openProjectDetails = function(id, startStep = 1) {
@@ -1264,6 +1263,45 @@
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
+                    if (data.access_level === 'nda_required') {
+                        closeProjectDetailsModal();
+                        
+                        Swal.fire({
+                            title: 'Acordo de Confidencialidade (NDA)',
+                            html: `
+                                <div style="text-align:left; font-size:0.9rem; line-height:1.6; color:rgba(255,255,255,0.8);">
+                                    <p>Para aceder ao dossier completo deste projecto, tem de concordar em manter o total sigilo sobre as informações, tecnologias e modelos de negócio aqui descritos.</p>
+                                    <p>O seu nome, e-mail e endereço IP serão registados para proteção legal da Propriedade Intelectual do autor.</p>
+                                    <p style="color:#facc15; font-weight:bold; margin-top:10px;"><i class="fas fa-shield-alt"></i> Concorda em manter esta ideia confidencial?</p>
+                                </div>
+                            `,
+                            icon: 'info',
+                            background: '#0d1628',
+                            color: '#fff',
+                            showCancelButton: true,
+                            confirmButtonText: '<i class="fas fa-file-signature"></i> Aceito o Termo de Sigilo',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: 'rgba(255,255,255,0.1)'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const fd = new FormData();
+                                fd.append('project_id', id);
+                                fetch(`${BASE_URL}interface_programacao/projects/accept_project_nda.php`, { method: 'POST', body: fd })
+                                    .then(r => r.json())
+                                    .then(res => {
+                                        if (res.success) {
+                                            Swal.fire({ icon: 'success', title: 'Acesso Concedido', text: 'O dossier foi desbloqueado.', background: '#0d1628', color: '#fff', timer: 1500, showConfirmButton: false })
+                                                .then(() => openProjectDetails(id, startStep));
+                                        } else {
+                                            Swal.fire({ icon: 'error', title: 'Erro', text: res.message, background: '#0d1628', color: '#fff' });
+                                        }
+                                    });
+                            }
+                        });
+                        return;
+                    }
+
                     const p = data.project;
                     p.owner_pic = p.profile_pic || p.owner_pic || '';
                     p.owner_name = p.full_name || p.owner_name || 'Autor';
@@ -1283,7 +1321,7 @@
                         return `<img src="${safeSrc}" style="width:120px; height:80px; object-fit:cover; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">`;
                     }).join('') + '</div>' : '';
                     let tagsHtml = tags.length > 0 ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:1rem;">' + tags.map(t => `<span style="background:rgba(247,148,29,0.1); color:#f7941d; padding:4px 8px; border-radius:6px; font-size:0.6rem; font-weight:800; text-transform:uppercase;">${t}</span>`).join('') + '</div>' : '';
-                    window.currentProjectData = { p, mediaHtml, tagsHtml, is_investor: data.is_investor };
+                    window.currentProjectData = { p, mediaHtml, tagsHtml, is_investor: data.is_investor, access_level: data.access_level };
                     renderProjectModalStep(startStep);
                 } else {
                     content.innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">${data.message || 'Acesso restrito.'}</p>`;
@@ -1357,13 +1395,14 @@
 
         if (step === 0) {
             stepTitle = 'Pitch Cinema';
-            nextAction = 'renderProjectModalStep(1)';
+            nextAction = (window.currentProjectData.access_level === 'preview') ? 'closeProjectDetailsModal()' : 'renderProjectModalStep(1)';
             prevAction = 'closeProjectDetailsModal()';
             const fullVideoPath = videoUrl ? (videoUrl.startsWith('http') ? videoUrl : `${BASE_URL}carregamentos/projects/${videoUrl}`) : '';
             stepContent = `<div style="background:#000; border-radius:24px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">${videoUrl ? `<video src="${fullVideoPath}" controls preload="metadata" playsinline style="width:100%; height:100%; object-fit:contain;"></video>` : `<p style="opacity:0.2;">Sem Pitch de Vídeo</p>`}</div>`;
         } else if (step === 1) {
             stepTitle = 'Visão';
-            nextAction = 'renderProjectModalStep(2)';
+            // Se por acaso chegar ao step 1 com preview, forçamos o fecho.
+            nextAction = (window.currentProjectData.access_level === 'preview') ? 'closeProjectDetailsModal()' : 'renderProjectModalStep(2)';
             prevAction = videoUrl ? 'renderProjectModalStep(0)' : 'closeProjectDetailsModal()';
             stepContent = `<div style="display:flex; align-items:center; gap:15px; margin-bottom:1rem;"><img src="${BASE_URL}${p.owner_pic || 'recursos/images/default_profile.png'}" style="width:40px; height:40px; border-radius:10px; object-fit:cover;"><div><div style="color:#fff; font-weight:800;">${p.owner_name}</div><div style="color:rgba(255,255,255,0.5); font-size:0.8rem;">${(p.owner_type || p.user_type || 'Membro').toString().toUpperCase()}</div></div></div><p style="color:rgba(255,255,255,0.7); line-height:1.6;">${p.description || 'Descrição não disponível.'}</p><div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:1.5rem;"><div style="${dataBox}"><div style="${labelStyle}">Categoria</div><div style="color:#fff; font-weight:900;">${p.category || 'Não definida'}</div></div><div style="${dataBox}"><div style="${labelStyle}">Status</div><div style="color:#fff; font-weight:900;">${p.approval_status || 'Pendente'}</div></div></div>`;
         } else if (step === 2) {
@@ -1418,7 +1457,7 @@
         let buttonsHtml = `
             <div style="display:flex; justify-content:space-between; gap:10px;">
                 <button onclick="${prevAction}" style="flex:1; background:rgba(255,255,255,0.05); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">VOLTAR</button>
-                <button onclick="${nextAction}" style="flex:1.5; background:#f7941d; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:950; cursor:pointer;">${step === 3 ? 'FECHAR' : 'PRÓXIMO'}</button>
+                <button onclick="${nextAction}" style="flex:1.5; background:#f7941d; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:950; cursor:pointer;">${(step === 3 || (step === 0 && window.currentProjectData.access_level === 'preview') || (step === 1 && window.currentProjectData.access_level === 'preview')) ? 'FECHAR' : 'PRÓXIMO'}</button>
             </div>
         `;
         
@@ -1851,7 +1890,7 @@
                     <strong style="display:block; color:#fff; font-size:0.78rem; margin-bottom:0.3rem;">${esc(exp.title || exp.area_name || 'Area de foco')}</strong>
                     <span style="display:block; color:rgba(255,255,255,0.42); font-size:0.68rem; line-height:1.4;">${esc(exp.description || exp.area_name || 'Especialidade adicionada ao dossier.')}</span>
                 </div>
-            `).join('') : '<div style="color:rgba(255,255,255,0.28); font-size:0.75rem; font-style:italic; padding:0.5rem 0;">Nenhuma area de especialidade adicionada.</div>';
+            `).join('') : '<div style="color:rgba(255,255,255,0.28); font-size:0.75rem; font-style:italic; padding:0.5rem 0;">Nenhuma área de especialidade adicionada.</div>';
             const skillsHtml = (d.skills_list || []).length ? (d.skills_list || []).map(s => `<span style="background:rgba(247,148,29,0.08); color:#f7941d; padding:5px 12px; border-radius:20px; font-size:0.65rem; font-weight:800; border:1px solid rgba(247,148,29,0.15);">${esc(s)}</span>`).join('') : '<span style="color:rgba(255,255,255,0.2); font-size:0.7rem;">Nenhuma skill listada.</span>';
             contentZone.innerHTML = `
                 <div class="user-info-box" style="text-align:center; border:none; background:none; margin-bottom: 1.5rem;">
@@ -1895,22 +1934,57 @@
                     </div>
                 </div>
             `;
+            let missingFields = [];
+            if (!d.bio || d.bio.length < 40) missingFields.push('Biografia (min 40 chars)');
+            if (!d.location) missingFields.push('Localização');
+            if (!d.phone) missingFields.push('Telefone / WhatsApp');
+            if (!d.skills_str || d.skills_str.trim() === '') missingFields.push('Skills');
+            if (!d.focus_areas || d.focus_areas.trim() === '') missingFields.push('Áreas de Foco');
+            if (!d.level) missingFields.push('Nível / Cargo');
+
+            let completenessHtml = '';
+            if (missingFields.length > 0) {
+                let pCompleto = Math.round(( (6 - missingFields.length) / 6 ) * 100);
+                completenessHtml = `
+                    <div style="background:rgba(239, 68, 68, 0.05); border:1px dashed rgba(239, 68, 68, 0.3); border-radius:16px; padding:1.2rem; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                            <h4 style="color:#ef4444; margin:0; font-size:0.9rem;"><i class="fas fa-exclamation-circle"></i> Dossier Incompleto (${pCompleto}%)</h4>
+                            <span style="font-size:0.7rem; color:rgba(255,255,255,0.5);">Ação Recomendada</span>
+                        </div>
+                        <p style="color:rgba(255,255,255,0.7); font-size:0.8rem; margin-bottom:0.8rem; line-height:1.5;">O seu dossier de elite tem informações em falta. Para aumentar a sua credibilidade na KALIYE, complete os seguintes campos clicando em "EDITAR MEU DOSSIER":</p>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                            ${missingFields.map(f => `<span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; padding:4px 10px; border-radius:8px; font-size:0.7rem; font-weight:700;">+ ${f}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                completenessHtml = `
+                    <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2); border-radius:16px; padding:1rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-check-circle" style="color:#10b981; font-size:1.5rem;"></i>
+                        <div>
+                            <h4 style="color:#10b981; margin:0; font-size:0.9rem;">Dossier 100% Completo</h4>
+                            <p style="color:rgba(255,255,255,0.6); font-size:0.75rem; margin:0; margin-top:2px;">Excelente! O seu perfil tem máxima visibilidade e confiança na rede.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
             contentZone.innerHTML = `
                 <div class="user-info-box" style="text-align:center; border:none; background:none; margin-bottom: 1.5rem;">
                     <h2 class="user-card-name" style="font-size: 1.5rem;">Dossier de Elite</h2>
-                    <p style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Resumo da sua presenca no ecossistema KALIYE.</p>
+                    <p style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Resumo da sua presença no ecossistema KALIYE.</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid rgba(247,148,29,0.16); background:linear-gradient(135deg, rgba(247,148,29,0.1), rgba(255,255,255,0.025)); border-radius:18px; margin-bottom:1rem;">
                     <img src="${asset(d.avatar)}" alt="" style="width:66px; height:66px; border-radius:18px; object-fit:cover; border:2px solid rgba(247,148,29,0.75);">
                     <div style="min-width:0;">
                         <div style="color:#fff; font-weight:950; font-size:1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(d.name || 'Membro KALIYE')}</div>
-                        <div style="color:rgba(255,255,255,0.46); font-size:0.72rem; margin-top:0.25rem;">${esc(d.level || 'Perfil em construcao')} ${d.location ? ' - ' + esc(d.location) : ''}</div>
+                        <div style="color:rgba(255,255,255,0.46); font-size:0.72rem; margin-top:0.25rem;">${esc(d.level || 'Perfil em construção')} ${d.location ? ' - ' + esc(d.location) : ''}</div>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:1.5rem;">
                     <div style="background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:16px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
                         <div style="color:#f7941d; font-weight:950; font-size:1.2rem;">${d.stats?.connections || 0}</div>
-                        <div style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-transform:uppercase; font-weight:700;">Conexoes</div>
+                        <div style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-transform:uppercase; font-weight:700;">Conexões</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:16px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
                         <div style="color:#f7941d; font-weight:950; font-size:1.2rem;">${d.stats?.projects || 0}</div>
@@ -1925,13 +1999,14 @@
                         <div style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-transform:uppercase; font-weight:700;">Rating</div>
                     </div>
                 </div>
+                ${completenessHtml}
                 <div class="profile-dossier-grid" style="display:grid; grid-template-columns:0.9fr 1.6fr; gap:1rem; align-items:start;">
                     <div style="display:flex; flex-direction:column; gap:1rem;">
                         <div class="trust-shield-card" style="margin-top:0; background:rgba(255,255,255,0.02);">
                             <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-address-card"></i> Informação</h4>
                             <div style="display:flex; align-items:center; gap:0.75rem; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:0.8rem;">
                                 <span style="width:34px; height:34px; border-radius:10px; background:rgba(247,148,29,0.1); color:#f7941d; display:flex; align-items:center; justify-content:center;"><i class="fas fa-envelope"></i></span>
-                                <span style="color:rgba(255,255,255,0.75); font-size:0.75rem; word-break:break-all;">${esc(d.email || 'Email indisponivel')}</span>
+                                <span style="color:rgba(255,255,255,0.75); font-size:0.75rem; word-break:break-all;">${esc(d.email || 'Email indisponível')}</span>
                             </div>
                             ${d.phone ? `<div style="display:flex; align-items:center; gap:0.75rem; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:0.8rem; margin-top:0.65rem;"><span style="width:34px; height:34px; border-radius:10px; background:rgba(247,148,29,0.1); color:#f7941d; display:flex; align-items:center; justify-content:center;"><i class="fas fa-phone"></i></span><span style="color:rgba(255,255,255,0.75); font-size:0.75rem;">${esc(d.phone)}</span></div>` : ''}
                             <div style="margin-top:0.8rem; color:rgba(255,255,255,0.45); font-size:0.7rem; line-height:1.6;">
@@ -1944,7 +2019,7 @@
                             </div>
                         </div>
                         <div class="trust-shield-card" style="margin-top:0; background:rgba(255,255,255,0.02);">
-                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-shield-alt"></i> Hub de Confianca</h4>
+                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-shield-alt"></i> Hub de Confiança</h4>
                             <div style="display:flex; align-items:center; gap:0.65rem; padding:0.8rem; border-radius:14px; color:${v[0]}; background:${v[1]}; font-size:0.75rem; font-weight:900;"><i class="fas ${v[3]}"></i> ${v[2]}</div>
                             <div style="display:flex; align-items:center; gap:0.65rem; padding:0.8rem; border-radius:14px; color:${m[0]}; background:${m[1]}; font-size:0.75rem; font-weight:900; margin-top:0.65rem;"><i class="fas ${m[3]}"></i> ${m[2]}</div>
                             <div class="shield-actions-grid" style="grid-template-columns:1fr 1fr; margin-top:1rem; gap:10px;">
@@ -1959,11 +2034,11 @@
                             <p style="color:rgba(255,255,255,0.75); line-height:1.65; font-size:0.82rem; margin:0; white-space:pre-wrap;">${bio}</p>
                         </div>
                         <div class="trust-shield-card" style="margin-top:0; background:rgba(255,255,255,0.02);">
-                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-brain"></i> Areas de Foco</h4>
+                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-brain"></i> Áreas de Foco</h4>
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.7rem;">${expertisesHtml}</div>
                         </div>
                         <div class="trust-shield-card" style="margin-top:0; background:rgba(255,255,255,0.02);">
-                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-code"></i> Skills & Competencias</h4>
+                            <h4 style="margin-bottom:0.8rem; font-size:0.75rem;"><i class="fas fa-code"></i> Skills & Competências</h4>
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">${skillsHtml}</div>
                         </div>
                     </div>
@@ -1999,7 +2074,7 @@
                     <img src="${asset(d.avatar)}" id="avatarPreview" class="profile-avatar-preview">
                     <div style="flex:1;">
                         <div style="font-size:0.8rem; font-weight:900; color:#fff;">Avatar do perfil</div>
-                        <p style="color:rgba(255,255,255,0.45); font-size:0.68rem; margin:4px 0 10px; line-height:1.45;">Carregue uma foto profissional. Sem upload, a KALIYE mantem o avatar premium da sua funcao.</p>
+                        <p style="color:rgba(255,255,255,0.45); font-size:0.68rem; margin:4px 0 10px; line-height:1.45;">Carregue uma foto profissional. Sem upload, a KALIYE mantém o avatar premium da sua função.</p>
                         <label for="profileAvatarInput" class="upload-btn-profile"><i class="fas fa-camera"></i> Alterar avatar</label>
                         <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewAvatarChange(this)">
                     </div>
@@ -2020,7 +2095,7 @@
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="profile-edit-input-group">
-                        <label class="profile-edit-label">Genero</label>
+                        <label class="profile-edit-label">Género</label>
                         <select name="gender" class="profile-edit-input" style="height:48px;">
                             <option value="none" ${d.gender === 'none' ? 'selected' : ''}>Não especificado</option>
                             <option value="masculino" ${d.gender === 'masculino' ? 'selected' : ''}>Masculino</option>
@@ -2042,20 +2117,20 @@
                     <h2 class="user-card-name">Dossier Profissional</h2>
                 </div>
                 <div class="profile-edit-input-group">
-                    <label class="profile-edit-label">Nivel de Formacao / Cargo *</label>
-                    <input type="text" name="level" class="profile-edit-input" required value="${esc(d.level || '')}" placeholder="Ex: Licenciado, Mentor de Negocios, Founder">
+                    <label class="profile-edit-label">Nível de Formação / Cargo *</label>
+                    <input type="text" name="level" class="profile-edit-input" required value="${esc(d.level || '')}" placeholder="Ex: Licenciado, Mentor de Negócios, Founder">
                 </div>
                 <div class="profile-edit-input-group">
-                    <label class="profile-edit-label">Localizacao *</label>
+                    <label class="profile-edit-label">Localização *</label>
                     <input type="text" name="location" class="profile-edit-input" required value="${esc(d.location || '')}" placeholder="Ex: Luanda, Huambo, Benguela">
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="profile-edit-input-group">
-                        <label class="profile-edit-label">Instituicao</label>
+                        <label class="profile-edit-label">Instituição</label>
                         <input type="text" name="institution" class="profile-edit-input" value="${esc(d.institution || '')}" placeholder="Universidade, escola ou centro">
                     </div>
                     <div class="profile-edit-input-group">
-                        <label class="profile-edit-label">Organizacao / Empresa</label>
+                        <label class="profile-edit-label">Organização / Empresa</label>
                         <input type="text" name="organization" class="profile-edit-input" value="${esc(d.organization || '')}" placeholder="Onde trabalha ou empreende">
                     </div>
                 </div>
@@ -2065,21 +2140,21 @@
             stepHtml = `
                 ${indicator}
                 <div class="user-info-box" style="text-align:center; border:none; background:none;">
-                    <h2 class="user-card-name">Areas, Skills & Experiência</h2>
+                    <h2 class="user-card-name">Áreas, Skills & Experiência</h2>
                 </div>
                 <div class="profile-edit-input-group">
-                    <label class="profile-edit-label">Areas de foco *</label>
-                    <input type="text" name="focus_areas" class="profile-edit-input" required value="${esc(d.focus_areas || '')}" placeholder="Ex: Inteligencia Artificial, Financas, Educacao">
-                    <small class="profile-field-hint">Separe por virgula para criar varias areas.</small>
+                    <label class="profile-edit-label">Áreas de foco *</label>
+                    <input type="text" name="focus_areas" class="profile-edit-input" required value="${esc(d.focus_areas || '')}" placeholder="Ex: Inteligência Artificial, Finanças, Educação">
+                    <small class="profile-field-hint">Separe por vírgula para criar várias áreas.</small>
                 </div>
                 <div class="profile-edit-input-group">
-                    <label class="profile-edit-label">Skills e competencias *</label>
-                    <input type="text" name="skills" class="profile-edit-input" required value="${esc(d.skills_str || '')}" placeholder="Ex: Programacao, Pitch, Design, Analise financeira">
-                    <small class="profile-field-hint">Estas tags aparecem no seu dossier publico.</small>
+                    <label class="profile-edit-label">Skills e competências *</label>
+                    <input type="text" name="skills" class="profile-edit-input" required value="${esc(d.skills_str || '')}" placeholder="Ex: Programação, Pitch, Design, Análise financeira">
+                    <small class="profile-field-hint">Estas tags aparecem no seu dossier público.</small>
                 </div>
                 <div class="profile-edit-input-group">
-                    <label class="profile-edit-label">Experiencias / Realizacoes</label>
-                    <textarea name="experience_summary" class="profile-edit-input" style="min-height:130px;" placeholder="Projectos, cargos, premios, mentorias, voluntariado ou resultados relevantes." data-tipo="comentario" data-tamanho-maximo="300">${esc(d.experience_summary || '')}</textarea>
+                    <label class="profile-edit-label">Experiências / Realizações</label>
+                    <textarea name="experience_summary" class="profile-edit-input" style="min-height:130px;" placeholder="Projectos, cargos, prémios, mentorias, voluntariado ou resultados relevantes." data-tipo="comentario" data-tamanho-maximo="300">${esc(d.experience_summary || '')}</textarea>
                     <div class="contador-caracteres normal" id="experience_summary_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">${(d.experience_summary || '').length}/300 caracteres</div>
                 </div>
             `;
@@ -2092,7 +2167,7 @@
                 </div>
                 <div class="profile-edit-input-group">
                     <label class="profile-edit-label">Biografia / Pitch Pessoal *</label>
-                    <textarea name="bio" class="profile-edit-input" required minlength="40" style="min-height:190px;" placeholder="Conte quem e, o que faz, o que procura na KALIYE e que impacto quer criar." data-tipo="comentario" data-tamanho-maximo="500">${esc(d.bio || '')}</textarea>
+                    <textarea name="bio" class="profile-edit-input" required minlength="40" style="min-height:190px;" placeholder="Conte quem é, o que faz, o que procura na KALIYE e que impacto quer criar." data-tipo="comentario" data-tamanho-maximo="500">${esc(d.bio || '')}</textarea>
                     <div class="contador-caracteres normal" id="bio_contador" style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.5rem; text-align:right;">${(d.bio || '').length}/500 caracteres</div>
                     <small class="profile-field-hint">Mínimo de 40 caracteres para tornar o perfil mais confiável.</small>
                 </div>

@@ -20,7 +20,14 @@ try {
     // Contagem de mensagens não lidas (Sintaxe Universal via CAST com filtro de data)
     $msg_stmt = $db->prepare("SELECT COUNT(*) FROM messages m JOIN users u ON m.receiver_id = u.user_id WHERE m.receiver_id = ? AND CAST(m.is_read AS INTEGER) = 0 AND m.sent_at >= u.created_at");
     $msg_stmt->execute([$user_id]);
-    $unread_messages = (int)$msg_stmt->fetchColumn();
+    $unread_direct = (int)$msg_stmt->fetchColumn();
+
+    // Contagem de mensagens VIP não lidas
+    $vip_stmt = $db->prepare("SELECT COALESCE(SUM(unread_count), 0) FROM vip_chat_participants WHERE user_id = ?");
+    $vip_stmt->execute([$user_id]);
+    $unread_vip = (int)$vip_stmt->fetchColumn();
+
+    $unread_messages = $unread_direct + $unread_vip;
     
     // Contagem de notificações não lidas (Filtramos para que novos usuários não recebam lixo histórico)
     $notif_stmt = $db->prepare("SELECT COUNT(*) FROM notifications n JOIN users u ON n.user_id = u.user_id WHERE n.user_id = ? AND CAST(n.is_read AS INTEGER) = 0 AND n.created_at >= u.created_at AND n.archived_at IS NULL AND COALESCE(n.type, '') <> 'message'");

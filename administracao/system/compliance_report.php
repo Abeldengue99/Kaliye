@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * admin/system/compliance_report.php - Legal Compliance & Terms Audit
  */
@@ -40,8 +40,8 @@ $project_compliance = $db->query("
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $base_url; ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $base_url; ?>recursos/images/marca/apple-touch-icon-k.png">
+
+    recursos/images/marca/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auditoria de Compliance - KALIYE Admin</title>
     <link rel="stylesheet" href="../../recursos/css/style.css">
@@ -72,6 +72,16 @@ $project_compliance = $db->query("
         .badge-warning { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
         .ip-addr { font-family: monospace; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="admin-dashboard-layout">
 

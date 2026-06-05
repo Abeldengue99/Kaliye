@@ -304,7 +304,10 @@
         }
     }
 
+    let newsletterBound = false;
     function bindNewsletter() {
+        if (newsletterBound) return;
+        newsletterBound = true;
         document.addEventListener('submit', async (event) => {
             const form = event.target.closest('[data-kaliye-newsletter]');
             if (!form) return;
@@ -375,13 +378,13 @@
                 } else { 
                     alert(e.message || 'Erro ao subscrever'); 
                 }
-                
-                if (btn) btn.innerHTML = original;
             } finally {
                 if (btn) {
                     setTimeout(() => {
                         btn.disabled = false;
-                        btn.innerHTML = original || '<i class="fas fa-paper-plane"></i> Subscrever';
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Subscrever';
+                        btn.style.background = '';
+                        btn.style.color = '';
                     }, 1800);
                 }
             }
@@ -406,17 +409,50 @@
         }
     };
 
+    function initScrollToTop() {
+        let btn = document.getElementById('kaliye-scroll-top');
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.id = 'kaliye-scroll-top';
+            btn.setAttribute('aria-label', 'Voltar ao topo');
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+            document.body.appendChild(btn);
+        }
+
+        // Remover listeners anteriores se for chamado de novo
+        window.removeEventListener('scroll', window.__kaliyeScrollHandler);
+        
+        window.__kaliyeScrollHandler = () => {
+            if (window.scrollY > 300) {
+                btn.classList.add('is-visible');
+            } else {
+                btn.classList.remove('is-visible');
+            }
+        };
+        window.addEventListener('scroll', window.__kaliyeScrollHandler);
+
+        btn.onclick = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    }
+
     const prefs = loadPrefs();
     applyTheme(prefs);
 
-    // Executar imediatamente e também no DOMContentLoaded para garantir
     bindNewsletter();
     
-    document.addEventListener('DOMContentLoaded', () => {
+    const initAll = () => {
         applyTheme(loadPrefs());
         syncControls(loadPrefs());
         translateTextNodes(loadPrefs().lang || 'pt');
         bindControls();
         bindNewsletter();
-    });
+        initScrollToTop();
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+        initAll();
+    }
 })();

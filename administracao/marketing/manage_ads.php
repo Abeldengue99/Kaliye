@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/marketing/manage_ads.php
 session_start();
 $admin_base = '../';
@@ -32,9 +32,8 @@ $ad_ids_js = json_encode(array_column($ads, 'ad_id'));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Publicidade - KALIYE Admin</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../../recursos/images/marca/apple-touch-icon-k.png">
-    <link rel="manifest" href="../manifest.json">
+
+        <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#f7941d">
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
@@ -168,6 +167,16 @@ $ad_ids_js = json_encode(array_column($ads, 'ad_id'));
             setInterval(refreshAdStats, 15000);
         });
     </script>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 

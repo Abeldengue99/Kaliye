@@ -207,7 +207,7 @@ function generateKYCEmailBody($name, $status, $notes) {
         <div class='email-wrapper'>
             <div class='container'>
                 <div class='header-logo'>
-                    <img src='../../recursos/images/marca/favicon-k-32x32.png' alt='KALIYE Logo' style='width: 45px;'>
+                    <img src='../../recursos/images/marca/favicon-16x16.ico' alt='KALIYE Logo' style='width: 45px;'>
                     <div style='color: #f7941d; font-weight: 800; font-size: 18px; margin-top: 12px; letter-spacing: 1px;'>KALIYE</div>
                 </div>
                 

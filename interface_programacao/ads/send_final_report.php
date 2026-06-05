@@ -100,8 +100,7 @@ function generateFinalReportEmailBody($ad, $views, $clicks, $ctr, $unique) {
     <!DOCTYPE html>
     <html>
     <head>
-        <link rel='icon' type='image/png' sizes='32x32' href='../../recursos/images/marca/favicon-k-32x32.png'>
-        <style>
+                <style>
             body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
             .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 40px 20px; text-align: center; }
@@ -115,7 +114,17 @@ function generateFinalReportEmailBody($ad, $views, $clicks, $ctr, $unique) {
             .footer { background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; }
             .btn { display: inline-block; background: #f7941d; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; margin-top: 20px; }
         </style>
-    </head>
+        <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
     <body>
         <div class='container'>
             <div class='header'>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/moderation/export_projects.php
 session_start();
 require_once '../../configuracoes/base_dados.php';
@@ -44,7 +44,7 @@ if ($format === 'csv') {
 <head>
     <meta charset="UTF-8">
     <title>Invent�rio de Projectos - KALIYE</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --aksanti-orange: #f7941d; --bg-dark: #0f172a; }
@@ -70,6 +70,16 @@ if ($format === 'csv') {
         
         @media print { .actions { display: none; } body { padding: 0; } @page { margin: 1cm; } }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
     <div class="actions">
@@ -79,7 +89,7 @@ if ($format === 'csv') {
     
     <div class="header">
         <div class="logo-section">
-            <div class="logo-box"><img src="../../recursos/images/marca/favicon-k-32x32.png"></div>
+            <div class="logo-box"><img src="../../recursos/images/marca/favicon-16x16.ico"></div>
             <div class="title-info">
                 <h1>Cat�logo Geral de Projectos</h1>
                 <p>Ecossistema KALIYE</p>

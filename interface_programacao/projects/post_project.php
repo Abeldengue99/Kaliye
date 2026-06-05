@@ -7,6 +7,9 @@
  * incluindo o novo fluxo de aprovação administrativa e notificações inteligentes para o ecossistema.
  */
 
+// Buffer de saída: impede que avisos PHP corrompam a resposta JSON.
+ob_start();
+
 // Iniciamos a sessão para garantir que sabemos exatamente quem está a tentar submeter o projecto.
 session_start();
 
@@ -211,6 +214,14 @@ function ensure_project_submission_schema(PDO $db) {
             project_id INTEGER NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
             skill_id INTEGER NOT NULL REFERENCES skills(skill_id) ON DELETE CASCADE,
             PRIMARY KEY (project_id, skill_id)
+        )",
+        "CREATE TABLE IF NOT EXISTS project_terms_signatures (
+            signature_id SERIAL PRIMARY KEY,
+            project_id INTEGER NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+            user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+            ip_address VARCHAR(45) NULL,
+            terms_version VARCHAR(50) DEFAULT 'v1.0',
+            accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )"
     ];
 
@@ -471,6 +482,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $project_id = $stmt->fetchColumn();
 
             /**
+             * REGISTO DA ASSINATURA DOS TERMOS DE PUBLICAÇÃO
+             * Guarda a prova de que o utilizador aceitou os termos no modal SweetAlert2.
+             */
+            if (project_table_exists($db, 'project_terms_signatures')) {
+                $terms_stmt = $db->prepare("INSERT INTO project_terms_signatures (project_id, user_id, ip_address, terms_version) VALUES (?, ?, ?, 'v1.0')");
+                $terms_stmt->execute([$project_id, $owner_id, $_SERVER['REMOTE_ADDR'] ?? null]);
+            }
+
+            /**
              * UPLOAD DE IMAGENS ADICIONAIS (Galeria)
              * Permite que o fundador mostre mais detalhes visuais além da capa e do vídeo.
              */
@@ -572,9 +592,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Verificamos se o pedido espera uma resposta JSON (Nova UX Elite via AJAX).
             if (isset($_POST['json'])) {
+                ob_clean();
+                header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Projecto submetido com sucesso! Ele ficara pendente de aprovação administrativa antes de aparecer no feed.',
+                    'message' => 'Projecto submetido com sucesso! Ele ficara pendente de aprovacao administrativa antes de aparecer no feed.',
                     'redirect_url' => 'paginas/explorar/my_projects.php?success=project_pending'
                 ]);
                 exit();
@@ -590,7 +612,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $err = $stmt->errorInfo();
             $msg = "Falha ao gravar o projecto: " . $err[2];
             
-            if (isset($_POST['json'])) { echo json_encode(['success' => false, 'error' => $msg]); exit(); }
+            if (isset($_POST['json'])) { ob_clean(); header('Content-Type: application/json'); echo json_encode(['success' => false, 'error' => $msg]); exit(); }
             
             $redirect = isset($_POST['redirect']) ? $_POST['redirect'] : '../../index.php';
             header("Location: " . $redirect . "?error=failed&details=" . urlencode($msg));
@@ -603,7 +625,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         error_log("Post Project DB Error: " . $e->getMessage());
         
         if (isset($_POST['json'])) {
-            echo json_encode(['success' => false, 'error' => "Erro crítico na base de dados. Por favor, contacte o TI."]);
+            ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Erro critico na base de dados. Por favor, contacte o TI.']);
             exit();
         }
         

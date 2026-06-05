@@ -36,6 +36,7 @@ $where_parts = [];
 $params      = [];
 
 $where_parts[] = "p.is_public = true AND p.approval_status = 'approved'";
+$where_parts[] = "(SELECT COUNT(*) FROM project_investments WHERE project_id = p.project_id AND status = 'approved') = 0";
 
 if ($project_id > 0) {
     $where_parts[] = "p.project_id = :project_id";

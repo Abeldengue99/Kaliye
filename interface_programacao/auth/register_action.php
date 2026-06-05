@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * interface_programacao/auth/register_action.php
  * Motor de registo de novos utilizadores na plataforma KALIYE.
@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (file_exists(__DIR__ . '/../../inclusoes/SimpleMailer.php')) {
             require_once __DIR__ . '/../../inclusoes/SimpleMailer.php';
             $mailer = new SimpleMailer();
-            $mailer->send($email, $full_name, "Ativação de Conta - Aksanti", "Bem-vindo! O seu código é: <b>$otp</b>");
+            $mailer->send($email, $full_name, "Ativação de Conta - KALIYE", "Bem-vindo à KALIYE! O seu código de verificação é: <b style='font-size: 24px;'>$otp</b>");
         }
 
         // Estado Temporário de Registo (Pre-Auth).

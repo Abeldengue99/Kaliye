@@ -24,7 +24,9 @@ if (!isset($admin_base)) {
                    (strpos($_SERVER['PHP_SELF'], '/users/') !== false || 
                     strpos($_SERVER['PHP_SELF'], '/moderation/') !== false ||
                     strpos($_SERVER['PHP_SELF'], '/finance/') !== false ||
-                    strpos($_SERVER['PHP_SELF'], '/system/') !== false)) ? '../' : './';
+                    strpos($_SERVER['PHP_SELF'], '/system/') !== false ||
+                    strpos($_SERVER['PHP_SELF'], '/newsletter/') !== false ||
+                    strpos($_SERVER['PHP_SELF'], '/marketing/') !== false)) ? '../' : './';
 }
 
 // Busca as contagens de Badges
@@ -37,6 +39,9 @@ if (isset($db)) {
         $badge_counts['investments'] = $db->query("SELECT COUNT(*) FROM project_investments WHERE status = 'pending' AND archived_at IS NULL")->fetchColumn();
         $badge_counts['support'] = $db->query("SELECT COUNT(*) FROM support_messages WHERE CAST(is_read AS INTEGER) = 0")->fetchColumn();
         $badge_counts['progress'] = $db->query("SELECT COUNT(*) FROM project_progress_reports WHERE report_status = 'pending_admin'")->fetchColumn();
+        try {
+            $badge_counts['unlock'] = $db->query("SELECT COUNT(*) FROM unlock_requests WHERE status = 'pending'")->fetchColumn();
+        } catch (Exception $e) { $badge_counts['unlock'] = 0; }
          try {
              $badge_counts['moderation'] = $db->query("SELECT COUNT(*) FROM projects WHERE LOWER(TRIM(COALESCE(approval_status, 'pending'))) = 'pending' AND COALESCE(is_public, false) = false AND LOWER(TRIM(COALESCE(status, 'pending'))) NOT IN ('analyzed', 'approved', 'published')")->fetchColumn();
          } catch (Exception $e) {
@@ -218,7 +223,7 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
 <nav class="admin-nav-container">
     <a href="<?= $admin_base ?>index.php" class="admin-logo-wrapper" style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
         <div class="admin-logo-icon" style="background: transparent; width: 42px; height: 42px; padding: 0; box-shadow: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-            <img src="<?= $base_url ?>recursos/images/marca/favicon-k-192x192.png" alt="KALIYE" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="<?= $base_url ?>recursos/images/marca/favicon-16x16.ico" alt="KALIYE" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div class="admin-logo-text" style="display: flex; flex-direction: column; line-height: 1;">
             <span style="font-size: 1.35rem; color: #fff; font-weight: 800; font-family: 'Outfit', sans-serif;">KALIYE</span>
@@ -232,11 +237,19 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
     <div class="admin-nav-links" id="adminNavLinks">
         
         <!-- ADMINISTRAÇÃO -->
+        <?php
+            $totalAdminBadges = ($badge_counts['unlock'] ?? 0) + ($badge_counts['chat_reports'] ?? 0);
+        ?>
         <div class="admin-nav-item" onclick="toggleAdminDropdown(this, event)">
-            <i class="fas fa-shield-halved"></i> Administração <i class="fas fa-chevron-down" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
+            <i class="fas fa-shield-halved"></i> Administração
+            <span id="badge-nav-admin-total" style="background:#ef4444; color:#fff; font-size:0.62rem; font-weight:900; padding:2px 7px; border-radius:6px; margin-left:6px; box-shadow:0 2px 8px rgba(239,68,68,0.4); display:<?= $totalAdminBadges > 0 ? 'inline-block' : 'none' ?>;"><?= $totalAdminBadges ?></span>
+            <i class="fas fa-chevron-down" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
             <div class="admin-dropdown-content">
                 <a href="<?= $admin_base ?>index.php" class="<?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active-link' : '' ?>"><i class="fas fa-chart-line"></i> Dashboard</a>
                 <a href="<?= $admin_base ?>users/manage_users.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_users.php' ? 'active-link' : '' ?>"><i class="fas fa-users"></i> Utilizadores</a>
+                <a href="<?= $admin_base ?>users/unlock_requests.php" class="<?= basename($_SERVER['PHP_SELF']) == 'unlock_requests.php' ? 'active-link' : '' ?>">
+                    <i class="fas fa-lock-open" style="color: #ef4444;"></i> Pedidos de Desbloqueio <?= renderBadge($badge_counts['unlock'] ?? 0, '#ef4444', 'badge-nav-unlock') ?>
+                </a>
                 <a href="<?= $admin_base ?>users/admins.php" class="<?= basename($_SERVER['PHP_SELF']) == 'admins.php' ? 'active-link' : '' ?>"><i class="fas fa-user-shield"></i> Corpo Admin</a>
                 <a href="<?= $admin_base ?>marketing/manage_ads.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_ads.php' ? 'active-link' : '' ?>"><i class="fas fa-bullhorn"></i> Publicidade</a>
                 <a href="<?= $admin_base ?>newsletter/subscribers.php" class="<?= basename($_SERVER['PHP_SELF']) == 'subscribers.php' ? 'active-link' : '' ?>"><i class="fas fa-envelope-open-text"></i> Newsletter</a>
@@ -246,12 +259,16 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
         </div>
 
         <!-- GESTÃO DE FLUXO -->
+        <?php
+            $totalFlowBadges = $badge_counts['kyc'] + $badge_counts['mentors'] + $badge_counts['investments'] + $badge_counts['support'] + $badge_counts['moderation'] + $badge_counts['progress'] + $badge_counts['chat_reports'];
+        ?>
         <div class="admin-nav-item" onclick="toggleAdminDropdown(this, event)">
-            <i class="fas fa-tasks"></i> Gestão Operacional 
-            <?php 
-                $totalFlowBadges = $badge_counts['kyc'] + $badge_counts['mentors'] + $badge_counts['investments'] + $badge_counts['support'] + $badge_counts['moderation'] + $badge_counts['progress'] + $badge_counts['chat_reports'];
-                if ($totalFlowBadges > 0) echo '<span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>';
-            ?>
+            <i class="fas fa-tasks"></i> Gestão Operacional
+            <?php if ($totalFlowBadges > 0): ?>
+                <span id="badge-nav-flow-total" style="background:#f7941d; color:#000; font-size:0.62rem; font-weight:900; padding:2px 7px; border-radius:6px; margin-left:6px; box-shadow:0 2px 8px rgba(247,148,29,0.4);"><?= $totalFlowBadges ?></span>
+            <?php else: ?>
+                <span id="badge-nav-flow-total" style="display:none; background:#f7941d; color:#000; font-size:0.62rem; font-weight:900; padding:2px 7px; border-radius:6px; margin-left:6px;">0</span>
+            <?php endif; ?>
             <i class="fas fa-chevron-down" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
             <div class="admin-dropdown-content">
                 <a href="<?= $admin_base ?>moderation/doubts.php" class="<?= basename($_SERVER['PHP_SELF']) == 'doubts.php' ? 'active-link' : '' ?>"><i class="fas fa-question-circle"></i> Fórum / Dúvidas</a>
@@ -260,6 +277,9 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                 </a>
                 <a href="<?= $admin_base ?>moderation/moderation.php" class="<?= basename($_SERVER['PHP_SELF']) == 'moderation.php' ? 'active-link' : '' ?>">
                     <i class="fas fa-user-check"></i> Moderação Projectos <?= renderBadge($badge_counts['moderation'], '#f7941d', 'badge-nav-moderation') ?>
+                </a>
+                <a href="<?= $admin_base ?>salas_vip/index.php" class="<?= basename($_SERVER['PHP_SELF']) == 'index.php' && strpos($_SERVER['PHP_SELF'], '/salas_vip/') !== false ? 'active-link' : '' ?>">
+                    <i class="fas fa-crown" style="color: #f59e0b;"></i> Salas VIP (Networking)
                 </a>
                 <a href="<?= $admin_base ?>users/kyc_requests.php" class="<?= basename($_SERVER['PHP_SELF']) == 'kyc_requests.php' ? 'active-link' : '' ?>">
                     <i class="fas fa-id-card"></i> Validar KYC <?= renderBadge($badge_counts['kyc'], '#f7941d', 'badge-nav-kyc') ?>
@@ -296,6 +316,7 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
                 <a href="<?= $admin_base ?>system/logs.php" class="<?= basename($_SERVER['PHP_SELF']) == 'logs.php' ? 'active-link' : '' ?>"><i class="fas fa-fingerprint"></i> Auditoria</a>
                 <a href="<?= $admin_base ?>system/retention_management.php" class="<?= basename($_SERVER['PHP_SELF']) == 'retention_management.php' ? 'active-link' : '' ?>"><i class="fas fa-archive"></i> Retenção de Dados</a>
                 <a href="<?= $admin_base ?>system/security_pi.php" class="<?= basename($_SERVER['PHP_SELF']) == 'security_pi.php' ? 'active-link' : '' ?>"><i class="fas fa-shield-virus" style="color: #ef4444;"></i> Segurança de PI</a>
+                <a href="<?= $admin_base ?>moderation/terms_signatures.php" class="<?= basename($_SERVER['PHP_SELF']) == 'terms_signatures.php' ? 'active-link' : '' ?>"><i class="fas fa-signature" style="color: #10b981;"></i> Assinaturas de Termos</a>
                 <a href="<?= $admin_base ?>project_analytics.php" class="<?= basename($_SERVER['PHP_SELF']) == 'project_analytics.php' ? 'active-link' : '' ?>"><i class="fas fa-chart-line"></i> Inteligência de Projectos</a>
                 <a href="<?= $admin_base ?>moderation/evaluations.php" class="<?= basename($_SERVER['PHP_SELF']) == 'evaluations.php' ? 'active-link' : '' ?>"><i class="fas fa-star"></i> Feedback da Plataforma</a>
                                 <a href="<?= $admin_base ?>system/content_audit.php" class="<?= basename($_SERVER['PHP_SELF']) == 'content_audit.php' ? 'active-link' : '' ?>"><i class="fas fa-language"></i> Auditoria Linguística</a>
@@ -307,7 +328,7 @@ function renderBadge($count, $color = '#f7941d', $id = '') {
         <div class="admin-nav-item" onclick="toggleAdminDropdown(this, event)">
             <div style="position: relative; display: flex; align-items: center;">
                 <img src="<?= isset($_SESSION['user_pic']) ? $base_url.$_SESSION['user_pic'] : $base_url.'recursos/images/default_profile.png' ?>" 
-                     onerror="this.src='<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png'; this.style.padding='4px'; this.style.background='#fff';"
+                     onerror="this.src='<?= $base_url ?>recursos/images/marca/favicon-16x16.ico'; this.style.padding='4px'; this.style.background='#fff';"
                      style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
             </div>
             Admin <i class="fas fa-chevron-down" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
@@ -364,13 +385,24 @@ function refreshAdminBadges() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                updateBadgeElement('badge-nav-progress', data.counts.progress);
-                updateBadgeElement('badge-nav-moderation', data.counts.moderation);
-                updateBadgeElement('badge-nav-kyc', data.counts.kyc);
-                updateBadgeElement('badge-nav-mentors', data.counts.mentors);
-                updateBadgeElement('badge-nav-finance', data.counts.investments);
-                updateBadgeElement('badge-nav-support', data.counts.support);
-                updateBadgeElement('badge-nav-chat-monitor', data.counts.chat_reports);
+                const c = data.counts;
+
+                // Sub-item badges
+                updateBadgeElement('badge-nav-progress',     c.progress);
+                updateBadgeElement('badge-nav-moderation',   c.moderation);
+                updateBadgeElement('badge-nav-kyc',          c.kyc);
+                updateBadgeElement('badge-nav-mentors',      c.mentors);
+                updateBadgeElement('badge-nav-finance',      c.investments);
+                updateBadgeElement('badge-nav-support',      c.support);
+                updateBadgeElement('badge-nav-chat-monitor', c.chat_reports);
+                updateBadgeElement('badge-nav-unlock',       c.unlock ?? 0);
+
+                // Parent-level totals (visíveis no título do menu)
+                const flowTotal  = (c.kyc||0) + (c.mentors||0) + (c.investments||0) + (c.support||0) + (c.moderation||0) + (c.progress||0) + (c.chat_reports||0);
+                const adminTotal = (c.unlock||0) + (c.chat_reports||0);
+
+                updateBadgeElement('badge-nav-flow-total',  flowTotal);
+                updateBadgeElement('badge-nav-admin-total', adminTotal);
             }
         }).catch(err => console.debug('Badge refresh error:', err));
 }

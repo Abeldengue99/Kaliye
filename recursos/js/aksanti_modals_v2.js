@@ -189,6 +189,7 @@
 
                 var p = data.project;
                 window._v2ProjectData = p;
+                window._v2AccessLevel = data.access_level || 'full';
                 renderProjectStep(content, p, startStep);
 
                 // --- Marca de Água (Watermark) ---
@@ -390,9 +391,14 @@
             } else {
                 html = '<div style="' + box + 'text-align:center;padding:4rem;"><i class="fas fa-video-slash" style="font-size:2rem;color:rgba(255,255,255,0.1);"></i><p style="color:rgba(255,255,255,0.2);margin-top:1rem;">Sem vídeo de pitch</p></div>';
             }
-            nextStep = 1;
+            nextStep = (window._v2AccessLevel === 'preview') ? -1 : 1;
             prevStep = -1; // close
         } else if (step === 1) {
+            // Bloquear estudantes com preview de aceder a steps além do vídeo
+            if (window._v2AccessLevel === 'preview') {
+                renderProjectStep(content, p, 0);
+                return;
+            }
             title = '<i class="fas fa-lightbulb" style="color:#f7941d;margin-right:8px;"></i>Visão do Projecto';
             html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;">' +
                 '<img src="' + ownerPic + '" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #f7941d;">' +
@@ -412,6 +418,10 @@
             prevStep = videoUrl ? 0 : -1;
             nextStep = 2;
         } else if (step === 2) {
+            if (window._v2AccessLevel === 'preview') {
+                renderProjectStep(content, p, 0);
+                return;
+            }
             title = '<i class="fas fa-cogs" style="color:#f7941d;margin-right:8px;"></i>Execução & Estratégia';
             html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;">';
             html += '<div style="' + box + '"><div style="' + lbl + '">Equipa</div><div style="color:#fff;font-weight:900;font-size:1.1rem;">' + (p.team_size || '1') + ' pessoa(s)</div></div>';
@@ -435,6 +445,10 @@
             prevStep = 1;
             nextStep = 3;
         } else if (step === 3) {
+            if (window._v2AccessLevel === 'preview') {
+                renderProjectStep(content, p, 0);
+                return;
+            }
             title = '<i class="fas fa-chart-line" style="color:#f7941d;margin-right:8px;"></i>Financeiro & Media';
             if (p.budget_needed || p.funding_goal) {
                 var goal = p.funding_goal || p.budget_needed || 0;
@@ -484,6 +498,10 @@
             prevStep = 2;
             nextStep = 4;
         } else if (step === 4) {
+            if (window._v2AccessLevel === 'preview') {
+                renderProjectStep(content, p, 0);
+                return;
+            }
             title = '<i class="fas fa-comments" style="color:#f7941d;margin-right:8px;"></i>Comentários da Comunidade';
             html += '<div id="_v2_comments_container" style="min-height:200px;position:relative;">' + spinner() + '</div>';
             
@@ -546,8 +564,9 @@
         }
 
         // Step indicators
-        var totalSteps = videoUrl ? 5 : 4;
-        var actualStep = videoUrl ? step : step - 1;
+        var isPreview = (window._v2AccessLevel === 'preview');
+        var totalSteps = isPreview ? 1 : (videoUrl ? 5 : 4);
+        var actualStep = isPreview ? 0 : (videoUrl ? step : step - 1);
         var dots = '<div style="display:flex;gap:6px;justify-content:center;margin-bottom:2rem;">';
         for (var i = 0; i < totalSteps; i++) {
             dots += '<div style="width:30px;height:4px;border-radius:2px;background:' + (i <= actualStep ? '#f7941d' : 'rgba(255,255,255,0.1)') + ';transition:0.3s;' + (i <= actualStep ? 'box-shadow:0 0 8px rgba(247,148,29,0.3);' : '') + '"></div>';

@@ -6,7 +6,8 @@ try {
     $stmt_wall = $db->prepare("SELECT e.*, COALESCE(u.full_name, 'Utilizador KALIYE') as full_name, u.profile_pic
                                 FROM platform_evaluations e
                                 LEFT JOIN users u ON e.user_id = u.user_id
-                                ORDER BY e.is_featured DESC, e.created_at DESC
+                                WHERE e.is_featured = true
+                                ORDER BY e.created_at DESC
                                 LIMIT 8");
     $stmt_wall->execute();
     $community_evals = $stmt_wall->fetchAll(PDO::FETCH_ASSOC);
@@ -102,3 +103,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initCommunityFeedback();
 });
 </script>
+
+<style>
+/* CSS Responsivo para o botão de feedback na secção da Comunidade */
+@media (max-width: 768px) {
+    .community-feedback-heading {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+    .community-feedback-icon {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .community-feedback-icon button {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+</style>

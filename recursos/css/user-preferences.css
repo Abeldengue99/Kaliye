@@ -578,3 +578,48 @@ body.light-theme .kaliye-newsletter-input::placeholder {
         justify-content: center;
     }
 }
+
+#kaliye-scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--kaliye-accent, #f7941d);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#kaliye-scroll-top svg {
+    transition: transform 0.3s ease;
+}
+
+#kaliye-scroll-top:hover svg {
+    transform: translateY(-3px);
+}
+
+#kaliye-scroll-top:hover {
+    background: var(--kaliye-accent-2, #fbbf24);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+#kaliye-scroll-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+body.light-theme #kaliye-scroll-top {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}

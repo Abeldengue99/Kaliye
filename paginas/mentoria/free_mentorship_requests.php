@@ -438,12 +438,12 @@ $complete_request_after_call = isset($_GET['complete']) && $_GET['complete'] ===
             </div>
             
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Dias e horarios de preferencia*</label>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Dias e horários de preferência*</label>
                 <textarea name="preferred_times" required rows="3"
-                    placeholder="Ex: segunda e quarta depois das 18h; sabado de manha"
+                    placeholder="Ex: segunda e quarta depois das 18h; sábado de manhã"
                     style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: white; resize: vertical;"></textarea>
-                <small style="display:block; color: var(--text-secondary); font-size: 0.75rem; margin-top:-0.75rem; margin-bottom:1rem;">Dias e horarios de preferencia para a mentoria.</small>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duracao Estimada</label>
+                <small style="display:block; color: var(--text-secondary); font-size: 0.75rem; margin-top:-0.75rem; margin-bottom:1rem;">Dias e horários de preferência para a mentoria.</small>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duração Estimada</label>
                 <input type="text" name="estimated_duration"
                     placeholder="Ex: 1 sessão de 1 hora"
                     style="width: 100%; padding: 0.75rem; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: white;">
@@ -453,7 +453,7 @@ $complete_request_after_call = isset($_GET['complete']) && $_GET['complete'] ===
             <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                 <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
                 <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">
-                    Mentores compativeis serao notificados. O primeiro que aceitar ajudara a agendar a sessao diretamente.
+                    Mentores compatíveis serão notificados. O primeiro que aceitar ajudará a agendar a sessão diretamente.
                 </span>
             </div>
             
@@ -640,7 +640,7 @@ function renderRequests(requests) {
                 
                 <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-users" style="color: var(--accent-orange);"></i> 
-                    <b>${req.status === 'open' ? 'Disponivel para aceitar' : 'Mentor atribuido'}</b>
+                    <b>${req.status === 'open' ? 'Disponível para aceitar' : 'Mentor atribuído'}</b>
                 </div>
             </div>
         `;
@@ -700,7 +700,7 @@ async function submitRequest(e) {
             Swal.fire({
                 icon: 'success',
                 title: 'Sucesso!',
-                text: data.message || 'Pedido publicado! Os mentores compativeis foram notificados.',
+                text: data.message || 'Pedido publicado! Os mentores compatíveis foram notificados.',
                 background: '#1e293b',
                 color: '#fff',
                 timer: 2000
@@ -792,7 +792,7 @@ function renderRequestDetail(req, applications) {
 
             ${req.preferred_times ? `
                 <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
-                    <h4 style="margin: 0 0 0.65rem 0; color: #93c5fd;"><i class="fas fa-calendar-days"></i> Horarios sugeridos pelo estudante</h4>
+                    <h4 style="margin: 0 0 0.65rem 0; color: #93c5fd;"><i class="fas fa-calendar-days"></i> Horários sugeridos pelo estudante</h4>
                     <p style="margin: 0; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${escapeHtml(req.preferred_times)}</p>
                 </div>
             ` : ''}
@@ -805,7 +805,7 @@ function renderRequestDetail(req, applications) {
             ${canApply && req.user_has_applied ? `
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                    <span style="color: var(--text-secondary); margin-left: 0.5rem;">Voce assumiu este pedido</span>
+                    <span style="color: var(--text-secondary); margin-left: 0.5rem;">Você assumiu este pedido</span>
                 </div>
             ` : ''}
             

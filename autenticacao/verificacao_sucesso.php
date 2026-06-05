@@ -40,10 +40,7 @@ if (!$email) {
     <meta name="description" content="Sua conta foi verificada com sucesso. Faça login para começar.">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../recursos/images/marca/apple-touch-icon-k.png">
-
-    <!-- Fontes -->
+            <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -210,6 +207,16 @@ if (!$email) {
             }
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 

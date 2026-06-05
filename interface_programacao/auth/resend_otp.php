@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // 3. Enviar E-mail
         $mailer = new SimpleMailer();
-        $mailed = $mailer->send($email, $user['full_name'], "Novo Código de Verificação - Aksanti", "Seu novo código é: <b style='font-size: 24px;'>$otp</b>");
+        $mailed = $mailer->send($email, $user['full_name'], "Novo Código de Verificação - KALIYE", "O seu novo código de verificação é: <b style='font-size: 24px;'>$otp</b>");
 
         $_SESSION['debug_last_otp'] = $otp;
 

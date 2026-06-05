@@ -9,23 +9,23 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./recursos/images/marca/favicon-k-16x16.png",
+      "src": "./recursos/images/marca/favicon-16x16.ico",
       "sizes": "16x16",
       "type": "image/png"
     },
     {
-      "src": "./recursos/images/marca/favicon-k-32x32.png",
+      "src": "./recursos/images/marca/favicon-16x16.ico",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "./recursos/images/marca/favicon-k-192x192.png",
+      "src": "./recursos/images/marca/favicon-16x16.ico",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./recursos/images/marca/favicon-k-512x512.png",
+      "src": "./recursos/images/marca/favicon-16x16.ico",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

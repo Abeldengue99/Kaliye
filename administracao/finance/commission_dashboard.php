@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/commission_dashboard.php
 // Dashboard para visualizar e gerir comissões da KALIYE e mentores
 session_start();
@@ -44,8 +44,8 @@ $recent_commissions = $db->query($recent_query)->fetchAll(PDO::FETCH_ASSOC);
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $base_url; ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $base_url; ?>recursos/images/marca/apple-touch-icon-k.png">
+
+    recursos/images/marca/apple-touch-icon.png">
     <title>Dashboard de Comissões - KALIYE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -155,6 +155,16 @@ $recent_commissions = $db->query($recent_query)->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 

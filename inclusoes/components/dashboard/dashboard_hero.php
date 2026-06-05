@@ -71,103 +71,29 @@ $hero_base_url = $base_url ?? './';
 if (!isset($GLOBALS['hero_preloads_injected'])) {
     $GLOBALS['hero_preloads_injected'] = true;
     echo '<script>';
-    echo "if (document.readyState === 'loading') {";
-    echo "const preloadImages = () => {";
+    echo "(function() {";
+    echo "    const preloadImages = () => {";
     foreach ($hero_carousel_images as $img) {
         $img_url = htmlspecialchars($hero_base_url . $img, ENT_QUOTES, 'UTF-8');
-        echo "const link = document.createElement('link');";
-        echo "link.rel = 'preload';";
-        echo "link.as = 'image';";
-        echo "link.href = '" . $img_url . "';";
-        echo "document.head.appendChild(link);";
+        echo "        const link = document.createElement('link');";
+        echo "        link.rel = 'preload';";
+        echo "        link.as = 'image';";
+        echo "        link.href = '" . $img_url . "';";
+        echo "        document.head.appendChild(link);";
     }
-    echo "};";
-    echo "if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', preloadImages); }";
-    echo "else { preloadImages(); }";
-    echo "}";
+    echo "    };";
+    echo "    preloadImages();"; // Otimização: pré-carrega de imediato
+    echo "})();";
     echo '</script>';
 }
 ?>
-
-<div style="margin-bottom: 4rem;" class="dashboard-hero-section" data-aos="fade-down">
-    <div class="dashboard-hero-bg-carousel" aria-hidden="true">
-        <div class="dashboard-hero-bg-track">
-            <?php for ($loop = 0; $loop < 2; $loop++): ?>
-                <?php foreach ($hero_carousel_images as $image_path): ?>
-                    <figure class="dashboard-hero-bg-slide">
-                        <img src="<?php echo htmlspecialchars($hero_base_url . $image_path, ENT_QUOTES, 'UTF-8'); ?>" alt="" loading="eager" decoding="async">
-                    </figure>
-                <?php endforeach; ?>
-            <?php endfor; ?>
-        </div>
-    </div>
-    <div class="dashboard-hero-ambient" aria-hidden="true">
-        <span class="ambient-line line-a"></span>
-        <span class="ambient-line line-b"></span>
-        <span class="ambient-line line-c"></span>
-        <span class="ambient-node node-a"></span>
-        <span class="ambient-node node-b"></span>
-        <span class="ambient-node node-c"></span>
-        <span class="ambient-node node-d"></span>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--surface-5); padding-top: 3.5rem; padding-bottom: 3.5rem; flex-wrap: wrap; gap: 3rem;" class="dashboard-hero-container">
-        
-        <!-- SAUDAÇÃO -->
-        <div style="flex: 1; min-width: 320px;" class="dashboard-hero-welcome">
-            <h1 style="font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 950; color: #fff; line-height: 1; margin: 0; letter-spacing: -2.5px;" class="dashboard-hero-title">
-                <?php echo $greeting_word; ?>, <span style="color: var(--elite-orange);" data-aos="fade-left" data-aos-delay="200"><?php echo htmlspecialchars($first_name); ?>.</span>
-            </h1>
-            
-            <!-- MENSAGEM MOTIVACIONAL DO DIA -->
-            <div style="margin-top: 1.4rem; animation: msgFadeUp 0.8s ease both; animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards;" class="dashboard-hero-msg">
-                <p style="margin: 0; font-size: 0.82rem; font-weight: 600; color: var(--surface-40); letter-spacing: 0.3px; line-height: 1.6;">
-                    <?php echo htmlspecialchars($msg_line1); ?>
-                </p>
-                <p style="margin: 3px 0 0; font-size: 0.82rem; font-weight: 700; color: var(--elite-orange); letter-spacing: 0.3px; line-height: 1.6;">
-                    <?php echo htmlspecialchars($msg_line2); ?>
-                </p>
-            </div>
-            
-            <!-- BOTÃO DE ACÇÃO RÁPIDA -->
-            <?php
-            $user_types_hero = strtolower($_SESSION['user_type'] ?? '');
-            $is_mentor_only_hero = (strpos($user_types_hero, 'mentor') !== false || strpos($user_types_hero, 'especialista') !== false) 
-                              && strpos($user_types_hero, 'estudante') === false 
-                              && strpos($user_types_hero, 'investidor') === false
-                              && strpos($user_types_hero, 'admin') === false;
-            if (!$is_mentor_only_hero): 
-            ?>
-            <button onclick="window.openPostModal()" class="btn-publish-idea" data-aos="zoom-in" data-aos-delay="600" style="margin-top: 2.5rem; background: var(--elite-orange); color: #fff; border: none; padding: 1.1rem 3rem; border-radius: 20px; font-size: 0.75rem; font-weight: 950; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; box-shadow: 0 10px 40px rgba(247, 148, 29, 0.3); transition: 0.4s; display: flex; align-items: center; gap: 15px;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <i class="fas fa-plus" style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 6px;"></i> Publicar Projecto
-            </button>
-            <?php endif; ?>
-        </div>
-        
-        <!-- ESTATÍSTICAS DINÂMICAS POR PERFIL -->
-        <div style="display: flex; gap: 4rem; align-items: center; padding: 0 1.5rem 0.5rem;" class="stats-grid">
-            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="300">
-                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v1; ?></div>
-                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l1; ?></div>
-            </div>
-            <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.06);" data-aos="fade" data-aos-delay="400"></div>
-            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="450">
-                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v2; ?></div>
-                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l2; ?></div>
-            </div>
-            <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.06);" data-aos="fade" data-aos-delay="550"></div>
-            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="600">
-                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v3; ?></div>
-                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l3; ?></div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
 .dashboard-hero-section {
     position: relative;
     isolation: isolate;
     overflow: visible;
+    min-height: 280px; /* Previne layout shifts */
 }
 
 .dashboard-hero-section::before {
@@ -212,6 +138,14 @@ if (!isset($GLOBALS['hero_preloads_injected'])) {
     pointer-events: none;
     overflow: hidden;
     background: #030814;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.dashboard-hero-bg-carousel.carousel-ready {
+    opacity: 1;
+    visibility: visible;
 }
 
 .dashboard-hero-bg-track {
@@ -226,12 +160,16 @@ if (!isset($GLOBALS['hero_preloads_injected'])) {
     filter: saturate(0.78) contrast(1.04) brightness(0.56);
     transform: translate3d(0, 0, 0);
     animation: heroBgTrack 54s linear infinite;
-    animation-play-state: running;
+    animation-play-state: paused; /* Inicia pausada e aguarda inicialização segura */
     animation-fill-mode: forwards;
     will-change: transform;
     -webkit-font-smoothing: antialiased;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+}
+
+.dashboard-hero-bg-carousel.carousel-ready .dashboard-hero-bg-track {
+    animation-play-state: running; /* Ativa autoplay apenas após prontidão */
 }
 
 .dashboard-hero-bg-carousel::before,
@@ -408,6 +346,7 @@ if (!isset($GLOBALS['hero_preloads_injected'])) {
 @media (max-width: 900px) {
     .dashboard-hero-section {
         margin-top: 2rem;
+        min-height: 480px; /* Altura maior para acomodar wrap de flex no mobile */
     }
 
     .dashboard-hero-container {
@@ -446,3 +385,260 @@ if (!isset($GLOBALS['hero_preloads_injected'])) {
     }
 }
 </style>
+
+<div style="margin-bottom: 4rem;" class="dashboard-hero-section" data-aos="fade-down">
+    <!-- Proteção contra FOUC e empilhamento vertical com styles inline críticos -->
+    <div class="dashboard-hero-bg-carousel" id="hero-carousel" style="position: absolute; top: -190px; bottom: -90px; left: calc(50% - 50vw); right: calc(50% - 50vw); z-index: -3; pointer-events: none; overflow: hidden; background: #030814; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;" aria-hidden="true">
+        <div class="dashboard-hero-bg-track">
+            <?php for ($loop = 0; $loop < 2; $loop++): ?>
+                <?php foreach ($hero_carousel_images as $index => $image_path): ?>
+                    <figure class="dashboard-hero-bg-slide" data-index="<?php echo $index; ?>">
+                        <img src="<?php echo htmlspecialchars($hero_base_url . $image_path, ENT_QUOTES, 'UTF-8'); ?>" alt="" loading="eager" decoding="async" class="hero-carousel-img">
+                    </figure>
+                <?php endforeach; ?>
+            <?php endfor; ?>
+        </div>
+    </div>
+    <div class="dashboard-hero-ambient" aria-hidden="true">
+        <span class="ambient-line line-a"></span>
+        <span class="ambient-line line-b"></span>
+        <span class="ambient-line line-c"></span>
+        <span class="ambient-node node-a"></span>
+        <span class="ambient-node node-b"></span>
+        <span class="ambient-node node-c"></span>
+        <span class="ambient-node node-d"></span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--surface-5); padding-top: 3.5rem; padding-bottom: 3.5rem; flex-wrap: wrap; gap: 3rem;" class="dashboard-hero-container">
+        
+        <!-- SAUDAÇÃO -->
+        <div style="flex: 1; min-width: 320px;" class="dashboard-hero-welcome">
+            <h1 style="font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 950; color: #fff; line-height: 1; margin: 0; letter-spacing: -2.5px;" class="dashboard-hero-title">
+                <?php echo $greeting_word; ?>, <span style="color: var(--elite-orange);" data-aos="fade-left" data-aos-delay="200"><?php echo htmlspecialchars($first_name); ?>.</span>
+            </h1>
+            
+            <!-- MENSAGEM MOTIVACIONAL DO DIA -->
+            <div style="margin-top: 1.4rem; animation: msgFadeUp 0.8s ease both; animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards;" class="dashboard-hero-msg">
+                <p style="margin: 0; font-size: 0.82rem; font-weight: 600; color: var(--surface-40); letter-spacing: 0.3px; line-height: 1.6;">
+                    <?php echo htmlspecialchars($msg_line1); ?>
+                </p>
+                <p style="margin: 3px 0 0; font-size: 0.82rem; font-weight: 700; color: var(--elite-orange); letter-spacing: 0.3px; line-height: 1.6;">
+                    <?php echo htmlspecialchars($msg_line2); ?>
+                </p>
+            </div>
+            
+            <!-- BOTÃO DE ACÇÃO RÁPIDA -->
+            <?php
+            $user_types_hero = strtolower($_SESSION['user_type'] ?? '');
+            $is_mentor_only_hero = (strpos($user_types_hero, 'mentor') !== false || strpos($user_types_hero, 'especialista') !== false) 
+                              && strpos($user_types_hero, 'estudante') === false 
+                              && strpos($user_types_hero, 'investidor') === false
+                              && strpos($user_types_hero, 'admin') === false;
+            if (!$is_mentor_only_hero): 
+            ?>
+            <button onclick="window.openPostModal()" class="btn-publish-idea" data-aos="zoom-in" data-aos-delay="600" style="margin-top: 2.5rem; background: var(--elite-orange); color: #fff; border: none; padding: 1.1rem 3rem; border-radius: 20px; font-size: 0.75rem; font-weight: 950; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; box-shadow: 0 10px 40px rgba(247, 148, 29, 0.3); transition: 0.4s; display: flex; align-items: center; gap: 15px;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <i class="fas fa-plus" style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 6px;"></i> Publicar Projecto
+            </button>
+            <?php endif; ?>
+        </div>
+        
+        <!-- ESTATÍSTICAS DINÂMICAS POR PERFIL -->
+        <div style="display: flex; gap: 4rem; align-items: center; padding: 0 1.5rem 0.5rem;" class="stats-grid">
+            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="300">
+                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v1; ?></div>
+                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l1; ?></div>
+            </div>
+            <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.06);" data-aos="fade" data-aos-delay="400"></div>
+            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="450">
+                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v2; ?></div>
+                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l2; ?></div>
+            </div>
+            <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.06);" data-aos="fade" data-aos-delay="550"></div>
+            <div style="text-align: center;" data-aos="fade-up" data-aos-delay="600">
+                <div style="font-size: 3rem; font-weight: 950; color: #fff; line-height: 0.8; letter-spacing: -2px;"><?php echo $stat_v3; ?></div>
+                <div style="font-size: 0.55rem; font-weight: 900; color: var(--surface-20); text-transform: uppercase; margin-top: 12px; letter-spacing: 2.5px;"><?php echo $stat_l3; ?></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * ============================================================================
+ * SISTEMA DE INICIALIZAÇÃO DE SEGURANÇA E AUTO-RECUPERAÇÃO DO CAROUSEL (DASHBOARD HERO)
+ * ============================================================================
+ * 
+ * ⚠️ ATENÇÃO: NÃO REMOVER OU ALTERAR ESTE MECANISMO SEM NOVA VALIDAÇÃO COMPLETA.
+ * 
+ * 🔍 DOCUMENTAÇÃO DO COMPORTAMENTO E EVOLUÇÃO (PRODUÇÃO):
+ * 
+ * 1. O BUG ORIGINAL:
+ *    Durante o carregamento (principalmente em dispositivos móveis, refreshs rápidos
+ *    ou rede instável), o CSS era processado após as imagens HTML do carrossel. Como
+ *    as imagens tinham 'loading="eager"', elas renderizavam empilhadas verticalmente
+ *    no fluxo nativo antes do slider inicializar, causando FOUC (Flash of Unstyled Content).
+ * 
+ * 2. PORQUE O CAROUSEL INICIA OCULTO:
+ *    Aplicamos estilos inline síncronos críticos diretamente no markup HTML do container
+ *    ('.dashboard-hero-bg-carousel') definindo 'opacity: 0; visibility: hidden;'. Isso
+ *    garante que o carrossel permaneça 100% invisível no exato milissegundo de parsing
+ *    do DOM, evitando qualquer cintilação visual ou layout shift indesejado.
+ * 
+ * 3. PORQUE OS ESTILOS INLINE SÃO SOBRESCRITOS VIA JAVASCRIPT:
+ *    Estilos inline possuem precedência/especificidade superior a qualquer regra de classe
+ *    CSS (como '.carousel-ready'). Portanto, a classe CSS sozinha não conseguia tornar o
+ *    carrossel visível. É obrigatório sobrescrever diretamente no DOM via JS as propriedades
+ *    'opacity' e 'visibility' (Abordagem B) no momento da inicialização segura.
+ * 
+ * 4. SEGURANÇA E PREVENÇÃO DE REGRESSÕES:
+ *    O script monitora dinamicamente a prontidão do CSS, carregamento das imagens em cache/rede,
+ *    trata erros individuais de 404 (removendo slides redundantes sem quebrar o infinite loop)
+ *    e provê um mecanismo de auto-recuperação (timeouts de 2.5s e 4.5s) que força o fallback.
+ *    Alterações neste fluxo podem quebrar a estabilidade ou falhar nos testes automatizados.
+ * ============================================================================
+ */
+(function() {
+    const FIRST_TIMEOUT = 2500; // Primeira tentativa após 2.5s
+    const RECOVERY_TIMEOUT = 4500; // Segunda tentativa (auto-recuperação) após 4.5s
+    const startTime = performance.now();
+    
+    // Evitar múltiplas inicializações
+    if (window.__heroCarouselInitialized) {
+        console.log("[DashboardHero Carousel] Já inicializado anteriormente.");
+        return;
+    }
+    window.__heroCarouselInitialized = true;
+
+    console.log("[DashboardHero Carousel] Iniciando auditoria e preparação...");
+
+    const carousel = document.querySelector('.dashboard-hero-bg-carousel');
+    const track = document.querySelector('.dashboard-hero-bg-track');
+    if (!carousel || !track) {
+        console.error("[DashboardHero Carousel] Falha crítica: Elementos do carousel não encontrados no DOM.");
+        return;
+    }
+
+    const images = Array.from(track.querySelectorAll('.hero-carousel-img'));
+    if (images.length === 0) {
+        console.warn("[DashboardHero Carousel] Nenhuma imagem encontrada no track.");
+        return;
+    }
+
+    let isInitialized = false;
+    let failedIndices = new Set();
+
+    // Função de inicialização final do slider
+    function initSlider() {
+        if (isInitialized) return;
+        isInitialized = true;
+
+        const duration = (performance.now() - startTime).toFixed(1);
+        console.log(`[DashboardHero Carousel] Inicialização completa e segura concluída em ${duration}ms.`);
+        
+        // Sobrescrever os estilos inline de ocultação (Abordagem B)
+        carousel.style.opacity = '1';
+        carousel.style.visibility = 'visible';
+        
+        // Ativação do autoplay e estado final do componente
+        carousel.classList.add('carousel-ready');
+        console.log("[DashboardHero Carousel] Autoplay ativado. Slider visível.");
+    }
+
+    // Função para verificar se o CSS está carregado e aplicado
+    function checkCssApplied() {
+        const computed = window.getComputedStyle(carousel);
+        const cssLoaded = computed.position === 'absolute' && computed.overflow === 'hidden';
+        if (cssLoaded) {
+            console.log("[DashboardHero Carousel] Validação do CSS: Carregado e ativo.");
+            return true;
+        }
+        return false;
+    }
+
+    // Função para verificar se todas as imagens terminaram de carregar
+    function checkCompletion() {
+        if (isInitialized) return;
+
+        const activeImages = Array.from(track.querySelectorAll('.hero-carousel-img'));
+        const pendingImages = activeImages.filter(img => !img.complete);
+        
+        if (pendingImages.length === 0) {
+            console.log(`[DashboardHero Carousel] Todas as imagens ativas foram processadas com sucesso.`);
+            if (checkCssApplied()) {
+                initSlider();
+            } else {
+                let attempts = 0;
+                const cssPoll = setInterval(() => {
+                    attempts++;
+                    if (checkCssApplied() || attempts > 10) {
+                        clearInterval(cssPoll);
+                        initSlider();
+                    }
+                }, 50);
+            }
+        }
+    }
+
+    // Tratar erro em imagem
+    function handleImageError(img, reason = "Erro de rede / 404") {
+        const slide = img.closest('.dashboard-hero-bg-slide');
+        if (!slide) return;
+        
+        const index = slide.getAttribute('data-index');
+        if (index !== null && !failedIndices.has(index)) {
+            failedIndices.add(index);
+            console.warn(`[DashboardHero Carousel] Falha detectada na imagem [índice: ${index}]: ${img.src}. Motivo: ${reason}. Removendo slides redundantes.`);
+            
+            // Remove todos os slides correspondentes a este índice nos dois loops
+            const slidesToRemove = track.querySelectorAll(`.dashboard-hero-bg-slide[data-index="${index}"]`);
+            slidesToRemove.forEach(s => s.remove());
+        }
+        checkCompletion();
+    }
+
+    // Configurar listeners iniciais
+    images.forEach(img => {
+        if (img.complete) {
+            if (img.naturalWidth === 0) {
+                handleImageError(img, "Carregamento incompleto (naturalWidth = 0)");
+            } else {
+                checkCompletion();
+            }
+        } else {
+            img.addEventListener('load', () => {
+                console.log(`[DashboardHero Carousel] Imagem carregada: ${img.getAttribute('src')}`);
+                checkCompletion();
+            });
+            img.addEventListener('error', () => {
+                handleImageError(img);
+            });
+        }
+    });
+
+    // Primeira Tentativa: Timeout de Segurança
+    setTimeout(() => {
+        if (isInitialized) return;
+        
+        const activeImages = Array.from(track.querySelectorAll('.hero-carousel-img'));
+        const pendingUrls = activeImages.filter(img => !img.complete).map(img => img.src);
+        
+        console.warn(`[DashboardHero Carousel] Primeira tentativa falhou. Motivo: ${pendingUrls.length} imagem(ns) ainda pendente(s). Agendando recuperação automática...`, pendingUrls);
+    }, FIRST_TIMEOUT);
+
+    // Segunda Tentativa: Auto-recuperação (Recovery Mechanism)
+    setTimeout(() => {
+        if (isInitialized) return;
+        
+        console.error("[DashboardHero Carousel] Segunda tentativa (Auto-recuperação) iniciada devido a atraso excessivo.");
+        
+        const activeImages = Array.from(track.querySelectorAll('.hero-carousel-img'));
+        activeImages.forEach(img => {
+            if (!img.complete || img.naturalWidth === 0) {
+                handleImageError(img, "Timeout de carregamento (Auto-recuperação)");
+            }
+        });
+        
+        initSlider();
+    }, RECOVERY_TIMEOUT);
+
+})();
+</script>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * administracao/system/war_room.php - Centro de Operações em Tempo Real
  */
@@ -17,8 +17,8 @@ if (!isAdmin() || !hasPermission('dashboard')) {
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $base_url; ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $base_url; ?>recursos/images/marca/apple-touch-icon-k.png">
+
+    recursos/images/marca/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KALIYE War Room - Operações em Tempo Real</title>
     
@@ -90,6 +90,16 @@ if (!isAdmin() || !hasPermission('dashboard')) {
             box-shadow: 0 0 15px rgba(247, 148, 29, 0.6);
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="admin-dashboard-layout">
 

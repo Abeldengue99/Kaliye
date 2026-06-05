@@ -11,13 +11,14 @@
                 <span class="chat-sidebar-kicker">Centro de Conversas</span>
                 <h3 class="chat-sidebar-title">Mensagens</h3>
             </div>
-            
-            <!-- Botão restrito para mentores. Aciona o Ajax no background sem alterar o reload. -->
-            <?php if ($_SESSION['user_type'] === 'mentor'): ?>
-                <button onclick="createMentorGroup()" class="mentor-room-btn">
-                    <i class="fas fa-plus"></i> Sala VIP
-                </button>
-            <?php endif; ?>
+                        <div style="display: flex; gap: 5px;">
+                <!-- Botão restrito para mentores. Aciona o Ajax no background sem alterar o reload. -->
+                <?php if ($_SESSION['user_type'] === 'mentor'): ?>
+                    <button onclick="createMentorGroup()" class="mentor-room-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                <?php endif; ?>
+            </div>
         </div>
         
         <div class="chat-search-wrapper">
@@ -26,31 +27,48 @@
         </div>
         <div class="chat-sidebar-meta">
             <span><i class="fas fa-user-friends"></i> <?php echo count($conversations); ?> diretas</span>
-            <span><i class="fas fa-layer-group"></i> <?php echo count($user_groups) + count($mentor_groups); ?> salas</span>
+            <span><i class="fas fa-layer-group"></i> <?php echo count($user_groups) + count($mentor_groups) + count($vip_rooms ?? []); ?> salas</span>
         </div>
     </div>
     
     <div class="contacts-list-elite">
         
         <!-- ============================================== -->
-        <!-- AS NOVAS SALAS VIP DE MENTORIA (Inovação Premium) -->
-        <!-- Esta aba carrega as micro-bolhas dos grupos do mentor interconectados. -->
-        <?php if (!empty($mentor_groups)): ?>
+        <!-- AS NOVAS SALAS VIP E MENTORIA (Inovação Premium) -->
+        <?php if (!empty($mentor_groups) || !empty($vip_rooms)): ?>
             <div class="chat-list-section chat-list-section--vip">
-                <h4><i class="fas fa-crown"></i> Salas de Mentoria VIP</h4>
+                <h4><i class="fas fa-crown"></i> Salas VIP</h4>
             </div>
-            <?php foreach ($mentor_groups as $mgroup): ?>
-                <div class="contact-item-elite group-item mentor-group" onclick="loadMentorGroupChat(<?php echo $mgroup['id']; ?>, '<?php echo addslashes($mgroup['name']); ?>', <?php echo $mgroup['mentor_id']; ?>)">
-                    <div class="contact-avatar-elite" style="background: linear-gradient(135deg, #059669, #10b981); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(16,185,129,0.4);">
-                        <i class="fas fa-gem" style="color: #fff; font-size: 1.2rem;"></i>
+            
+            <!-- Mentor Groups -->
+            <?php if (!empty($mentor_groups)): ?>
+                <?php foreach ($mentor_groups as $mgroup): ?>
+                    <div class="contact-item-elite group-item mentor-group" onclick="loadMentorGroupChat(<?php echo $mgroup['id']; ?>, '<?php echo addslashes($mgroup['name']); ?>', <?php echo $mgroup['mentor_id']; ?>)">
+                        <div class="contact-avatar-elite" style="background: linear-gradient(135deg, #059669, #10b981); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(16,185,129,0.4);">
+                            <i class="fas fa-gem" style="color: #fff; font-size: 1.2rem;"></i>
+                        </div>
+                        <div class="contact-info-elite" style="flex:1;">
+                            <h4><?php echo htmlspecialchars($mgroup['name']); ?></h4>
+                            <p style="color: #10b981; font-size: 0.70rem;"><?php echo htmlspecialchars($mgroup['mentor_name']); ?></p>
+                        </div>
                     </div>
-                    <div class="contact-info-elite" style="flex:1;">
-                        <!-- Hierarquia Visual: Título do Grupo e Mentor em Responsabilidade -->
-                        <h4><?php echo htmlspecialchars($mgroup['name']); ?></h4>
-                        <p style="color: #10b981; font-size: 0.70rem;"><?php echo htmlspecialchars($mgroup['mentor_name']); ?></p>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
+            <!-- Networking VIP Rooms -->
+            <?php if (!empty($vip_rooms)): ?>
+                <?php foreach ($vip_rooms as $vroom): ?>
+                    <div class="contact-item-elite group-item vip-room" onclick="loadVipRoomChat(<?php echo $vroom['id']; ?>, '<?php echo addslashes($vroom['title']); ?>', '<?php echo addslashes($vroom['description']); ?>')">
+                        <div class="contact-avatar-elite" style="background: linear-gradient(135deg, #f59e0b, #fcd34d); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(245,158,11,0.4);">
+                            <i class="fas fa-crown" style="color: #fff; font-size: 1.2rem;"></i>
+                        </div>
+                        <div class="contact-info-elite" style="flex:1;">
+                            <h4><?php echo htmlspecialchars($vroom['title']); ?></h4>
+                            <p style="color: #f59e0b; font-size: 0.70rem;">Comité VIP</p>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
         <?php endif; ?>
         <!-- ============================================== -->
 

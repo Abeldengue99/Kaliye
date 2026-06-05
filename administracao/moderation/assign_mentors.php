@@ -84,8 +84,7 @@ function calculateMatch($project, $mentor) {
 <head>
     <meta charset="UTF-8">
     <title>Atribuição de Mentores | KALIYE Admin</title>
-    <link rel='icon' type='image/png' href='../../recursos/images/marca/favicon-k-32x32.png'>
-    <link rel="stylesheet" href="../../recursos/css/style.css">
+        <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -151,6 +150,16 @@ function calculateMatch($project, $mentor) {
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body style="display: flex;">
     <?php include '../barra_lateral.php'; ?>

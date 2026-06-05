@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Envio de e-mail transacional de boas-vindas.
                     require_once __DIR__ . '/../../inclusoes/SimpleMailer.php';
                     $mailer = new SimpleMailer();
-                    $mailer->send($email, $row['full_name'], "Verificação Necessária - Aksanti", "Seu código: <b>$otp</b>");
+                    $mailer->send($email, $row['full_name'], "Verificação Necessária - KALIYE", "O seu código de verificação é: <b style='font-size: 24px;'>$otp</b>");
 
                     $_SESSION['pending_email_verification'] = [
                         'user_id' => $row['user_id'],

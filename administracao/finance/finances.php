@@ -46,8 +46,7 @@ $mentors = $db->query("SELECT user_id, full_name FROM users WHERE user_type = 'm
 <head>
     <meta charset="UTF-8">
     <title>Gestão Financeira | KALIYE Admin</title>
-    <link rel='icon' type='image/png' href='../../recursos/images/marca/favicon-k-32x32.png'>
-    <link rel="stylesheet" href="../../recursos/css/style.css">
+        <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?php echo filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -101,6 +100,16 @@ $mentors = $db->query("SELECT user_id, full_name FROM users WHERE user_type = 'm
             overflow-y: auto;
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body style="display: flex;">
     <?php include '../barra_lateral.php'; ?>

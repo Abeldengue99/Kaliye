@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/terms_tracking.php
 session_start();
 $admin_base = '../';
@@ -61,7 +61,7 @@ $user_type_labels = [
 <head>
     <meta charset="UTF-8">
     <title>Conformidade Legal | KALIYE Admin</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -430,6 +430,16 @@ $user_type_labels = [
             .export-btn { width: 100%; justify-content: center; }
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="<?php echo isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed'] === 'true' ? 'sidebar-collapsed' : ''; ?>">
     

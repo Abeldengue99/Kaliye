@@ -21,7 +21,7 @@ $is_admin     = in_array($viewer_role, ['admin', 'superadmin']);
 $is_investor  = ($viewer_role === 'investor');
 $is_mentor    = ($viewer_role === 'mentor' || (isset($_SESSION['mentorship_status']) && $_SESSION['mentorship_status'] === 'approved'));
 $is_student   = in_array($viewer_role, ['univ_student', 'high_student']);
-$is_verified  = (isset($_SESSION['is_verified']) && ($_SESSION['is_verified'] === true || $_SESSION['is_verified'] == 1));
+$is_verified  = in_array($_SESSION['verification_status'] ?? '', ['verified', 'approved']) || (isset($_SESSION['is_verified']) && ($_SESSION['is_verified'] === true || $_SESSION['is_verified'] == 1));
 
 // ── MATRIZ DE ACESSO v2 ──────────────────────────────────────────────────
 // 'full'    → vê tudo
@@ -35,12 +35,12 @@ if ($is_owner || $is_admin || $is_mentor) {
 
 } elseif ($is_student) {
     if ($project_by_investor) {
-        // Estudante vê projecto de investidor → acesso total + candidatura
-        $access_level = 'full';
-        $can_apply    = true;
+        // Estudante vê projecto de investidor → acesso total + candidatura (se verificado)
+        $access_level = $is_verified ? 'full' : 'summary';
+        $can_apply    = $is_verified;
     } else {
-        // Estudante vê projecto de outro estudante → só resumo
-        $access_level = 'summary';
+        // Estudante vê projecto de outro estudante → preview (vídeo + descrição) apenas se verificado
+        $access_level = $is_verified ? 'preview' : 'summary';
     }
 
 } elseif ($is_investor) {
@@ -72,13 +72,16 @@ if ($is_owner || $is_admin || $is_mentor) {
     }
 }
 
-// Compatibilidade com código legado
-$has_full_access = ($access_level === 'full');
+// Controle de mídia (Pode ver vídeo?)
+$can_view_media = ($access_level === 'full' || $access_level === 'preview');
 
 // Votacao comunitaria: qualquer utilizador autenticado pode votar em projectos de outros autores.
 $can_vote = ($viewer_id > 0 && !$is_owner);
 $user_voted = (bool)($project['user_voted'] ?? false);
 $vote_count = (int)($project['vote_count'] ?? 0);
+
+// Compatibilidade com código legado
+$has_full_access = ($access_level === 'full');
 
 // Configuração de Media
 require_once __DIR__ . '/../ProjectMediaHelper.php';
@@ -86,6 +89,13 @@ $video_url = !empty($project['pitch_video_url']) ? $project['pitch_video_url'] :
 $has_video = !empty($video_url);
 $video_src = $has_video ? ((strpos($video_url, 'http') === 0) ? $video_url : $base_url . 'carregamentos/projects/' . $video_url) : '';
 $media_path = ProjectMediaHelper::getCover($project, $base_url);
+
+$onclick_action = "showVerificationRequired()";
+if ($access_level === 'full') {
+    $onclick_action = "openProjectDetails({$project['project_id']}, " . ($has_video ? '0' : '1') . ")";
+} elseif ($access_level === 'preview') {
+    $onclick_action = "openProjectDetails({$project['project_id']}, 0)";
+}
 ?>
 
 <div class="project-card-premium shine-on-hover <?php echo $vote_count > 0 ? 'project-card-vote-highlight' : ''; ?>" data-votes="<?php echo $vote_count; ?>" oncontextmenu="return false;" style="user-select: none;">
@@ -106,8 +116,8 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
         </div>
     <?php endif; ?>
 
-    <div class="project-image-wrapper <?php echo (!$has_full_access && $has_video) ? 'media-locked' : ''; ?>"
-         onclick="<?php echo $has_full_access ? ($has_video ? 'openProjectDetails('.$project['project_id'].', 0)' : 'openProjectDetails('.$project['project_id'].', 1)') : 'showVerificationRequired()'; ?>">
+    <div class="project-image-wrapper <?php echo (!$can_view_media && $has_video) ? 'media-locked' : ''; ?>"
+         onclick="<?php echo $onclick_action; ?>">
 
         <!-- Overlay de Protecção de Media -->
         <div style="position: absolute; inset:0; z-index:5; pointer-events: none;"></div>
@@ -202,8 +212,8 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
         </div>
 
         <h3 class="project-title-premium translatable-title-<?php echo $project['project_id']; ?>"
-            onclick="<?php echo $has_full_access ? ($has_video ? 'openProjectDetails('.$project['project_id'].', 0)' : 'openProjectDetails('.$project['project_id'].', 1)') : 'showVerificationRequired()'; ?>"
-            style="<?php echo !$has_full_access ? 'filter: blur(3px); user-select: none;' : ''; ?> font-size: 1.02rem; line-height: 1.2; margin-bottom: 0.25rem;">
+            onclick="<?php echo $onclick_action; ?>"
+            style="<?php echo !$can_view_media ? 'filter: blur(3px); user-select: none;' : ''; ?> font-size: 1.02rem; line-height: 1.2; margin-bottom: 0.25rem;">
             <?php echo $has_full_access ? htmlspecialchars($project['title']) : htmlspecialchars(substr($project['title'], 0, 15)) . '•••'; ?>
         </h3>
 
@@ -235,7 +245,7 @@ $media_path = ProjectMediaHelper::getCover($project, $base_url);
 
             <!-- Botão principal: Dossier ou Preview -->
             <a href="javascript:void(0)" 
-               onclick="openProjectDetails(<?php echo $project['project_id']; ?>, <?php echo $has_video ? '0' : '1'; ?>)" 
+               onclick="<?php echo $onclick_action; ?>" 
                class="btn-view-details shine-on-hover" 
                style="flex: 2; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 800; font-size: 0.72rem; text-decoration: none;">
                 <?php echo $access_level === 'full' ? 'Ver Dossier' : 'Ver Preview'; ?>

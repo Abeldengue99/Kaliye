@@ -1,7 +1,7 @@
 <?php
 /**
  * autenticacao/conta_bloqueada.php
- * P·gina exibida quando um utilizador È bloqueado permanentemente (Hard Lock).
+ * P√°gina exibida quando um utilizador √© bloqueado permanentemente (Hard Lock).
  * Instrui o utilizador a contactar a equipa Aksanti para desbloquear.
  */
 session_start();
@@ -10,11 +10,11 @@ require_once __DIR__ . '/../configuracoes/base_dados.php';
 $action = htmlspecialchars($_GET['action'] ?? 'login');
 $reason = htmlspecialchars($_GET['reason'] ?? 'suspicious_activity');
 
-// Mapear aÁ„o para texto legÌvel
+// Mapear a√ß√£o para texto leg√≠vel
 $action_labels = [
-    'login'    => 'inÌcio de sess„o',
-    'register' => 'criaÁ„o de conta',
-    'payment'  => 'operaÁ„o financeira',
+    'login'    => 'in√≠cio de sess√£o',
+    'register' => 'cria√ß√£o de conta',
+    'payment'  => 'opera√ß√£o financeira',
     'withdrawal' => 'levantamento',
 ];
 $action_label = $action_labels[$action] ?? 'acesso';
@@ -24,10 +24,10 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     $site_name = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'")->fetchColumn() ?: 'KALIYE';
-    $support_email = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'support_email'")->fetchColumn() ?: 'seguran√ßa@aksanti.ao';
+    $support_email = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'support_email'")->fetchColumn() ?: 'seguranca@aksanti.ao';
 } catch (Exception $e) {
     $site_name = 'KALIYE';
-    $support_email = 'seguran√ßa@aksanti.ao';
+    $support_email = 'seguranca@aksanti.ao';
 }
 ?>
 <!DOCTYPE html>
@@ -38,8 +38,7 @@ try {
     <title>Conta Bloqueada | <?= $site_name ?></title>
     <meta name="robots" content="noindex, nofollow">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -78,7 +77,7 @@ try {
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Õcone central animado */
+        /* √çcone central animado */
         .icone-bloqueio {
             width: 96px; height: 96px; border-radius: 50%;
             background: rgba(239,68,68,0.1);
@@ -105,7 +104,7 @@ try {
             margin-bottom: 2rem;
         }
 
-        /* Card de informaÁ„o */
+        /* Card de informa√ß√£o */
         .card-info {
             background: var(--cor-cartao);
             border: 1px solid var(--cor-bordas);
@@ -135,7 +134,7 @@ try {
         .passo h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.2rem; }
         .passo p  { font-size: 0.78rem; color: var(--cor-sub); line-height: 1.5; }
 
-        /* Bot„o de contacto */
+        /* Bot√£o de contacto */
         .botao-contacto {
             display: flex; align-items: center; justify-content: center; gap: 0.6rem;
             width: 100%; padding: 0.9rem;
@@ -168,7 +167,7 @@ try {
             text-transform: uppercase; color: #f87171; margin-bottom: 1.5rem;
         }
 
-        /* CÛdigo de referÍncia para o suporte */
+        /* C√≥digo de refer√™ncia para o suporte */
         .codigo-ref {
             background: rgba(255,255,255,0.03); border: 1px solid var(--cor-bordas);
             border-radius: 8px; padding: 0.6rem 1rem; margin-bottom: 1.5rem;
@@ -176,33 +175,43 @@ try {
         }
         .codigo-ref strong { color: #fff; }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 <div class="container">
 
-    <!-- Õcone de bloqueio com animaÁ„o pulsante -->
+    <!-- √çcone de bloqueio com anima√ß√£o pulsante -->
     <div class="icone-bloqueio">
         <i class="fas fa-shield-exclamation"></i>
     </div>
 
     <!-- Badge de estado -->
     <div class="badge-motivo">
-        <i class="fas fa-lock"></i> Acesso Bloqueado por SeguranÁa
+        <i class="fas fa-lock"></i> Acesso Bloqueado por Seguran√ßa
     </div>
 
-    <!-- TÌtulo e descriÁ„o -->
+    <!-- T√≠tulo e descri√ß√£o -->
     <h1>A tua conta foi <span>bloqueada</span></h1>
     <p class="subtitulo">
-        Detet·mos demasiadas tentativas suspeitas de <?= $action_label ?> a partir deste dispositivo.
-        Por seguranÁa, o acesso foi suspenso temporariamente.
+        Detet√°mos demasiadas tentativas suspeitas de <?= $action_label ?> a partir deste dispositivo.
+        Por seguran√ßa, o acesso foi suspenso temporariamente.
     </p>
 
-    <!-- CÛdigo de referÍncia para o suporte -->
+    <!-- C√≥digo de refer√™ncia para o suporte -->
     <?php
         $ref_code = strtoupper(substr(md5($_SERVER['REMOTE_ADDR'] . date('Ymd') . $action), 0, 8));
     ?>
     <div class="codigo-ref">
-        CÛdigo de referÍncia para suporte: <strong>#<?= $ref_code ?></strong>
+        C√≥digo de refer√™ncia para suporte: <strong>#<?= $ref_code ?></strong>
     </div>
 
     <!-- Passos para desbloquear -->
@@ -212,38 +221,122 @@ try {
         <div class="passo">
             <div class="passo-num">1</div>
             <div>
-                <h4>Envia um email ‡ equipa de seguranÁa</h4>
-                <p>Inclui o teu email de registo e o cÛdigo de referÍncia acima no pedido.</p>
+                <h4>Envia um email √† equipa de seguran√ßa</h4>
+                <p>Inclui o teu email de registo e o c√≥digo de refer√™ncia acima no pedido.</p>
             </div>
         </div>
 
         <div class="passo">
             <div class="passo-num">2</div>
             <div>
-                <h4>VerificaÁ„o de identidade</h4>
-                <p>A equipa ir· confirmar a tua identidade antes de proceder ao desbloqueio.</p>
+                <h4>Verifica√ß√£o de identidade</h4>
+                <p>A equipa ir√° confirmar a tua identidade antes de proceder ao desbloqueio.</p>
             </div>
         </div>
 
         <div class="passo">
             <div class="passo-num">3</div>
             <div>
-                <h4>Desbloqueio em atÈ 24 horas</h4>
-                <p>ApÛs confirmaÁ„o, a tua conta ser· desbloqueada e receber·s confirmaÁ„o por email.</p>
+                <h4>Desbloqueio em at√© 24 horas</h4>
+                <p>Ap√≥s confirma√ß√£o, a tua conta ser√° desbloqueada e receber√°s confirma√ß√£o por email.</p>
             </div>
         </div>
     </div>
 
-    <!-- Bot„o de contacto -->
-    <a href="mailto:<?= htmlspecialchars($support_email) ?>?subject=Pedido%20de%20Desbloqueio%20%23<?= $ref_code ?>&body=Ol%C3%A1%20equipa%20KALIYE%2C%0A%0AO%20meu%20email%20de%20registo%20%C3%A9%3A%20%5BSEU_EMAIL%5D%0AC%C3%B3digo%20de%20refer%C3%AAncia%3A%20%23<?= $ref_code ?>%0A%0APor%20favor%2C%20desbloqueiem%20a%20minha%20conta.%0A%0AObrigado."
-       class="botao-contacto">
-        <i class="fas fa-envelope"></i>
-        Contactar Equipa de SeguranÁa
-    </a>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Bot√£o de contacto -->
+    <button onclick="openUnlockModal('<?= $ref_code ?>')" class="botao-contacto">
+        <i class="fas fa-lock-open"></i>
+        Pedir Desbloqueio ao Administrador
+    </button>
+
+    <script>
+    function openUnlockModal(refCode) {
+        Swal.fire({
+            title: 'Pedir Desbloqueio',
+            html: `
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem;">Por favor, indique os dados da sua conta para que a nossa equipa possa analisar e remover a restri√ß√£o.</p>
+                <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.3rem; display: block;">Nome Completo <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="swal-input-name" class="swal2-input swal-input-custom" placeholder="O seu nome..." style="margin:0; width:100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.3rem; display: block;">Email de Registo <span style="color:#ef4444;">*</span></label>
+                        <input type="email" id="swal-input-email" class="swal2-input swal-input-custom" placeholder="email@exemplo.com" style="margin:0; width:100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.3rem; display: block;">O que estava a fazer antes do bloqueio? (Opcional)</label>
+                        <textarea id="swal-input-reason" class="swal2-textarea swal-input-custom" placeholder="Descreva brevemente a situa√ß√£o..." maxlength="250" style="margin:0; width:100%; box-sizing: border-box; min-height: 80px;"></textarea>
+                        <div style="text-align: right; font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 4px;">M√°x. 250 caracteres</div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-paper-plane"></i> ENVIAR PEDIDO',
+            cancelButtonText: 'Cancelar',
+            background: '#0d1628',
+            color: '#fff',
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: 'rgba(255,255,255,0.1)',
+            preConfirm: () => {
+                const name = document.getElementById('swal-input-name').value;
+                const email = document.getElementById('swal-input-email').value;
+                const reason = document.getElementById('swal-input-reason').value;
+
+                if (!name || !email) {
+                    Swal.showValidationMessage('O nome e o email s√£o obrigat√≥rios!');
+                    return false;
+                }
+
+                const fd = new FormData();
+                fd.append('name', name);
+                fd.append('email', email);
+                fd.append('reason', reason);
+                fd.append('ref_code', refCode);
+
+                return fetch('../interface_programacao/admin/request_unlock.php', { method: 'POST', body: fd })
+                    .then(response => {
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                console.error("Server output:", text);
+                                throw new Error("Erro do servidor (Caminho/Rede): " + text.substring(0, 100));
+                            }
+                        });
+                    })
+                    .then(data => {
+                        if (!data.success) throw new Error(data.message);
+                        return data;
+                    })
+                    .catch(error => { Swal.showValidationMessage(error.message); });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Pedido Enviado', 
+                    text: 'A equipa administrativa recebeu o seu pedido e ir√° verificar a sua conta em breve.', 
+                    background: '#0d1628', 
+                    color: '#fff',
+                    confirmButtonColor: '#10b981'
+                }).then(() => {
+                    window.location.href = 'entrar.php';
+                });
+            }
+        });
+    }
+    </script>
+    <style>
+        .swal-input-custom { background: rgba(0,0,0,0.3) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; outline: none; font-size: 0.9rem !important; }
+        .swal-input-custom:focus { border-color: rgba(247,148,29,0.5) !important; box-shadow: 0 0 10px rgba(247,148,29,0.1) !important; }
+    </style>
 
     <!-- Link de regresso -->
     <a href="../autenticacao/entrar.php" class="link-voltar">
-        <i class="fas fa-arrow-left"></i> Voltar ao inÌcio de sess„o
+        <i class="fas fa-arrow-left"></i> Voltar ao in√≠cio de sess√£o
     </a>
 
 </div>

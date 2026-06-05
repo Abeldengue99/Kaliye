@@ -16,6 +16,7 @@ $_is_owner    = ($_viewer_id > 0 && $_viewer_id == (int)($project['owner_id'] ??
 $_is_admin    = in_array($_viewer_role, ['admin', 'superadmin']);
 $_is_mentor   = ($_viewer_role === 'mentor' || (isset($_SESSION['mentorship_status']) && $_SESSION['mentorship_status'] === 'approved'));
 $_is_investor = ($_viewer_role === 'investor');
+
 $_is_student  = in_array($_viewer_role, ['univ_student', 'high_student']);
 $_proj_by_inv = ($_owner_role === 'investor');
 
@@ -55,10 +56,10 @@ $_equity_committed = isset($project['equity_committed'])    ? (float)$project['e
 $_equity_remaining = $_equity_avail !== null ? max(0, $_equity_avail - $_equity_committed) : null;
 
 // Registar Visualização
-if (isset($db) && isset($project['project_id'])) {
+if (isset($db) && isset($project['project_id']) && $_viewer_id > 0 && !$_is_owner && !$_is_admin) {
     try {
-        $view_stmt = $db->prepare("INSERT INTO project_views (project_id, viewer_id, ip_address, user_agent) VALUES (?, ?, ?, ?)");
-        $view_stmt->execute([$project['project_id'], $_SESSION['user_id'] ?? null, $_SERVER['REMOTE_ADDR'] ?? null, $_SERVER['HTTP_USER_AGENT'] ?? null]);
+        $view_stmt = $db->prepare("INSERT INTO project_views_log (project_id, viewer_id, ip_address) VALUES (?, ?, ?) ON CONFLICT DO NOTHING");
+        $view_stmt->execute([$project['project_id'], $_viewer_id, $_SERVER['REMOTE_ADDR'] ?? null]);
     } catch (Exception $e) {}
 }
 ?>
@@ -91,8 +92,6 @@ if (isset($db) && isset($project['project_id'])) {
             <div style="background: #000; position: relative; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--surface-5);">
                 <?php if (!empty($project['video_url'])): ?>
                     <video src="<?php echo $base_url . $project['video_url']; ?>" controls preload="metadata" playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
-                <?php else: ?>
-                    <?php 
                         require_once __DIR__ . '/../ProjectMediaHelper.php';
                         $media_path = ProjectMediaHelper::getCover($project, $base_url); 
                     ?>

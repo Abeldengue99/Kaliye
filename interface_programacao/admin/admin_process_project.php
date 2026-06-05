@@ -38,7 +38,7 @@ $action     = $_POST['action'] ?? '';
 $project_id = intval($_POST['project_id'] ?? 0);
 
 // Validação de Integridade: ID deve ser um número válido e a ação deve constar no nosso 'whitelist'.
-if (!$project_id || !in_array($action, ['approve', 'reject', 'delete'])) {
+if (!$project_id || !in_array($action, ['approve', 'reject', 'delete', 'deactivate'])) {
     echo json_encode(['success' => false, 'error' => 'Parâmetros inválidos ou projecto inexistente.']);
     exit;
 }
@@ -118,9 +118,31 @@ try {
     }
 
     /**
+     * AÇÃO: DESATIVAR (DEACTIVATE)
+     * Desativa o projecto e retira do feed público (mas não rejeita a tese).
+     */
+    elseif ($action === 'deactivate') {
+        $stmt = $db->prepare("
+            UPDATE projects
+            SET status = 'inactive',
+                is_public = false,
+                approval_status = 'pending'
+            WHERE project_id = :project_id
+        ");
+        $stmt->execute([':project_id' => $project_id]);
+        
+        echo json_encode(['success' => true, 'message' => 'Projecto desativado do feed público.']);
+    }
+
+    /**
      * AÇÃO: ELIMINAR (DELETE)
-     * Remoção definitiva: Remove o projecto e TODAS as suas dependências (tags, likes, media, investimentos).
-     * Nota: Usamos Transaction para garantir que não fiquem dados órfãos se a limpeza falhar a meio.
+     * Remoção definitiva: Remove o projecto e TODAS as suas dependências.
+     * 
+     * FIX POSTGRESQL: Usamos SAVEPOINT por cada tabela de dependência.
+     * No PostgreSQL, quando um DELETE falha (ex: tabela inexistente) dentro de uma transaction,
+     * a transaction inteira entra em estado 'aborted' e TODAS as queries seguintes falham,
+     * mesmo dentro de try/catch. O SAVEPOINT isola cada operação: se uma falhar,
+     * fazemos ROLLBACK TO SAVEPOINT e a transaction principal continua intacta.
      */
     elseif ($action === 'delete') {
         // Pré-cache dos dados do projecto antes de apagar, para podermos notificar o autor.
@@ -135,31 +157,37 @@ try {
 
         $db->beginTransaction();
 
-        // Mapa de dependências a limpar sequencialmente.
-        $related = [
-            'project_tags'         => 'project_id',
-            'project_media'        => 'project_id',
-            'project_likes'        => 'project_id',
-            'project_comments'     => 'project_id',
-            'project_investments'  => 'project_id',
-            'project_endorsements' => 'project_id',
-            'project_milestones'   => 'project_id',
+        // Lista de tabelas de dependência a limpar antes de eliminar o projecto principal.
+        $related_tables = [
+            'project_tags',
+            'project_media',
+            'project_likes',
+            'project_comments',
+            'project_views',
+            'project_votes',
+            'project_investments',
+            'project_endorsements',
+            'project_milestones',
         ];
         
-        foreach ($related as $table => $col) {
+        foreach ($related_tables as $table) {
             try {
-                $db->prepare("DELETE FROM $table WHERE $col = ?")->execute([$project_id]);
+                $db->exec("SAVEPOINT sp_del_{$table}");
+                $db->prepare("DELETE FROM {$table} WHERE project_id = ?")->execute([$project_id]);
+                $db->exec("RELEASE SAVEPOINT sp_del_{$table}");
             } catch (Exception $e) {
-                // Algumas tabelas podem estar vazias ou em manutenção — logamos e continuamos a limpeza.
-                error_log("Tentativa falhada de limpeza na tabela $table: " . $e->getMessage());
+                // Tabela não existe ou outro erro isolado — revertemos só este passo.
+                $db->exec("ROLLBACK TO SAVEPOINT sp_del_{$table}");
+                error_log("Limpeza ignorada na tabela {$table} (project_id={$project_id}): " . $e->getMessage());
             }
         }
 
-        // Finalmente, removemos o registo mestre do projecto.
+        // Com todas as dependências limpas, eliminamos o registo mestre do projecto.
         $db->prepare("DELETE FROM projects WHERE project_id = ?")->execute([$project_id]);
 
-        // Feedback final de sistema para o ex-dono do projecto.
+        // Notificação ao criador sobre a eliminação.
         try {
+            $db->exec("SAVEPOINT sp_del_notif");
             $notif_stmt = $db->prepare("INSERT INTO notifications (user_id, sender_id, title, content, type, created_at) VALUES (?, ?, ?, ?, 'system', NOW())");
             $notif_stmt->execute([
                 $project_data['owner_id'],
@@ -167,12 +195,14 @@ try {
                 'Projecto Removido',
                 "O seu projecto '{$project_data['title']}' foi removido permanentemente pelo administrador."
             ]);
+            $db->exec("RELEASE SAVEPOINT sp_del_notif");
         } catch (Exception $e) {
-            error_log("Falha ao notificar eliminação definitiva: " . $e->getMessage());
+            $db->exec("ROLLBACK TO SAVEPOINT sp_del_notif");
+            error_log("Falha ao notificar eliminação: " . $e->getMessage());
         }
 
         $db->commit();
-        echo json_encode(['success' => true, 'message' => 'Projecto e dependências eliminados permanentemente.']);
+        echo json_encode(['success' => true, 'message' => 'Projecto eliminado permanentemente.']);
     }
 
 } catch (Exception $e) {

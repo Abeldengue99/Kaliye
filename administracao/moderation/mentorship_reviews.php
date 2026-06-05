@@ -66,13 +66,22 @@ $top_year = getTopMentorByPeriod($db, '1 YEAR');
 <head>
     <meta charset="UTF-8">
     <title>KALIYE Admin - Avaliação Mentoria</title>
-    <link rel='icon' type='image/png' href='../../recursos/images/marca/favicon-k-32x32.png'>
-    <link rel="stylesheet" href="../../recursos/css/style.css">
+        <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { display: flex; background: #020617; color: white; }
         main { margin-left: 260px; flex-grow: 1; padding: 3rem; min-height: 100vh; }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
     <?php include '../barra_lateral.php'; ?>

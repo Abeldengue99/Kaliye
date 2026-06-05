@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // administracao/users/project_mentorship_applications.php
 session_start();
 $admin_base = '../';
@@ -50,7 +50,7 @@ function getStatusBadge($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidaturas de Mentoria a Projectos - KALIYE Admin</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -70,6 +70,16 @@ function getStatusBadge($status) {
         .btn-reject { background: rgba(239,68,68,0.1); color: #ef4444; }
         .btn-reject:hover { background: rgba(239,68,68,0.2); }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="<?= isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] == 'true' ? 'sidebar-collapsed' : '' ?>">
 

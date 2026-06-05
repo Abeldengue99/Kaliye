@@ -72,11 +72,21 @@ $projects = $db->query("
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moderação - KALIYE Admin</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="<?= isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] == 'true' ? 'sidebar-collapsed' : '' ?>">
 
@@ -146,7 +156,9 @@ $projects = $db->query("
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.6rem; justify-content: flex-end;">
-                                    <?php if ($project_status !== 'approved'): ?>
+                                    <?php if ($project_status === 'approved'): ?>
+                                        <button onclick="deactivateProject(<?= $p['project_id'] ?>)" class="btn-action warn" title="Desativar" style="color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.1);"><i class="fas fa-ban"></i></button>
+                                    <?php else: ?>
                                         <button onclick="approveProject(<?= $p['project_id'] ?>)" class="btn-action approve" title="Aprovar"><i class="fas fa-check"></i></button>
                                         <button onclick="rejectProject(<?= $p['project_id'] ?>)" class="btn-action reject" title="Rejeitar"><i class="fas fa-times"></i></button>
                                     <?php endif; ?>
@@ -406,13 +418,45 @@ $projects = $db->query("
                 ${moderationStatus !== 'approved' ? `
                     <button onclick="rejectProject(${p.project_id})" class="btn-admin" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:0.8rem 1.8rem;">Rejeitar Proposta</button>
                     <button onclick="approveProject(${p.project_id})" class="btn-admin btn-admin-primary" style="padding:0.8rem 2.2rem;">✓ Aprovar e Publicar</button>
-                ` : '<div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.8rem 2rem; border-radius:12px; font-weight:800; display:flex; align-items:center; gap:10px;"><i class="fas fa-check-double"></i> PROJECTO PUBLICADO NO FEED</div>'}
+                ` : `
+                    <button onclick="deactivateProject(${p.project_id})" class="btn-admin" style="background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.2); padding:0.8rem 1.8rem;"><i class="fas fa-ban"></i> Desativar</button>
+                    <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.8rem 2rem; border-radius:12px; font-weight:800; display:flex; align-items:center; gap:10px;"><i class="fas fa-check-double"></i> PUBLICADO NO FEED</div>
+                `}
             `;
         })
         .catch(err => {
             console.error(err);
             Swal.fire('Erro', 'Falha ao comunicar com o servidor.', 'error');
             closeModal();
+        });
+    }
+
+    function deactivateProject(id) {
+        Swal.fire({
+            title: 'Desativar Projecto?',
+            text: "O projecto sairá do feed público mas não será eliminado.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            confirmButtonText: 'Sim, Desativar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('../../interface_programacao/admin/admin_process_project.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'action=deactivate&project_id=' + id
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Desativado!', 'O projecto foi retirado do feed.', 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Erro', data.error || 'Falha ao desativar o projecto.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Erro', 'Ocorreu um erro no servidor.', 'error'));
+            }
         });
     }
 

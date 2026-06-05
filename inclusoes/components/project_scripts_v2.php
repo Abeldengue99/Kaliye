@@ -376,6 +376,7 @@
                 };
                 xhr.onload = function() {
                     try {
+                        console.log('[Kaliye Debug] Server raw response:', xhr.responseText.substring(0, 500));
                         const res = JSON.parse(xhr.responseText);
                         if (res.success) {
                             if (document.getElementById('projectModalContent')) document.getElementById('projectModalContent').style.display = 'none';
@@ -495,8 +496,32 @@
                 xhr.send(formData);
             }
 
-            // If we arrive here normally and validation passed, send immediately
-            sendForm();
+            // Se tudo estiver válido, mostrar a Nota Informativa antes de enviar
+            Swal.fire({
+                title: 'Termos de Publicação',
+                html: '<div style="text-align: left; font-size: 0.95rem; line-height: 1.6; color: var(--surface-70);"><p>Ao procederes com a publicação deste projecto no ecossistema <strong>KALIYE</strong>, confirmas e aceitas que:</p><ul style="margin-top: 15px; padding-left: 20px; color: #fff; font-weight: 500;"><li><i class="fas fa-search" style="color:var(--brand-blue); margin-right:5px;"></i> O teu projecto entrará num processo rigoroso de <strong>Análise e Validação</strong>.</li><li style="margin-top: 8px;"><i class="fas fa-shield-alt" style="color:#10b981; margin-right:5px;"></i> A gestão da visibilidade, proteção (NDA) e mediação com investidores será gerida pelas políticas da KALIYE.</li></ul></div>',
+                icon: 'info',
+                background: '#0d1628',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonColor: '#f7941d',
+                cancelButtonColor: 'rgba(255, 255, 255, 0.05)',
+                confirmButtonText: 'Compreendo e Quero Publicar <i class="fas fa-paper-plane" style="margin-left:5px;"></i>',
+                cancelButtonText: 'Voltar',
+                reverseButtons: true, // Coloca o Cancelar à esquerda e o Confirmar à direita
+                customClass: {
+                    popup: 'elite-swal-border'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendForm();
+                } else {
+                    // Restaura o botão caso o utilizador cancele
+                    sb.disabled = false; 
+                    sb.innerHTML = 'FINALIZAR E PUBLICAR';
+                    if (progContainer) progContainer.style.display = 'none';
+                }
+            });
         });
     };
 

@@ -34,8 +34,6 @@ if (!$is_cli): ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Migração — Rate Limiting</title>
-<link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-<link rel="shortcut icon" href="../favicon-k.ico">
 <style>
     body { background: #070d1a; color: #fff; font-family: monospace; padding: 2rem; }
     h1 { font-family: sans-serif; color: #f7941d; margin-bottom: 1rem; }
@@ -47,6 +45,16 @@ if (!$is_cli): ?>
     .badge-ok { background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); }
     .badge-err { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
 </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head><body>
 <h1>🛡️ Aksanti — Migração Rate Limiting</h1>
 <div class="box">

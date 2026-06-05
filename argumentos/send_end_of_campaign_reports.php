@@ -91,8 +91,7 @@ function generateFinalReportEmailBody($ad, $metrics) {
     <!DOCTYPE html>
     <html>
     <head>
-        <link rel='icon' type='image/png' sizes='32x32' href='../recursos/images/marca/favicon-k-32x32.png'>
-        <style>
+                <style>
             body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; margin: 0; padding: 20px; }
             .card { background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
             h1 { color: #f7941d; margin-top: 0; }
@@ -101,7 +100,17 @@ function generateFinalReportEmailBody($ad, $metrics) {
             .stat-value { font-size: 24px; font-weight: bold; color: #1e293b; }
             .btn { background: #f7941d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 20px; }
         </style>
-    </head>
+        <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
     <body>
         <div class='card'>
             <h1>Relatório Final: {$ad['title']}</h1>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * administracao/moderation/evaluations.php
  * Gestão e visualização de feedback dos utilizadores sobre a plataforma.
@@ -59,10 +59,37 @@ try {
     $evaluations = [];
 }
 
-require_once '../../inclusoes/cabecalho.php';
 ?>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback da Plataforma - KALIYE Admin</title>
 
-<div class="admin-evaluations-canvas" style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+
+    <link rel="stylesheet" href="../../recursos/css/style.css">
+    <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
+<body class="admin-dashboard-layout">
+    
+    <?php include '../barra_lateral.php'; ?>
+
+    <main class="admin-main-content">
+        <div class="admin-evaluations-canvas" style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
     
     <div class="header-section" style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
         <div>
@@ -137,7 +164,7 @@ require_once '../../inclusoes/cabecalho.php';
                                 }
                             ?>
                             <img src="<?= $final_pic ?>" 
-                                 onerror="this.src='<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png'; this.style.padding='10px'; this.style.background='rgba(255,255,255,0.05)';"
+                                 onerror="this.src='<?= $base_url ?>recursos/images/marca/favicon-16x16.ico'; this.style.padding='10px'; this.style.background='rgba(255,255,255,0.05)';"
                                  style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">
                         </div>
                         
@@ -172,10 +199,13 @@ require_once '../../inclusoes/cabecalho.php';
                                     <i class="fas fa-reply"></i> Responder ao Utilizador
                                 </button>
                                 <?php if (($e['rating'] ?? 0) >= 4): ?>
-                                    <button onclick="toggleFeatured(<?php echo $e['id'] ?? 0; ?>, this)" class="btn-feature <?php echo ($e['is_featured'] ?? false) ? 'active' : ''; ?>" style="margin-top: 1rem; margin-left: 0.5rem; background: <?php echo ($e['is_featured'] ?? false) ? '#f7941d' : 'rgba(255,255,255,0.05)'; ?>; color: <?php echo ($e['is_featured'] ?? false) ? '#000' : '#fff'; ?>; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s;">
+                                    <button onclick="toggleFeatured(<?php echo $e['id'] ?? $e['evaluation_id'] ?? 0; ?>, this)" class="btn-feature <?php echo ($e['is_featured'] ?? false) ? 'active' : ''; ?>" style="margin-top: 1rem; margin-left: 0.5rem; background: <?php echo ($e['is_featured'] ?? false) ? '#f7941d' : 'rgba(255,255,255,0.05)'; ?>; color: <?php echo ($e['is_featured'] ?? false) ? '#000' : '#fff'; ?>; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s;">
                                         <i class="fas fa-bullhorn"></i> <?php echo ($e['is_featured'] ?? false) ? 'Destacado no Portal' : 'Destacar no Portal'; ?>
                                     </button>
                                 <?php endif; ?>
+                                <button onclick="deleteEvaluation(<?php echo $e['id'] ?? $e['evaluation_id'] ?? 0; ?>)" style="margin-top: 1rem; margin-left: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -200,7 +230,7 @@ require_once '../../inclusoes/cabecalho.php';
 
 <!-- Modal de Resposta Admin -->
 <div id="responseModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
-    <div class="glass-premium" style="width: 100%; max-width: 500px; padding: 2.5rem; border-radius: 24px; position: relative;">
+    <div class="glass-premium" style="width: 100%; max-width: 500px; padding: 2.5rem; border-radius: 24px; position: relative; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 10001;">
         <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Responder a <span id="respUserName" style="color: #f7941d;">-</span></h3>
         <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 1.5rem;">O utilizador receberá uma notificação na plataforma com a tua resposta.</p>
         
@@ -245,6 +275,37 @@ async function toggleFeatured(id, btn) {
             Swal.fire({ icon: 'success', title: 'Atualizado', text: data.message, background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false });
         }
     } catch(err) { console.error(err); }
+}
+
+async function deleteEvaluation(id) {
+    Swal.fire({
+        title: 'Tens a certeza?',
+        text: 'Esta avaliação será eliminada permanentemente e não poderá ser recuperada.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: 'rgba(255,255,255,0.1)',
+        confirmButtonText: 'Sim, eliminar!',
+        cancelButtonText: 'Cancelar',
+        background: '#1e293b',
+        color: '#fff'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('evaluation_id', id);
+            try {
+                const res = await fetch('../../interface_programacao/admin/delete_evaluation.php', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Eliminado!', text: data.message, background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Erro', text: data.message, background: '#1e293b', color: '#fff' });
+                }
+            } catch(err) { console.error(err); }
+        }
+    });
 }
 function openResponseModal(id, name, rating) {
     document.getElementById('respEvalId').value = id;
@@ -396,6 +457,8 @@ if (trendCtx) {
     });
 }
 </script>
-
-<?php require_once '../../inclusoes/rodape.php'; ?>
+        </div>
+    </main>
+</body>
+</html>
 

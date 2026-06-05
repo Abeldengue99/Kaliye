@@ -25,10 +25,7 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redefinir Senha | KALIYE</title>
     <!-- Favicon Oficial KALIYE -->
-    <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../recursos/images/marca/favicon-k-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../recursos/images/marca/apple-touch-icon-k.png">
-    <link rel="manifest" href="../manifest.json">
+                <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#f7941d">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
@@ -42,6 +39,16 @@ $site_name = $site_name_stmt->fetchColumn() ?: 'KALIYE';
             margin: auto;
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="auth-bg" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0.5rem;">
     <div class="login-card glass glow-card login-card-compact" style="position: relative; z-index: 10;">

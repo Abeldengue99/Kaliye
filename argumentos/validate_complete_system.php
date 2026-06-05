@@ -264,6 +264,66 @@ if (@file_exists($main_js_path)) {
 echo "\n";
 
 // ============================================================
+// 9.5. SEGURANÇA ARQUITETURAL (AUTO-REPARAÇÃO)
+// ============================================================
+
+echo "🛡️  TESTES DE ARQUITETURA (FAVICONS)\n";
+echo str_repeat("─", 70) . "\n";
+
+$favicon_component = 'inclusoes/components/favicon.php';
+$favicon_tests_checked = 0;
+$favicon_tests_fixed = 0;
+
+$iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($xampp_root));
+foreach ($iter as $file) {
+    if ($file->isFile()) {
+        $path = $file->getPathname();
+        
+        // Skip node_modules, git, and the central component itself
+        if (strpos($path, 'node_modules') !== false || strpos($path, '.git') !== false) {
+            continue;
+        }
+        
+        $normalized_path = str_replace('\\', '/', $path);
+        if (strpos($normalized_path, $favicon_component) !== false) {
+            continue;
+        }
+
+        $ext = $file->getExtension();
+        if (in_array($ext, ['php', 'html'])) {
+            $favicon_tests_checked++;
+            $content = file_get_contents($path);
+            
+            $hasIcon = preg_match('/<link[^>]*rel=["\'](?:shortcut )?icon["\'][^>]*>/i', $content) || preg_match('/<link[^>]*rel=["\']apple-touch-icon["\'][^>]*>/i', $content);
+            
+            if ($hasIcon) {
+                // Auto-remover a tag hardcoded
+                $newContent = preg_replace('/<link[^>]*rel=["\'](?:shortcut )?icon["\'][^>]*>[\r\n]*/i', '', $content);
+                $newContent = preg_replace('/<link[^>]*rel=["\']apple-touch-icon["\'][^>]*>[\r\n]*/i', '', $newContent);
+                
+                if ($ext === 'php') {
+                    $relative_depth = max(0, substr_count(str_replace('\\', '/', str_replace($xampp_root, '', $path)), '/') - 1);
+                    $prefix = str_repeat('../', $relative_depth);
+                    $replacement = "    <?php \n    if (!function_exists('renderKaliyeFavicons')) {\n        require_once __DIR__ . '/' . (\$base_url ?? '{$prefix}') . 'inclusoes/components/favicon.php';\n    }\n    renderKaliyeFavicons(\$base_url ?? './'); \n    ?>\n";
+                    
+                    if (strpos($newContent, '</head>') !== false && strpos($newContent, 'renderKaliyeFavicons') === false) {
+                        $newContent = preg_replace('/(<\/head>)/i', $replacement . "$1", $newContent);
+                    }
+                }
+                
+                if ($content !== $newContent) {
+                    file_put_contents($path, $newContent);
+                    $favicon_tests_fixed++;
+                }
+            }
+        }
+    }
+}
+
+test('Arquitetura de Favicons Centralizada', $favicon_tests_fixed === 0, "Verificados {$favicon_tests_checked} ficheiros. " . ($favicon_tests_fixed > 0 ? "Corrigidas {$favicon_tests_fixed} duplicações hardcoded (Auto-Repair executado)." : "Zero duplicações encontradas."));
+echo "\n";
+
+// ============================================================
 // 10. RESUMO
 // ============================================================
 

@@ -570,13 +570,15 @@ if (isset($_SESSION['user_id'])) {
                         <i class="fas fa-id-card icone-input"></i>
                         <input type="text" id="numero_documento" name="id_number"
                             class="campo-input"
-                            placeholder="BI ou Passaporte" required
+                            placeholder="Ex: 007823465KN098"
+                            required
                             pattern="^(\d{9}[A-Z]{2}\d{3}|[A-Z]{2}\d{7})$"
                             maxlength="14"
                             data-obrigatorio="true"
-                            title="BI: 9 números, 2 letras, 3 números. Passaporte: 2 letras, 7 números."
+                            title="BI angolano: 9 dígitos + 2 letras + 3 dígitos (14 chars). Passaporte: 2 letras + 7 dígitos."
                             style="text-transform: uppercase;">
                     </div>
+                    <small class="hint" style="color:var(--cor-texto-discreto); font-size:0.75rem;">BI: 9 dígitos + 2 letras + 3 dígitos &nbsp;|&nbsp; Passaporte: 2 letras + 7 dígitos</small>
                     <small class="invalid-feedback"></small>
                 </div>
 
@@ -608,11 +610,12 @@ if (isset($_SESSION['user_id'])) {
                         <i class="fas fa-phone icone-input"></i>
                         <input type="tel" id="telefone" name="phone"
                             class="campo-input"
-                            placeholder="+244 9..."
-                            data-tipo="numeros-apenas"
+                            placeholder="+244 9XXXXXXXX"
                             data-obrigatorio="true"
+                            maxlength="13"
                             required>
                     </div>
+                    <small class="hint" style="color:var(--cor-texto-discreto); font-size:0.75rem;">Formato: +244 seguido de 9 dígitos (ex: +244923456789)</small>
                     <small class="invalid-feedback"></small>
                 </div>
 
@@ -788,15 +791,37 @@ if (isset($_SESSION['user_id'])) {
             }
         };
         
-        // Validação em tempo real para campos numéricos
+        // Validação em tempo real para o telefone — força prefixo +244 e apenas dígitos depois
         const form = document.getElementById('formularioRegisto');
         if (form) {
-            form.querySelectorAll('input[data-tipo="numeros-apenas"], input[type="tel"]').forEach(field => {
-                field.addEventListener('input', function(e) {
-                    // Remove qualquer caractere não-numérico
-                    this.value = this.value.replace(/[^\d\+\-\(\)\s]/g, '');
+            const telField = document.getElementById('telefone');
+            if (telField) {
+                // Garante que o campo começa sempre com +244
+                telField.addEventListener('focus', function() {
+                    if (!this.value.startsWith('+244')) {
+                        this.value = '+244';
+                    }
                 });
-            });
+                telField.addEventListener('input', function() {
+                    // Preserva o prefixo +244
+                    if (!this.value.startsWith('+244')) {
+                        this.value = '+244';
+                    }
+                    // Após o prefixo, só permite dígitos
+                    var prefix = '+244';
+                    var rest = this.value.slice(prefix.length).replace(/\D/g, '');
+                    // Máximo 9 dígitos após o prefixo
+                    if (rest.length > 9) rest = rest.slice(0, 9);
+                    this.value = prefix + rest;
+                });
+                telField.addEventListener('keydown', function(e) {
+                    // Impede apagar o prefixo +244
+                    var prefix = '+244';
+                    if ((e.key === 'Backspace' || e.key === 'Delete') && this.value.length <= prefix.length) {
+                        e.preventDefault();
+                    }
+                });
+            }
             
             // Validação em tempo real para campos alfabéticos
             form.querySelectorAll('input[data-tipo="letras-apenas"]').forEach(field => {
@@ -837,10 +862,10 @@ if (isset($_SESSION['user_id'])) {
                             return;
                         }
                         
-                        // Validar telefone
-                        if (phone && phone.value.length < 9) {
+                        // Validar telefone — deve ter +244 + 9 dígitos = 13 chars total
+                        if (phone && (phone.value.length < 13 || !phone.value.startsWith('+244'))) {
                             e.preventDefault();
-                            window.mostrarErroModal('Telefone Inválido', 'Por favor, insira um telefone válido com mínimo 9 números.');
+                            window.mostrarErroModal('Telefone Inválido', 'O telefone deve começar com +244 seguido de 9 dígitos (ex: +244923456789).');
                             return;
                         }
                         

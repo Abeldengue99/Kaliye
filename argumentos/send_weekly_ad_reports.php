@@ -168,9 +168,18 @@ function generateEmailBody($ad, $views, $clicks, $ctr, $unique, $start, $end) {
     <html>
     <head>
         <meta charset='UTF-8'>
-        <link rel='icon' type='image/png' sizes='32x32' href='../recursos/images/marca/favicon-k-32x32.png'>
-        <title>Relatório Semanal</title>
-    </head>
+                <title>Relatório Semanal</title>
+        <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
     <body style='font-family: Arial, sans-serif; background-color: $bg_color; margin: 0; padding: 20px; color: $text_color;'>
         <div style='max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
             <!-- Cabeçalho -->

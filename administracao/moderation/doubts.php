@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/doubts.php - Gestão de Dúvidas
 $admin_base = '../';
 $base_url = '../../';
@@ -18,7 +18,7 @@ $current_user_type = $_SESSION['user_type'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moderação de Dúvidas - KALIYE Admin</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
+
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,6 +27,16 @@ $current_user_type = $_SESSION['user_type'];
         .doubt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.5rem; }
         @media (max-width: 768px) { .doubt-grid { grid-template-columns: 1fr; } }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="<?= isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] == 'true' ? 'sidebar-collapsed' : '' ?>">
 
@@ -132,6 +142,13 @@ $current_user_type = $_SESSION['user_type'];
     <script>
     let allDoubts = [];
 
+    function getProfilePic(pic) {
+        if (!pic) return '../../recursos/images/default_profile.png';
+        if (pic.startsWith('http')) return pic;
+        if (pic.startsWith('carregamentos/')) return '../../' + pic;
+        return '../../carregamentos/profiles/' + pic;
+    }
+
     async function loadDoubts() {
         const container = document.getElementById('doubts-container');
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color: #f7941d;"></i></div>`;
@@ -159,7 +176,7 @@ $current_user_type = $_SESSION['user_type'];
             <div class="admin-card-premium" onclick="openDoubtDetail(${doubt.doubt_id})" style="cursor: pointer; transition: 0.3s; position: relative; display: flex; flex-direction: column;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                     <div style="display: flex; gap: 0.75rem; align-items: center;">
-                        <img src="${doubt.profile_pic || '../../recursos/images/default_profile.png'}" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">
+                        <img src="${getProfilePic(doubt.profile_pic)}" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">
                         <div>
                             <div style="font-weight: 800; font-size: 0.85rem; color: #fff;">${doubt.full_name}</div>
                             <div style="font-size: 0.65rem; color: rgba(148, 163, 184, 0.6); text-transform: uppercase; font-weight: 700;">${new Date(doubt.created_at).toLocaleDateString()}</div>
@@ -237,7 +254,7 @@ $current_user_type = $_SESSION['user_type'];
 
                     <!-- User Box -->
                     <div style="display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.02); padding: 1rem 1.5rem; border-radius: 18px; border: 1px solid rgba(255,255,255,0.05); width: fit-content;">
-                        <img src="${doubt.profile_pic || '../../recursos/images/default_profile.png'}" style="width: 48px; height: 48px; border-radius: 12px; border: 2px solid rgba(247, 148, 29, 0.5); object-fit: cover;">
+                        <img src="${getProfilePic(doubt.profile_pic)}" style="width: 48px; height: 48px; border-radius: 12px; border: 2px solid rgba(247, 148, 29, 0.5); object-fit: cover;">
                         <div>
                             <div style="font-weight: 800; color: #fff; font-size: 0.95rem;">${doubt.full_name}</div>
                             <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 600;">

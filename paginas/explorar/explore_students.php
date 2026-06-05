@@ -29,20 +29,27 @@ if ($current_page < 1) $current_page = 1;
 $offset = ($current_page - 1) * $items_per_page;
 
 // Contagem total
+$univ_count = 0;
+$high_count = 0;
+
 if (!empty($target_types) || $user_type === 'admin') {
-    if ($user_type === 'admin') {
-        $placeholders = implode(',', array_fill(0, count($student_types), '?'));
-        $count_query = "SELECT COUNT(*) FROM users WHERE user_type IN ($placeholders) AND user_id != ? AND full_name NOT LIKE '%Teste%'";
-        $stmt_count = $db->prepare($count_query);
-        $stmt_count->execute(array_merge($student_types, [$user_id]));
-    } else {
-        $placeholders = implode(',', array_fill(0, count($target_types), '?'));
-        $count_query = "SELECT COUNT(*) FROM users WHERE user_type IN ($placeholders) AND user_id != ? AND user_type != 'investor' AND full_name NOT LIKE '%Teste%'";
-        $stmt_count = $db->prepare($count_query);
-        $stmt_count->execute(array_merge($target_types, [$user_id]));
-    }
+    $types_to_check = ($user_type === 'admin') ? $student_types : $target_types;
+    $placeholders = implode(',', array_fill(0, count($types_to_check), '?'));
+    
+    $count_query = "SELECT COUNT(*) FROM users WHERE user_type IN ($placeholders) AND user_id != ? AND user_type != 'investor' AND full_name NOT LIKE '%Teste%'";
+    $stmt_count = $db->prepare($count_query);
+    $stmt_count->execute(array_merge($types_to_check, [$user_id]));
     $total_items = $stmt_count->fetchColumn();
     $total_pages = ceil($total_items / $items_per_page);
+    
+    $stmt_univ = $db->prepare("SELECT COUNT(*) FROM users WHERE user_type IN ($placeholders) AND user_type = 'univ_student' AND user_id != ? AND full_name NOT LIKE '%Teste%'");
+    $stmt_univ->execute(array_merge($types_to_check, [$user_id]));
+    $univ_count = $stmt_univ->fetchColumn();
+    
+    $stmt_high = $db->prepare("SELECT COUNT(*) FROM users WHERE user_type IN ($placeholders) AND user_type IN ('high_student', 'sec_student', 'student') AND user_id != ? AND full_name NOT LIKE '%Teste%'");
+    $stmt_high->execute(array_merge($types_to_check, [$user_id]));
+    $high_count = $stmt_high->fetchColumn();
+    
 } else {
     $total_items = 0;
     $total_pages = 0;
@@ -88,11 +95,11 @@ if (!empty($target_types) || $user_type === 'admin') {
 .elite-hero-content h1 { font-family: 'Outfit', sans-serif; font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 900; color: #fff; margin-bottom: 0.55rem; letter-spacing: 0; }
 .elite-hero-content p { font-size: 0.98rem; color: var(--surface-60); max-width: 620px; margin: 0 auto 1.35rem; line-height: 1.5; }
 
-.hero-search-bar.talents-search { position: relative; max-width: 500px; margin: 0 auto; }
+.hero-search-bar.talents-search { position: relative; max-width: 560px; margin: 0 auto; }
 .hero-search-bar.talents-search input {
     width: 100%;
-    padding: 1.1rem 1.5rem 1.1rem 3.5rem;
-    border-radius: 16px;
+    padding: 0.95rem 1.25rem 0.95rem 3.25rem;
+    border-radius: 14px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(59, 130, 246, 0.2);
     color: #fff;
@@ -101,6 +108,50 @@ if (!empty($target_types) || $user_type === 'admin') {
     outline: none;
 }
 .hero-search-bar.talents-search i { position: absolute; left: 1.3rem; top: 50%; transform: translateY(-50%); color: rgba(59, 130, 246, 0.5); font-size: 1.2rem; }
+
+.mentor-quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1rem auto 0;
+    flex-wrap: wrap;
+}
+
+.mentor-stat-chip {
+    min-width: 132px;
+    padding: 0.65rem 0.9rem;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.72);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.mentor-stat-chip strong { color: #fff; font-size: 0.95rem; }
+.mentor-stat-chip i { color: #3b82f6; }
+
+.filter-chip {
+    padding: 8px 20px; border-radius: 30px; background: rgba(255,255,255,0.03); 
+    border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+    font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+.filter-chip span { color: inherit; opacity: 0.78; margin-left: 0.35rem; }
+.filter-chip:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.15); }
+.filter-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); }
+
+@media (max-width: 768px) {
+    .mentor-stat-chip { min-width: calc(50% - 0.5rem); }
+}
+
+@media (max-width: 480px) {
+    .mentor-stat-chip { min-width: 100%; }
+    .filter-chip { width: 100%; }
+}
 
 /* GRID E CARDS (COMPACTOS) */
 .elite-mentor-grid {
@@ -231,7 +282,20 @@ if (!empty($target_types) || $user_type === 'admin') {
             <p>Descobre projectos, perfis e mentes brilhantes. Torna-te no guia destes estudantes promissores e cria impacto.</p>
             <div class="hero-search-bar talents-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Pesquisar por nome, curso ou instituição..." onkeyup="filterMentors(this.value)">
+                <input type="text" id="studentSearchInput" placeholder="Pesquisar por nome, curso ou instituição..." onkeyup="filterMentors()">
+            </div>
+            
+            <div class="mentor-quick-stats">
+                <div class="mentor-stat-chip"><i class="fas fa-users"></i><strong><?php echo (int)$total_items; ?></strong> totais</div>
+                <div class="mentor-stat-chip"><i class="fas fa-university"></i><strong><?php echo (int)$univ_count; ?></strong> universitários</div>
+                <div class="mentor-stat-chip"><i class="fas fa-school"></i><strong><?php echo (int)$high_count; ?></strong> ensino médio</div>
+            </div>
+
+            <!-- Filtros Rápidos -->
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 1rem; flex-wrap: wrap;">
+                <button class="filter-chip active" onclick="setStudentFilter('all', this)">Todos <span><?php echo (int)$total_items; ?></span></button>
+                <button class="filter-chip" onclick="setStudentFilter('univ', this)">Universitários <span><?php echo (int)$univ_count; ?></span></button>
+                <button class="filter-chip" onclick="setStudentFilter('high', this)">Ensino Médio <span><?php echo (int)$high_count; ?></span></button>
             </div>
         </div>
     </div>
@@ -265,16 +329,18 @@ if (!empty($target_types) || $user_type === 'admin') {
                 // Tipo de Estudante p/ badge
                 $_t = $student['user_type'] ?? '';
                 $badge_txt = 'Talento';
-                if($_t == 'univ_student') $badge_txt = 'Universitário';
-                elseif($_t == 'high_student') $badge_txt = 'Ensino Médio';
-                elseif($_t == 'sec_student') $badge_txt = 'Secundário';
+                $card_type = 'high'; // default to high school
+                if($_t == 'univ_student') { $badge_txt = 'Universitário'; $card_type = 'univ'; }
+                elseif($_t == 'high_student') { $badge_txt = 'Ensino Médio'; $card_type = 'high'; }
+                elseif($_t == 'sec_student') { $badge_txt = 'Secundário'; $card_type = 'high'; }
+                elseif($_t == 'student') { $badge_txt = 'Estudante'; $card_type = 'high'; }
 
                 $skills = [];
                 if(!empty($student['field_of_study'])) $skills[] = $student['field_of_study'];
                 if(!empty($student['institution'])) $skills[] = $student['institution'];
                 if(empty($skills)) $skills = ['Em Evolução'];
         ?>
-            <div class="elite-mentor-card mentor-search-item" data-search="<?php echo strtolower($student['full_name'] . ' ' . implode(' ', $skills)); ?>">
+            <div class="elite-mentor-card mentor-search-item" data-type="<?php echo $card_type; ?>" data-search="<?php echo strtolower($student['full_name'] . ' ' . implode(' ', $skills)); ?>">
                 <div class="card-cover-image">
                     <div class="cover-gradient"></div>
                     <div class="student-avatar-shell">
@@ -317,12 +383,27 @@ if (!empty($target_types) || $user_type === 'admin') {
 </div>
 
 <script>
-function filterMentors(query) {
-    query = query.toLowerCase().trim();
+let currentTypeFilter = 'all';
+
+function setStudentFilter(type, el) {
+    currentTypeFilter = type;
+    document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+    filterMentors();
+}
+
+function filterMentors() {
+    const query = document.getElementById('studentSearchInput').value.toLowerCase().trim();
     const items = document.querySelectorAll('.mentor-search-item');
+    
     items.forEach(item => {
-        const data = item.getAttribute('data-search');
-        item.style.display = data.includes(query) ? 'flex' : 'none';
+        const dataSearch = item.getAttribute('data-search');
+        const dataType = item.getAttribute('data-type');
+        
+        const matchSearch = dataSearch.includes(query);
+        const matchType = (currentTypeFilter === 'all') || (dataType === currentTypeFilter);
+        
+        item.style.display = (matchSearch && matchType) ? 'flex' : 'none';
     });
 }
 </script>

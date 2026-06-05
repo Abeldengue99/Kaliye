@@ -76,7 +76,7 @@ if ($email) {
     $parts = explode('@', $email);
     if (count($parts) === 2) {
         $name = $parts[0];
-        $masked_name = substr($name, 0, 2) . str_repeat('', max(0, strlen($name) - 4)) . substr($name, -2);
+        $masked_name = substr($name, 0, 2) . str_repeat('*', max(0, strlen($name) - 4)) . substr($name, -2);
         $masked_email = $masked_name . '@' . $parts[1];
     }
 }
@@ -90,9 +90,7 @@ if ($email) {
     <meta name="description" content="Insira o código de verificação enviado para o seu e-mail para ativar a sua conta KALIYE.">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../recursos/images/marca/apple-touch-icon-k.png">
-    <link rel="manifest" href="../manifest.json">
+            <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#f7941d">
 
     <!-- Fontes -->
@@ -163,233 +161,6 @@ if ($email) {
             background: rgba(59, 130, 246, 0.06);
             bottom: -10%; right: -5%;
             animation-delay: -4s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-20px) scale(1.05); }
-        }
-
-        /* ===== CARTÃO PRINCIPAL ===== */
-        .verify-card {
-            position: relative; z-index: 1;
-            width: 100%; max-width: 400px;
-            padding: 2.5rem;
-            background: var(--cor-fundo-cartao);
-            border: 1px solid var(--cor-bordas-vidro);
-            border-radius: 28px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-            margin: 1rem;
-        }
-
-        /* ===== LOGO ===== */
-        .logo-auth {
-            display: flex; align-items: center; gap: 0.8rem;
-            margin-bottom: 2rem; text-decoration: none;
-            transition: 0.3s;
-        }
-        .logo-auth:hover { transform: scale(1.02); }
-        .logo-icon {
-            width: 145px; height: auto; border-radius: 10px;
-            background: transparent;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; flex-shrink: 0;
-        }
-        .logo-icon img { width: 100%; height: auto; display: block; border-radius: 10px; }
-        .logo-text { display: flex; flex-direction: column; line-height: 1; }
-        .logo-text span:first-child {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800; font-size: 1.2rem; color: white;
-        }
-        .logo-text span:last-child {
-            font-size: 0.7rem; color: var(--cor-texto-discreto);
-            font-weight: 500; margin-top: 2px;
-        }
-
-        /* ===== ÍCONE DE VERIFICAÇÃO ===== */
-        .verify-icon-wrap {
-            width: 90px; height: 90px;
-            background: linear-gradient(135deg, rgba(247,148,29,0.1), rgba(251,191,36,0.05));
-            border: 2px solid rgba(247,148,29,0.2);
-            border-radius: 28px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 1.8rem;
-            animation: pulse-glow 3s ease-in-out infinite;
-        }
-        .verify-icon-wrap i {
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, var(--cor-destaque-laranja), var(--cor-destaque-dourado));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(247,148,29,0.1); }
-            50% { box-shadow: 0 0 25px 5px rgba(247,148,29,0.08); }
-        }
-
-        /* ===== TEXTOS ===== */
-        .verify-title {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800; font-size: 1.8rem;
-            text-align: center; margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-        .verify-subtitle {
-            text-align: center; font-size: 0.9rem;
-            color: var(--cor-texto-paragrafo);
-            line-height: 1.6; margin-bottom: 2.5rem;
-        }
-        .verify-subtitle strong {
-            color: var(--cor-destaque-laranja);
-            font-weight: 700;
-        }
-
-        /* ===== CAMPOS OTP ===== */
-        .otp-container {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-        .otp-input {
-            width: 54px; height: 64px;
-            text-align: center;
-            font-size: 1.6rem;
-            font-weight: 800;
-            font-family: 'Outfit', sans-serif;
-            background: var(--cor-input-fundo);
-            border: 2px solid var(--cor-input-borda);
-            border-radius: 16px;
-            color: white;
-            outline: none;
-            transition: all 0.3s ease;
-            caret-color: var(--cor-destaque-laranja);
-        }
-        .otp-input:focus {
-            border-color: var(--cor-destaque-laranja);
-            background: rgba(247,148,29,0.05);
-            box-shadow: 0 0 20px rgba(247,148,29,0.1);
-            transform: translateY(-2px);
-        }
-        .otp-input.filled {
-            border-color: rgba(247,148,29,0.4);
-            background: rgba(247,148,29,0.05);
-        }
-        .otp-input.error-state {
-            border-color: var(--cor-erro);
-            background: rgba(239,68,68,0.05);
-            animation: shake 0.5s ease;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-5px); }
-            40% { transform: translateX(5px); }
-            60% { transform: translateX(-3px); }
-            80% { transform: translateX(3px); }
-        }
-
-        /* ===== BOTÃO PRINCIPAL ===== */
-        .btn-verify {
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(135deg, var(--cor-destaque-laranja), var(--cor-destaque-dourado));
-            border: none;
-            border-radius: 18px;
-            color: black;
-            font-weight: 900;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(247,148,29,0.2);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .btn-verify:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(247,148,29,0.3);
-        }
-        .btn-verify:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ===== REENVIAR CÓDIGO ===== */
-        .resend-section {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--cor-bordas-vidro);
-        }
-        .resend-text {
-            font-size: 0.85rem;
-            color: var(--cor-texto-discreto);
-            margin-bottom: 0.8rem;
-        }
-        .btn-resend {
-            background: none;
-            border: 1px solid var(--cor-bordas-vidro);
-            color: var(--cor-destaque-laranja);
-            padding: 0.7rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-resend:hover {
-            background: rgba(247,148,29,0.08);
-            border-color: rgba(247,148,29,0.3);
-        }
-        .btn-resend:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* ===== MENSAGENS DE ERRO / SUCESSO ===== */
-        .msg-box {
-            padding: 1rem;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .msg-error {
-            background: rgba(239,68,68,0.08);
-            border: 1px solid rgba(239,68,68,0.2);
-            color: #fca5a5;
-        }
-        .msg-success {
-            background: rgba(16,185,129,0.08);
-            border: 1px solid rgba(16,185,129,0.2);
-            color: #6ee7b7;
-        }
-
-        /* ===== TEMPORIZADOR ===== */
-        .timer-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 0.5rem 1rem;
-            background: rgba(59,130,246,0.08);
-            border: 1px solid rgba(59,130,246,0.15);
-            border-radius: 10px;
-            color: #60a5fa;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-top: 0.8rem;
-        }
-
-        /* ===== INFORMATIVO DE SEGURANÇA ===== */
-        .security-note {
-            display: flex; gap: 10px; align-items: flex-start;
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(59,130,246,0.04);
-            border: 1px solid rgba(59,130,246,0.1);
-            border-radius: 14px;
-        }
-        .security-note i { color: var(--cor-destaque-azul); margin-top: 2px; }
         .security-note p {
             font-size: 0.75rem;
             color: var(--cor-texto-discreto);
@@ -416,6 +187,16 @@ if ($email) {
             .verify-title { font-size: 1.4rem; }
         }
     </style>
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body>
 

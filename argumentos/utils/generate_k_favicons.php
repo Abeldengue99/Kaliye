@@ -73,17 +73,17 @@ function png_to_ico(string $png_path, string $ico_path): void
 }
 
 $sizes = [
-    16 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-k-16x16.png',
-    32 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-k-32x32.png',
-    180 => $brand_dir . DIRECTORY_SEPARATOR . 'apple-touch-icon-k.png',
-    192 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-k-192x192.png',
-    512 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-k-512x512.png',
+    16 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-16x16.ico',
+    32 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-16x16.ico',
+    180 => $brand_dir . DIRECTORY_SEPARATOR . 'apple-touch-icon.png',
+    192 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-16x16.ico',
+    512 => $brand_dir . DIRECTORY_SEPARATOR . 'favicon-16x16.ico',
 ];
 
 foreach ($sizes as $size => $path) {
     make_k_icon($size, $path);
 }
 
-png_to_ico($brand_dir . DIRECTORY_SEPARATOR . 'favicon-k-32x32.png', $root . DIRECTORY_SEPARATOR . 'favicon-k.ico');
+png_to_ico($brand_dir . DIRECTORY_SEPARATOR . 'favicon-16x16.ico', $root . DIRECTORY_SEPARATOR . 'recursos/images/marca/favicon-16x16.ico');
 
 echo "K favicons generated.\n";

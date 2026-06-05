@@ -10,8 +10,7 @@ function getNewsletterWelcomeTemplate($userName) {
     <html lang="pt">
     <head>
         <meta charset="UTF-8">
-        <link rel="icon" type="image/png" sizes="32x32" href="../recursos/images/marca/favicon-k-32x32.png">
-        <style>
+                <style>
             body { font-family: "Inter", sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
             .header { background: #0f172a; padding: 40px; text-align: center; }
@@ -21,7 +20,17 @@ function getNewsletterWelcomeTemplate($userName) {
             h1 { color: #ffffff; font-family: "Outfit", sans-serif; margin: 0; font-size: 24px; }
             .logo-text { color: #f7941d; font-weight: 900; }
         </style>
-    </head>
+        <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
+</head>
     <body>
         <div class="container">
             <div class="header">

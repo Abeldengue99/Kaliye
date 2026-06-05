@@ -58,6 +58,18 @@ $mentor_groups_stmt = $db->prepare("
 $mentor_groups_stmt->execute([':uid' => $current_user_id]);
 $mentor_groups = $mentor_groups_stmt->fetchAll();
 
+// Fetch Networking VIP Rooms
+$vip_rooms_stmt = $db->prepare("
+    SELECT c.id, c.title, c.description, c.status,
+           (SELECT COUNT(*) FROM vip_chat_participants WHERE chat_id = c.id) as member_count
+    FROM vip_chats c
+    INNER JOIN vip_chat_participants p ON p.chat_id = c.id
+    WHERE p.user_id = :uid
+    ORDER BY c.created_at DESC
+");
+$vip_rooms_stmt->execute([':uid' => $current_user_id]);
+$vip_rooms = $vip_rooms_stmt->fetchAll();
+
 // Fetch Individual Conversations
 $conv_stmt = $db->prepare("SELECT DISTINCT CASE WHEN sender_id = :uid THEN receiver_id ELSE sender_id END as contact_id, MAX(sent_at) as last_msg
                            FROM messages WHERE sender_id = :uid OR receiver_id = :uid

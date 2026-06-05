@@ -86,19 +86,21 @@ try {
     // Verificar Admin ignorando maiúsculas/minúsculas
     $is_admin = in_array(strtolower($viewer_type), ['admin', 'superadmin', 'administrador']);
 
+    // Global is_verified check
+    $is_verified = in_array($_SESSION['verification_status'] ?? '', ['verified', 'approved']) || (isset($_SESSION['is_verified']) && $_SESSION['is_verified']);
+
     if ($is_owner || $is_admin || $is_mentor) {
         // O Admin tem acesso total a TUDO sem restrições
         $access_level = 'full';
     } elseif ($is_student) {
         if ($project_by_investor) {
-            $access_level = 'full';
-            $can_apply    = true;
+            $access_level = $is_verified ? 'full' : 'summary';
+            $can_apply    = $is_verified;
         } else {
-            $access_level = 'summary';
+            $access_level = $is_verified ? 'preview' : 'summary';
         }
     } elseif ($is_investor) {
-        $is_verified = in_array($_SESSION['verification_status'] ?? '', ['verified', 'approved']);
-        if ($is_verified || (isset($_SESSION['is_verified']) && $_SESSION['is_verified'])) {
+        if ($is_verified) {
             $access_level = 'full';
             $investor_level = 1; // Default to allow
         } else {

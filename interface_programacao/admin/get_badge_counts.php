@@ -20,13 +20,14 @@ $db = $database->getConnection();
 (new RetentionMaintenance($db))->ensureSchema();
 
 $counts = [
-    'kyc' => 0,
-    'mentors' => 0,
-    'investments' => 0,
-    'support' => 0,
-    'moderation' => 0,
-    'progress' => 0,
-    'chat_reports' => 0
+    'kyc'          => 0,
+    'mentors'      => 0,
+    'investments'  => 0,
+    'support'      => 0,
+    'moderation'   => 0,
+    'progress'     => 0,
+    'chat_reports' => 0,
+    'unlock'       => 0
 ];
 
 try {
@@ -54,6 +55,10 @@ try {
     
     try {
         $counts['chat_reports'] = $db->query("SELECT COUNT(*) FROM chat_reports WHERE status = 'pending'")->fetchColumn();
+    } catch (Exception $e) {}
+
+    try {
+        $counts['unlock'] = $db->query("SELECT COUNT(*) FROM unlock_requests WHERE status = 'pending'")->fetchColumn();
     } catch (Exception $e) {}
 
     echo json_encode(['success' => true, 'counts' => $counts]);

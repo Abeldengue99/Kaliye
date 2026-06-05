@@ -45,7 +45,7 @@ try {
     $check->execute([$email]);
     
     if ($check->rowCount() > 0) {
-        respondJSON(true, 'Já está subscrito na nossa newsletter!');
+        respondJSON(false, 'Já está subscrito na nossa newsletter!');
     }
 
     // Inserir novo subscritor
@@ -55,7 +55,7 @@ try {
         // --- ENVIO AUTOMÁTICO DE E-MAIL ---
         try {
             $mailer = new SimpleMailer();
-            $subject = "Bem-vindo à Newsletter Aksanti!";
+            $subject = "Bem-vindo à Newsletter KALIYE!";
             $body = getNewsletterWelcomeTemplate($name ?: 'Amigo');
             
             // Tentativa de envio silencioso (não bloqueia a resposta se falhar)

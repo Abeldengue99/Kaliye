@@ -41,7 +41,7 @@ try {
     $query = "SELECT p.*, 
               (SELECT COUNT(*) FROM project_likes WHERE project_id = p.project_id) as like_count,
               (SELECT COUNT(*) FROM project_comments WHERE project_id = p.project_id) as comment_count,
-              (SELECT COUNT(*) FROM project_views WHERE project_id = p.project_id) as view_count,
+              (SELECT COUNT(*) FROM project_views_log WHERE project_id = p.project_id) as view_count,
               (SELECT COUNT(*) FROM project_investments WHERE project_id = p.project_id AND status = 'approved') as investment_count
               FROM projects p 
               WHERE p.owner_id = ? 
@@ -130,13 +130,13 @@ include '../../inclusoes/cabecalho.php';
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--elite-card-border);">
                             <div style="display: flex; gap: 1rem;">
                                 <div title="Visualizações" class="stat-item">
-                                    <i class="fas fa-eye" style="font-size: 0.7rem;"></i> <?php echo $proj['view_count']; ?>
+                                    <i class="fas fa-eye" style="font-size: 0.7rem;"></i> <span id="rt-p-views-<?php echo $proj['project_id']; ?>"><?php echo $proj['view_count']; ?></span>
                                 </div>
                                 <div title="Interessados" class="stat-item">
-                                    <i class="fas fa-heart" style="font-size: 0.7rem;"></i> <?php echo $proj['like_count']; ?>
+                                    <i class="fas fa-heart" style="font-size: 0.7rem;"></i> <span id="rt-p-likes-<?php echo $proj['project_id']; ?>"><?php echo $proj['like_count']; ?></span>
                                 </div>
                                 <div title="Feedback" class="stat-item">
-                                    <i class="fas fa-comment" style="font-size: 0.7rem;"></i> <?php echo $proj['comment_count']; ?>
+                                    <i class="fas fa-comment" style="font-size: 0.7rem;"></i> <span id="rt-p-comments-<?php echo $proj['project_id']; ?>"><?php echo $proj['comment_count']; ?></span>
                                 </div>
                             </div>
 
@@ -186,3 +186,29 @@ include '../../inclusoes/cabecalho.php';
 // Rodapé global: Carrega os scripts de edição/eliminação que são partilhados entre páginas.
 include '../../inclusoes/rodape.php'; 
 ?>
+
+<script>
+    // Real-time Analytics Polling para Meus Projectos
+    function fetchRealtimeStatsMyProjects() {
+        fetch('../../interface_programacao/projects/get_realtime_analytics.php')
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success' && data.projects) {
+                    data.projects.forEach(p => {
+                        let viewEl = document.getElementById('rt-p-views-' + p.project_id);
+                        if(viewEl) viewEl.innerText = p.views;
+                        
+                        let likesEl = document.getElementById('rt-p-likes-' + p.project_id);
+                        if(likesEl) likesEl.innerText = p.likes;
+                        
+                        let commentsEl = document.getElementById('rt-p-comments-' + p.project_id);
+                        if(commentsEl) commentsEl.innerText = p.comments;
+                    });
+                }
+            })
+            .catch(err => console.error('Erro RT Views:', err));
+    }
+    
+    // Polling a cada 5 segundos
+    setInterval(fetchRealtimeStatsMyProjects, 5000);
+</script>

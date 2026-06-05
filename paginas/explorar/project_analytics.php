@@ -20,7 +20,7 @@ $stmt = $db->prepare("
         COUNT(p.project_id) as total_projects,
         COALESCE(SUM((SELECT COUNT(*) FROM project_likes WHERE project_id = p.project_id)), 0) as total_likes,
         COALESCE(SUM((SELECT COUNT(*) FROM project_comments WHERE project_id = p.project_id)), 0) as total_comments,
-        COALESCE(SUM((SELECT COUNT(*) FROM public.project_views WHERE project_id = p.project_id)), 0) as total_views
+        COALESCE(SUM((SELECT COUNT(*) FROM project_views_log WHERE project_id = p.project_id)), 0) as total_views
     FROM projects p
     WHERE p.owner_id = ?
 ");
@@ -30,10 +30,10 @@ $global_stats = $stmt->fetch(PDO::FETCH_ASSOC);
 // 2. Performance por Projecto (Top 5)
 $top_stmt = $db->prepare("
     SELECT * FROM (
-        SELECT p.title, 
+        SELECT p.project_id, p.title, 
                (SELECT COUNT(*) FROM project_likes WHERE project_id = p.project_id) as likes,
                (SELECT COUNT(*) FROM project_comments WHERE project_id = p.project_id) as comments,
-               (SELECT COUNT(*) FROM public.project_views WHERE project_id = p.project_id) as views
+               (SELECT COUNT(*) FROM project_views_log WHERE project_id = p.project_id) as views
         FROM projects p
         WHERE p.owner_id = ?
     ) as project_rank
@@ -79,22 +79,22 @@ $recent_comments = $comm_stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="elite-stats-grid" style="margin-bottom: 4rem;" data-aos="fade-up">
         <div class="elite-stat-card">
             <div class="elite-stat-label">ALCANCE TOTAL (VIEWS)</div>
-            <div class="elite-stat-val"><?php echo number_format($global_stats['total_views']); ?></div>
+            <div class="elite-stat-val" id="rt-total-views"><?php echo number_format($global_stats['total_views']); ?></div>
             <div class="elite-stat-change">+12% esta semana</div>
         </div>
         <div class="elite-stat-card">
             <div class="elite-stat-label">INTERAÇÕES (LIKES)</div>
-            <div class="elite-stat-val"><?php echo number_format($global_stats['total_likes']); ?></div>
+            <div class="elite-stat-val" id="rt-total-likes"><?php echo number_format($global_stats['total_likes']); ?></div>
             <div class="elite-stat-change">+05% esta semana</div>
         </div>
         <div class="elite-stat-card">
             <div class="elite-stat-label">FEEDBACK (COMENTÁRIOS)</div>
-            <div class="elite-stat-val"><?php echo number_format($global_stats['total_comments']); ?></div>
+            <div class="elite-stat-val" id="rt-total-comments"><?php echo number_format($global_stats['total_comments']); ?></div>
             <div class="elite-stat-change" style="color: var(--elite-orange);">Novo Feedback</div>
         </div>
         <div class="elite-stat-card">
             <div class="elite-stat-label">CONVERSÃO ESTIMADA</div>
-            <div class="elite-stat-val"><?php echo ($global_stats['total_views'] > 0) ? round(($global_stats['total_likes'] / $global_stats['total_views']) * 100, 1) : 0; ?>%</div>
+            <div class="elite-stat-val" id="rt-conversion"><?php echo ($global_stats['total_views'] > 0) ? round(($global_stats['total_likes'] / $global_stats['total_views']) * 100, 1) : 0; ?>%</div>
             <div class="elite-stat-change">Engagement Rate</div>
         </div>
     </div>
@@ -114,14 +114,14 @@ $recent_comments = $comm_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="elite-progress-row">
                                 <div class="elite-progress-label">
                                     <span><?php echo htmlspecialchars($p['title']); ?></span>
-                                    <span><?php echo $p['views']; ?> views</span>
+                                    <span id="rt-p-views-<?php echo $p['project_id']; ?>"><?php echo $p['views']; ?> views</span>
                                 </div>
                                 <div class="elite-progress-bar">
                                     <div class="elite-progress-fill" style="width: <?php echo $pct; ?>%; background: linear-gradient(90deg, var(--elite-orange), #fcd34d);"></div>
                                 </div>
                                 <div style="display: flex; gap: 1rem; margin-top: 8px; font-size: 0.7rem; color: var(--elite-text-muted); font-weight: 700;">
-                                    <span><i class="fas fa-heart"></i> <?php echo $p['likes']; ?> Likes</span>
-                                    <span><i class="fas fa-comment"></i> <?php echo $p['comments']; ?> Comentários</span>
+                                    <span><i class="fas fa-heart"></i> <span id="rt-p-likes-<?php echo $p['project_id']; ?>"><?php echo $p['likes']; ?></span> Likes</span>
+                                    <span><i class="fas fa-comment"></i> <span id="rt-p-comments-<?php echo $p['project_id']; ?>"><?php echo $p['comments']; ?></span> Comentários</span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -163,3 +163,51 @@ $recent_comments = $comm_stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <?php require_once '../../inclusoes/rodape.php'; ?>
+
+<script>
+    // Real-time Analytics Polling (KALIYE Analytics Engine)
+    function fetchRealtimeStats() {
+        fetch('../../interface_programacao/projects/get_realtime_analytics.php')
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // Atualiza globais
+                    if (document.getElementById('rt-total-views')) {
+                        document.getElementById('rt-total-views').innerText = new Intl.NumberFormat('pt-PT').format(data.global.total_views);
+                    }
+                    if (document.getElementById('rt-total-likes')) {
+                        document.getElementById('rt-total-likes').innerText = new Intl.NumberFormat('pt-PT').format(data.global.total_likes);
+                    }
+                    if (document.getElementById('rt-total-comments')) {
+                        document.getElementById('rt-total-comments').innerText = new Intl.NumberFormat('pt-PT').format(data.global.total_comments);
+                    }
+                    
+                    let conversion = 0;
+                    if(data.global.total_views > 0) {
+                        conversion = (data.global.total_likes / data.global.total_views) * 100;
+                    }
+                    if (document.getElementById('rt-conversion')) {
+                        document.getElementById('rt-conversion').innerText = conversion.toFixed(1) + '%';
+                    }
+
+                    // Atualiza projectos específicos
+                    if (data.projects) {
+                        data.projects.forEach(p => {
+                            let viewEl = document.getElementById('rt-p-views-' + p.project_id);
+                            if(viewEl) viewEl.innerText = p.views + ' views';
+                            
+                            let likesEl = document.getElementById('rt-p-likes-' + p.project_id);
+                            if(likesEl) likesEl.innerText = p.likes;
+                            
+                            let commentsEl = document.getElementById('rt-p-comments-' + p.project_id);
+                            if(commentsEl) commentsEl.innerText = p.comments;
+                        });
+                    }
+                }
+            })
+            .catch(err => console.error('Erro RT Views:', err));
+    }
+    
+    // Executa a cada 5 segundos para sensação "Em Tempo Real" sem sobrecarregar o servidor
+    setInterval(fetchRealtimeStats, 5000);
+</script>

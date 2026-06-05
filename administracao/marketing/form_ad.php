@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // administracao/form_ad.php - Página dedicada para Criar/Editar Anúncios
 session_start();
 $admin_base = '../';
@@ -40,14 +40,23 @@ $action_url = $ad ? "../../interface_programacao/system/update_ad.php" : "../../
     <title><?php echo $page_title; ?> - KALIYE Admin</title>
     
     <!-- Favicon Oficial KALIYE — completo e local -->
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= $base_url ?>recursos/images/marca/favicon-k-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../../recursos/images/marca/apple-touch-icon-k.png">
-    <link rel="manifest" href="../manifest.json">
+
+        <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#f7941d">
 
     <link rel="stylesheet" href="../../recursos/css/style.css">
     <link rel="stylesheet" href="../../recursos/css/pages/admin_dashboard.css?v=<?= filemtime(__DIR__ . '/../../recursos/css/pages/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <?php 
+    if (!function_exists('renderKaliyeFavicons')) {
+        $root_dir_favicon = __DIR__;
+        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
+            $root_dir_favicon = dirname($root_dir_favicon);
+        }
+        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
+    }
+    renderKaliyeFavicons($base_url ?? './'); 
+    ?>
 </head>
 <body class="<?= isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] == 'true' ? 'sidebar-collapsed' : '' ?>">
 
