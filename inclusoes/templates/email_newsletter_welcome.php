@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * inclusoes/templates/email_newsletter_welcome.php
  * Template HTML premium para e-mail de boas-vindas da newsletter.
@@ -20,17 +20,7 @@ function getNewsletterWelcomeTemplate($userName) {
             h1 { color: #ffffff; font-family: "Outfit", sans-serif; margin: 0; font-size: 24px; }
             .logo-text { color: #f7941d; font-weight: 900; }
         </style>
-        <?php 
-    if (!function_exists('renderKaliyeFavicons')) {
-        $root_dir_favicon = __DIR__;
-        while (!is_dir($root_dir_favicon . '/inclusoes') && dirname($root_dir_favicon) !== $root_dir_favicon) {
-            $root_dir_favicon = dirname($root_dir_favicon);
-        }
-        require_once $root_dir_favicon . '/inclusoes/components/favicon.php';
-    }
-    renderKaliyeFavicons($base_url ?? './'); 
-    ?>
-</head>
+    </head>
     <body>
         <div class="container">
             <div class="header">
