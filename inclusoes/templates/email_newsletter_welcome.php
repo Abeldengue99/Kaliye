@@ -4,7 +4,7 @@
  * Template HTML premium para e-mail de boas-vindas da newsletter.
  */
 
-function getNewsletterWelcomeTemplate($userName) {
+function getNewsletterWelcomeTemplate(string $userName): string {
     return '
     <!DOCTYPE html>
     <html lang="pt">
