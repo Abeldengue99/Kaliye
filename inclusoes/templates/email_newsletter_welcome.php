@@ -31,11 +31,9 @@ function getNewsletterWelcomeTemplate($userName) {
                 <p>É um prazer dar-te as boas-vindas à nossa comunidade oficial de crescimento profissional.</p>
                 <p>A partir de agora, serás o primeiro a receber as nossas atualizações exclusivas, insights sobre o ecossistema de Angola e oportunidades estratégicas.</p>
                 <p>Estamos ansiosos por acompanhar o teu percurso de sucesso.</p>
-                <a href="https://aksanti.ao" class="btn">Explorar Plataforma</a>
             </div>
             <div class="footer">
                 <p>&copy; ' . date('Y') . ' KALIYE. Todos os direitos reservados.</p>
-                <p>Enviado com ❤️ de Luanda para o mundo.</p>
             </div>
         </div>
     </body>
